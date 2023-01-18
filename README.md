@@ -1,2 +1,4 @@
 # Spaceship-Game
-My first sort of good game.
+
+This is still under development and does not work...
+
