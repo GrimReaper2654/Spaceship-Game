@@ -1,6 +1,6 @@
 const RED = 'RED';
 const GREEN = 'GREEN';
-const data = {
+var data = {
     display: {x:window.innerWidth,y:window.innerHeight},
     dim: {
         battleship:{x:497,y:152}, 
@@ -10,7 +10,12 @@ const data = {
     img: {
         redBattleship: document.getElementById("BattleshipRed"),
         redMainCannon: document.getElementById("MainCannonRed"),
-        redSmallCannon: document.getElementById("SmallCannonRed")
+        redSmallCannon: document.getElementById("SmallCannonRed"),
+        greenBattleship: document.getElementById("BattleshipGreen"),
+        greenMainCannon: document.getElementById("MainCannonGreen"),
+        greenSmallCannon: document.getElementById("SmallCannonGreen"),
+        largeBullet: document.getElementById("BulletLarge"),
+        smallBullet: document.getElementById("BulletSmall"),
     },
     center: {
         battleship: {x:240,y:76}, 
@@ -20,8 +25,30 @@ const data = {
     turretMount: {
         main: [{x:272,y:76}, {x:177,y:76}],
         secondary: [{x:329,y:76}, {x:406,y:76}],
+    },
+    construction: {
+        largeBullets: {
+            img: null,
+            //Physics
+            x: 0,
+            y: 0,
+            v: 0,
+            vx: 0,
+            vy: 0,
+            r: 0,
+            a: 0,
+            thrust: 0,
+            terminalAcceleration:100,
+            terminalVelocity:100,
+            drag: 0,
+        },
     }
 };
+
+data.construction.largeBullets.img = data.img.largeBullet;
+
+
+var projectiles = [];
 var keyboard = [0,0,0,0]; // W A S D
 var mousepos = {x:0,y:0};
 var player = {
@@ -36,8 +63,8 @@ var player = {
     thrust: 0.01,
     agi: 0.01,
     terminalAcceleration:0.25,
-    terminalVelocity:1,
-    drag: 0.1,
+    terminalVelocity:4,
+    drag: 0.001,
     // Stats
     hp: 10000,
     shield: 1000,
@@ -49,12 +76,14 @@ var player = {
         turretAim: [0,0,0,0,0], 
         turretReload: [0,0,0,0,0], 
         reloadTimes: [90,45,45,60,60], 
+        reload: [0,0,0,0,0],
         weaponType: ['fixed', 'sTurret', 'sTurret', 'mTurret', 'mTurret'],
         turretagi: [0,0.02,0.02,0.01,0.01],
         firingArc: [0,Math.PI*1.5,Math.PI*1.75,Math.PI*1.5,Math.PI*1.75],
+        recoil: [0,0,0,0,0],
     },
-    bulletType: [],
     aimMode: 'Converge',
+    hasfired: 0,
 }
 
 function replacehtml(text) {
@@ -101,7 +130,7 @@ function clearCanvas() {
 function handleKeyboard() {
     //console.log('aaa');
     if (keyboard[0]) { // Move Forward
-        player.a += player.thrust;
+        player.a += player.thrust*2; // IMPORTANT: add 2 times thrust to player
     }
     if (keyboard[2]) {
         player.a -= player.thrust*2;
@@ -111,20 +140,33 @@ function handleKeyboard() {
     }
     if (keyboard[1]) { 
         player.r -= player.agi;
+        /*
         for (var i=0; i< player.weapons.turretAim.length; i+=1) {
             player.weapons.turretAim[i] -=  player.agi;
-        }
+        }*/
     }
     if (keyboard[3]) { 
         player.r += player.agi;
+        /*
         for (var i=0; i< player.weapons.turretAim.length; i+=1) {
             player.weapons.turretAim[i] +=  player.agi;
-        }
+        }*/
+    }
+    if (player.r >= 2*Math.PI) {
+        player.r -= Math.PI*2;
+    } else if (player.r <= -2*Math.PI) {
+        player.r += Math.PI*2;
     }
     keyboard = [0,0,0,0];
 }
 
 function handlemovement(obj) {
+    if (obj.a > 0) {
+        obj.a -= obj.thrust;
+        if (obj.a < 0) {
+            obj.a = 0;
+        }
+    }
     if (obj.a === 0 && obj.v != 0) {
         if (obj.v > 0) {
             obj.v -= obj.drag;
@@ -176,7 +218,18 @@ function target(sPos, tPos) { // WARNING: Horifically inefficient coding (there 
     return rotation; // rotation is absolute
 }
 
-function turretRot(currentRot, rotSpeed, rotLimit, facing, shipRot, aimPos, aimType, shipPos, cannonPos, currentAim){ // Somehow even more inefficent than the previous function... Only god knows how this works...
+function correctAngle(a) {
+    a = a%(Math.PI*2);
+    if (a > Math.PI) {
+        a = -(2*Math.PI-a);
+    } else if (aim < -Math.PI) {
+        a = (2*Math.PI+a);
+    }
+    return a;
+}
+
+function turretRot(currentRot, rotSpeed, rotLimit, facing, shipRot, aimPos, aimType, shipPos, cannonPos, currentAim){ // Only god knows how this works (or doesn't work)...
+    // 13 hours of my life and 3 failed prototypes
     if (aimType == 'Parallel') {
         aim = target(shipPos, aimPos);
     } else {
@@ -186,31 +239,57 @@ function turretRot(currentRot, rotSpeed, rotLimit, facing, shipRot, aimPos, aimT
     if (aim > Math.PI && aim < Math.PI*1.5) {
         aim = -(2*Math.PI-aim);
     }
-
     aim = aim%(2*Math.PI);
-    if (aim > Math.PI) {
-        aim = -(2*Math.PI-aim);
-    } else if (aim < -Math.PI) {
-        aim = (2*Math.PI+aim);
+    aim = correctAngle(aim);
+    //console.log(`Step1: aim: ${aim*180/Math.PI}`);
+    currentRot = correctAngle(currentRot);
+    //console.log(`Step2: ship rotation: ${currentRot*180/Math.PI}`);
+    if (currentAim < 0) {
+        currentAim += Math.PI*2;
     }
-    console.log(aim/Math.PI*180); // updated ¡
-    currentAim = currentAim%(2*Math.PI);
-    currentAim += shipRot*10;
+    //currentAim += shipRot;
+    currentAim = currentAim%(Math.PI*2);
+    currentAim = correctAngle(currentAim); // extra
+    //console.log(`Step3: turret rotation: ${currentAim*180/Math.PI}`);
+    /*
+    currentAim += currentRot;
+    currentAim = currentAim%(Math.PI*2);
+    currentAim = correctAngle(currentAim);
+    console.log(`Step3.5: relative turret rotation: ${currentAim*180/Math.PI}`);*/
+    /*
     var relativeAim = aim+currentRot;
-    var nRot = Math.round((relativeAim - currentAim)*100)/100; 
-    if (nRot > 0) {
-        currentAim += rotSpeed;
-    } else if (nRot < 0) {
-        currentAim -= rotSpeed;
+    relativeAim = correctAngle(relativeAim);
+    console.log(`Step4: relative aim: ${relativeAim*180/Math.PI}`);*/
+    var relativeAim = aim; // extra
+    var possibleRot = Math.round((relativeAim - currentAim)*100)/100; 
+    //console.log(`Step4.1: possible rot: ${possibleRot*180/Math.PI}`);
+    if (possibleRot > 0 && (Math.PI-currentAim) < possibleRot) {
+        possibleRot = Math.round((currentAim - relativeAim)*100)/100; 
+        //console.log(`Step4.2: corrected possible rot: ${possibleRot*180/Math.PI}`);
+    }
+    necessaryRot = possibleRot;
+    //console.log(`Step5: necessary turret rotation: ${necessaryRot*180/Math.PI}`);
+    if (necessaryRot > 0) {
+        currentAim += rotSpeed*2;
+        console.log('rotate +');
+    } else if (necessaryRot < 0) {
+        currentAim -= rotSpeed*2;
+        console.log('rotate -');
     }
     if (Math.abs(relativeAim-currentAim) < rotSpeed) {
         currentAim = relativeAim;
-    } 
-    if (currentAim < currentRot-rotLimit/2+facing) {
-        currentAim = currentRot-rotLimit/2+facing;
-    } else if (currentAim > currentRot+rotLimit/2+facing) {
-        currentAim = currentRot+rotLimit/2+facing;
+        console.log('target');
     }
+    currentAim = correctAngle(currentAim);
+    //console.log(`Step6: after motion relative turret rotation: ${currentAim*180/Math.PI}`);
+    //currentAim -= currentRot;
+    if (currentAim < -rotLimit/2+facing) {
+        currentAim = -rotLimit/2+facing;
+    } else if (currentAim > rotLimit/2+facing) {
+        currentAim = rotLimit/2+facing;
+    }
+    currentAim = correctAngle(currentAim);
+    //console.log(`Step7: after collision turret rotation: ${currentAim*180/Math.PI}`);
     return currentAim;
 }
 
@@ -236,11 +315,19 @@ function aimBattleship(x, y, rotation, aimPos, aimType, weapons, agi) {
 function addBattleship(battleshipImg, mainCannonImg, smallCannonImg, x, y, scale, rotation, tp, tr) {
     addImage(battleshipImg, x, y, data.center.battleship.x, data.center.battleship.y, scale, rotation);
     for (var i = 1; i < 3; i+=1) {
-        addImage(smallCannonImg, tp[i].x, tp[i].y, data.center.smallCannon.x, data.center.smallCannon.y, scale, tr[i]);
+        addImage(smallCannonImg, tp[i].x, tp[i].y, data.center.smallCannon.x, data.center.smallCannon.y, scale, tr[i]+rotation);
     }
     for (var i = 3; i < 5; i+=1) {
-        addImage(mainCannonImg, tp[i].x, tp[i].y, data.center.mainCannon.x, data.center.mainCannon.y, scale, tr[i]);
+        addImage(mainCannonImg, tp[i].x, tp[i].y, data.center.mainCannon.x, data.center.mainCannon.y, scale, tr[i]+rotation);
     }
+}
+
+function addBullet() {
+
+}
+
+function shoot() {
+    
 }
 
 document.onkeydown = function (e) {
@@ -268,6 +355,10 @@ document.onkeydown = function (e) {
         default:
             break;
     }
+};
+
+document.onclick = function(e) {
+    player.hasfired = 1;
 };
 
 function tellPos(p){
