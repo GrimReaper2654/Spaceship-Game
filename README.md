@@ -1,4 +1,6 @@
 # Spaceship-Game
 
-This is still under development and does not work...
+Game currently under development.
+
+Currently, spaceship can move and rotate.
 
