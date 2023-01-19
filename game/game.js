@@ -36,7 +36,7 @@ var player = {
     thrust: 0.01,
     agi: 0.01,
     terminalAcceleration:0.25,
-    terminalVelocity:4,
+    terminalVelocity:1,
     drag: 0.1,
     // Stats
     hp: 10000,
