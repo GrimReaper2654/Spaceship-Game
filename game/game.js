@@ -188,6 +188,11 @@ function turretRot(currentRot, rotSpeed, rotLimit, facing, shipRot, aimPos, aimT
     }
 
     aim = aim%(2*Math.PI);
+    if (aim > Math.PI) {
+        aim = -(2*Math.PI-aim);
+    } else if (aim < -Math.PI) {
+        aim = (2*Math.PI+aim);
+    }
     currentAim = currentAim%(2*Math.PI);
     currentAim += shipRot*10;
     var relativeAim = aim+currentRot;
