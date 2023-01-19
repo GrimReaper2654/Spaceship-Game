@@ -1,11 +1,11 @@
 # Spaceship-Game
 
-Game currently under development.
+Game currently under development.<br><br>
 
-Currently, spaceship can move and rotate.
+Currently, spaceship can move and rotate.<br><br>
 
-W to accelerate
-S to slow down
-A and D to rotate
-Q to switch aiming mode
+W to accelerate <br>
+S to slow down<br>
+A and D to rotate<br>
+Q to switch aiming mode<br>
 turrets follow mouse pointer
