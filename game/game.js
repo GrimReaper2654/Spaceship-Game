@@ -270,10 +270,10 @@ function turretRot(currentRot, rotSpeed, rotLimit, facing, shipRot, aimPos, aimT
     necessaryRot = possibleRot;
     //console.log(`Step5: necessary turret rotation: ${necessaryRot*180/Math.PI}`);
     if (necessaryRot > 0) {
-        currentAim += rotSpeed*2;
+        currentAim += rotSpeed;
         console.log('rotate +');
     } else if (necessaryRot < 0) {
-        currentAim -= rotSpeed*2;
+        currentAim -= rotSpeed;
         console.log('rotate -');
     }
     if (Math.abs(relativeAim-currentAim) < rotSpeed) {
