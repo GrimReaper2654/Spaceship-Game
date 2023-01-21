@@ -29,6 +29,7 @@ const data = {
     display: {x:window.innerWidth,y:window.innerHeight},
     dim: {
         BATTLESHIP:{x:497,y:152}, 
+        INTERCEPTOR:{x:73,y:45}, 
         LARGETURRET:{x:109,y:44}, 
         MEDIUMTURRET:{x:45,y:28},
         SMALLTURRET:{x:37,y:17},
@@ -40,8 +41,9 @@ const data = {
         PDBULLET:{x:0,y:0}, 
     },
     center: {
-        BATTLESHIP: {x:240,y:76}, 
-        LARGETURRET: {x:36,y:22},
+        BATTLESHIP:{x:240,y:76}, 
+        INTERCEPTOR:{x:35,y:22.5}, 
+        LARGETURRET:{x:36,y:22},
         MEDIUMTURRET:{x:20,y:14}, 
         SMALLTURRET:{x:9,y:8.5},
         PDTURRET:{x:6,y:5},
@@ -53,15 +55,21 @@ const data = {
     },
     img: {
         REDBATTLESHIP: document.getElementById("BattleshipRed"),
+        REDINTERCEPTOR: document.getElementById("InterceptorRed"),
+
         REDLARGETURRET: document.getElementById("MainCannonRed"),
         REDMEDIUMTURRET: document.getElementById("SmallCannonRed"),
         REDSMALLTURRET: document.getElementById("TinyCannonRed"),
         REDPDTURRET: document.getElementById("PDCannon"),
+
         GREENBATTLESHIP: document.getElementById("BattleshipGreen"),
+        GREENINTERCEPTOR: document.getElementById("InterceptorGreen"),
+
         GREENLARGETURRET: document.getElementById("MainCannonGreen"),
         GREENMEDIUMTURRET: document.getElementById("SmallCannonGreen"),
         GREENSMALLTURRET: document.getElementById("TinyCannonGreen"),
         GREENPDTURRET: document.getElementById("PDCannon"),
+
         HUGEBULLET: document.getElementById("BulletHuge"),
         LARGEBULLET: document.getElementById("BulletLarge"),
         MEDIUMBULLET: document.getElementById("BulletSmall"),
@@ -72,33 +80,47 @@ const data = {
         LARGETURRET: [{x:272,y:76}, {x:177,y:76}],
         MEDIUMTURRET: [{x:329,y:76}, {x:406,y:76}],
     },
+    INTERCEPTORMOUNT: {
+        SMALLTURRET: [{x:59,y:17}, {x:59,y:29}],
+    },
     construction: {
-        HUGEBULLET: { // cannon shell
-            v: 8,
-            dmg: 50000, // 16666.66 DPS
-            dmgvb: 0,
-            life: 240,
-            physical: true
+        INTERCEPTOR: {
+            thrust: 0.1,
+            agi: 0.05,
+            terminalAcceleration:1,
+            terminalVelocity:15,
+            drag: 0.001,
+            scale: 1,
+            // Stats
+            hp: 1500,
+            shield: 100,
         },
-        LARGEBULLET: { // cannon shell
-            v: 12,
-            dmg: 10000, // 8000 DPS
+        HUGEBULLET: { // cannon shell
+            v: 20,
+            dmg: 8000, // 2666.66 DPS for Battleship
             dmgvb: 0,
             life: 180,
             physical: true
         },
-        MEDIUMBULLET: { // laser
-            v: 20,
-            dmg: 1000,  // 1333.33 DPS
+        LARGEBULLET: { // cannon shell
+            v: 30,
+            dmg: 10000, // 8000 DPS for Battleship
             dmgvb: 0,
-            life: 90,
+            life: 120,
+            physical: true
+        },
+        MEDIUMBULLET: { // laser
+            v: 60,
+            dmg: 1000,  // 1333.33 DPS for Battleship
+            dmgvb: 0,
+            life: 30,
             physical: false
         },
         SMALLBULLET: { // laser
-            v: 20,
-            dmg: 100,   // 
+            v: 60,
+            dmg: 100,   // 450*2 DPS for Interceptor
             dmgvb: 0,
-            life: 60,
+            life: 10,
             physical: false
         },
         PDBULLET: { // point defence (∞ ms^-1 and no image)
@@ -112,6 +134,7 @@ const data = {
 };
 
 var mousepos = {x:0,y:0};
+/* Play as interceptor
 var player = {
     // Physics
     x: data.display.x/2,
@@ -123,10 +146,90 @@ var player = {
     vy: 0,
     r: 0,
     a: 0,
-    thrust: 0.01,
-    agi: 0.01,
-    terminalAcceleration:0.25,
-    terminalVelocity:4,
+    thrust: 0.1,
+    agi: 0.05,
+    terminalAcceleration:1,
+    terminalVelocity:15,
+    drag: 0.0001,
+    scale: 1,
+    // Stats
+    hp: 1500,
+    shield: 100,
+    team: RED,
+    type: INTERCEPTOR,
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            reloadTime: 10,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            reloadTime: 10,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1,
+            }
+        },
+    ],
+    // Input
+    hasClicked: 0,
+    keyboard: {},
+}*/
+
+var player = {
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.0014,
+    agi: 0.005,
+    terminalAcceleration:0.15,
+    terminalVelocity:3,
     drag: 0.001,
     scale: 1,
     // Stats
@@ -136,17 +239,6 @@ var player = {
     type: BATTLESHIP,
     // Weapons
     weapons: [
-        /*
-        numWeapons: 5,
-        facing: [0,0,0,0,0], // Fixed spinal cannon, Front small turret, back small turret, front main turret, back main turret
-        turretAim: [0,0,0,0,0], 
-        turretReload: [0,0,0,0,0], 
-        reloadTimes: [90,45,45,60,60], 
-        reload: [0,0,0,0,0],
-        weaponType: ['fixed', 'sTurret', 'sTurret', 'mTurret', 'mTurret'],
-        turretagi: [0,0.02,0.02,0.01,0.01],
-        firingArc: [0,Math.PI*1.5,Math.PI*1.75,Math.PI*1.5,Math.PI*1.75],
-        recoil: [0,0,0,0,0],*/
         {
             // CONTROL
             type: FIXED,
@@ -182,7 +274,7 @@ var player = {
             x: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
             y: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
             ax: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
-            ay: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+            ay: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
             facing: 0,
             aim: 0,
             agi: 0.02,
@@ -368,7 +460,7 @@ function handleInputs(player) {
             }
         }
     }
-    player.keyboard = {};
+    //player.keyboard = {};
     player.hasClicked = 0;
     return player;
 }
@@ -411,11 +503,11 @@ function handlemovement(obj) {
     return obj
 }
 
-function turretPos(x, y, r, weapon) { // I spent two thirds of my life in school for this...
+function turretPos(type, x, y, r, weapon) { // I spent two thirds of my life in school for this...
     var rx = weapon.x;
     var ry = weapon.y;
-    rx -= data.dim.BATTLESHIP.x/2;
-    ry -= data.dim.BATTLESHIP.y/2;
+    rx -= data.dim[type].x/2;
+    ry -= data.dim[type].y/2;
     // Offset x
     x = x+Math.cos(r)*rx;
     y = y+Math.sin(r)*rx;
@@ -509,10 +601,10 @@ function turretRot(currentRot, rotSpeed, rotLimit, facing, aimPos, aimType, ship
 
 function aimTurrets(ship) {
     for (var i = 0; i < ship.weapons.length; i+=1) {
+        var pos = turretPos(ship.type,ship.x,ship.y,ship.r,ship.weapons[i]);
+        ship.weapons[i].ax = pos.x;
+        ship.weapons[i].ay = pos.y;
         if (ship.weapons[i].type == TURRET) {
-            var pos = turretPos(ship.x,ship.y,ship.r,ship.weapons[i]);
-            ship.weapons[i].ax = pos.x;
-            ship.weapons[i].ay = pos.y;
             if (ship.weapons[i].ai) {
                 var aiTarget = {x:0,y:0}; // TODO: add targeting AI
                 ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, aiTarget, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
@@ -574,34 +666,8 @@ function shoot(weapon, team, shipRot) {
     projectiles.push(bullet);
 }
 
-document.onkeydown = function (e) {
-    player.keyboard[e.key] = 1;
-    /*
-    switch (e.key) {
-        case 'w':
-            keyboard[0] = 1;
-            break;
-        case 'a':
-            keyboard[1] = 1;
-            break;
-        case 's':
-            keyboard[2] = 1;
-            break;
-        case 'd':
-            keyboard[3] = 1;
-            break;
-        case 'q':
-            if (player.aimMode == 'Parallel') {
-                player.aimMode = 'Converge';
-            } else {
-                player.aimMode = 'Parallel';
-            }
-            console.log(`Aiming mode: ${player.aimMode}`);
-            break;
-        default:
-            break;
-    }*/
-};
+window.onkeyup = function(e) { player.keyboard[e.key] = false; }
+window.onkeydown = function(e) { player.keyboard[e.key] = true; }
 
 document.onclick = function(e) {
     player.hasClicked = 1;
@@ -649,14 +715,14 @@ function tick(objs) {
     for (var i = 0; i < objs.length; i+=1) {
         // if it dead, remove it
         if (objs[i].hp <= 0) {
-            objs.splice(i,i);
+            objs.splice(i,1);
             continue;
         }
         // if it has life, reduce it
         if (objs[i].life) {
             objs[i].life -= 1;
-            if (objs[i].life < 0) {
-                objs.splice(i,i);
+            if (objs[i].life <= 0) {
+                objs.splice(i,1);
                 continue;
             }
         }
@@ -700,7 +766,7 @@ async function game() {
         tick +=1;
         //console.log(tick);
         main();
-        await sleep(17);
-        //await sleep(500);
+        await sleep(1000/60);  // 60 FPS
+        //await sleep(500);    // Debug Mode
     }
 }
