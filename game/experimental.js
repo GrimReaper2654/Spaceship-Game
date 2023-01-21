@@ -30,7 +30,24 @@ const data = {
     dim: {
         BATTLESHIP:{x:497,y:152}, 
         LARGETURRET:{x:109,y:44}, 
-        MEDIUMTURRET:{x:45,y:28}, 
+        MEDIUMTURRET:{x:45,y:28},
+        //SMALLTURRET:{x:0,y:0},
+        //HUGEBULLET:{x:0,y:0}, 
+        LARGEBULLET:{x:7,y:24}, 
+        MEDIUMBULLET:{x:5,y:12}, 
+        //SMALLBULLET:{x:0,y:0}, 
+        PDBULLET:{x:0,y:0}, 
+    },
+    center: {
+        BATTLESHIP: {x:240,y:76}, 
+        LARGETURRET: {x:36,y:22},
+        MEDIUMTURRET:{x:20,y:14}, 
+        //SMALLTURRET:{x:0,y:0},
+        //HUGEBULLET:{x:0,y:0}, 
+        LARGEBULLET:{x:0,y:12}, 
+        MEDIUMBULLET:{x:0,y:6}, 
+        //SMALLBULLET:{x:0,y:0}, 
+        PDBULLET:{x:0,y:0}, 
     },
     img: {
         REDBATTLESHIP: document.getElementById("BattleshipRed"),
@@ -48,11 +65,6 @@ const data = {
         MEDIUMBULLET: document.getElementById("BulletSmall"),
         // SMALLBULLET: document.getElementById("BulletTiny"),
         // PDBULLET: document.getElementById("BulletPD"),
-    },
-    center: {
-        BATTLESHIP: {x:240,y:76}, 
-        LARGETURRET: {x:36,y:22},
-        MEDIUMTURRET:{x:20,y:14}, 
     },
     BATTLESHIPMOUNT: {
         LARGETURRET: [{x:272,y:76}, {x:177,y:76}],
@@ -91,13 +103,12 @@ const data = {
             v: 250,
             dmg: 2,     // 120 DPS against ships
             dmgvb: 100, // 2000 against large bullet, 3100 against huge bullet
-            life: 0,
+            life: 1,
             physical: false
         },
     }
 };
 
-var keyboard = [0,0,0,0]; // W A S D
 var mousepos = {x:0,y:0};
 var player = {
     // Physics
@@ -139,7 +150,7 @@ var player = {
             type: FIXED,
             size: HUGE,
             ai: false,
-            keybind: false,
+            keybind: 'e',
             // PHYSICS
             x: data.dim.BATTLESHIP.x,
             y: data.center.BATTLESHIP.y,
@@ -156,7 +167,6 @@ var player = {
             reload: 0,
             bullet: {
                 dmgMultiplier: 1,
-                hpMultiplier: 1,
                 speedMultiplier: 1
             }
         },
@@ -182,7 +192,6 @@ var player = {
             reload: 0,
             bullet: {
                 dmgMultiplier: 1,
-                hpMultiplier: 1,
                 speedMultiplier: 1
             }
         },
@@ -208,7 +217,6 @@ var player = {
             reload: 0,
             bullet: {
                 dmgMultiplier: 1,
-                hpMultiplier: 1,
                 speedMultiplier: 1
             }
         },
@@ -234,7 +242,6 @@ var player = {
             reload: 0,
             bullet: {
                 dmgMultiplier: 1,
-                hpMultiplier: 1,
                 speedMultiplier: 1
             }
         },
@@ -260,13 +267,14 @@ var player = {
             reload: 0,
             bullet: {
                 dmgMultiplier: 1,
-                hpMultiplier: 1,
                 speedMultiplier: 1
             }
         },
     ],
     aimMode: 'Converge',
-    hasfired: 0,
+    // Input
+    hasClicked: 0,
+    keyboard: {},
 }
 
 var ships = [player];
@@ -302,37 +310,65 @@ function clearCanvas() {
     ctx.restore();
 }
 
-function handleKeyboard() {
+function handleInputs(player) {
     //console.log('aaa');
-    if (keyboard[0]) { // Move Forward
+    //console.log(player.keyboard);
+    if (player.keyboard.w) { // Move Forward
         player.a += player.thrust*2; // IMPORTANT: add 2 times thrust to player
     }
-    if (keyboard[2]) {
+    if (player.keyboard.s) {
         player.a -= player.thrust*2;
         if (player.a < -player.terminalAcceleration/4) {
             player.a = -player.terminalAcceleration/4;
         }
     }
-    if (keyboard[1]) { 
+    if (player.keyboard.a) { 
         player.r -= player.agi;
+        if (player.r >= 2*Math.PI) {
+            player.r -= Math.PI*2;
+        } else if (player.r <= -2*Math.PI) {
+            player.r += Math.PI*2;
+        }
         /*
         for (var i=0; i< player.weapons.turretAim.length; i+=1) {
             player.weapons.turretAim[i] -=  player.agi;
         }*/
     }
-    if (keyboard[3]) { 
+    if (player.keyboard.d) { 
         player.r += player.agi;
+        if (player.r >= 2*Math.PI) {
+            player.r -= Math.PI*2;
+        } else if (player.r <= -2*Math.PI) {
+            player.r += Math.PI*2;
+        }
         /*
         for (var i=0; i< player.weapons.turretAim.length; i+=1) {
             player.weapons.turretAim[i] +=  player.agi;
         }*/
     }
-    if (player.r >= 2*Math.PI) {
-        player.r -= Math.PI*2;
-    } else if (player.r <= -2*Math.PI) {
-        player.r += Math.PI*2;
+    if (player.keyboard.q) {
+        if (player.aimMode == 'Parallel') {
+            player.aimMode = 'Converge';
+        } else {
+            player.aimMode = 'Parallel';
+        }
+        console.log(`Aiming mode: ${player.aimMode}`);
     }
-    keyboard = [0,0,0,0];
+    for (var i = 0; i < player.weapons.length; i+=1) {
+        if (player.weapons[i].keybind == CLICK) {
+            if (player.hasClicked) {
+                console.log('try shoot');
+                player.weapons[i] = attemptShoot(player.weapons[i], player.team, player.r);
+            }
+        } else {
+            if (player.keyboard[player.weapons[i].keybind]) {
+                player.weapons[i] = attemptShoot(player.weapons[i], player.team, player.r);
+            }
+        }
+    }
+    player.keyboard = {};
+    player.hasClicked = 0;
+    return player;
 }
 
 function handlemovement(obj) {
@@ -373,15 +409,20 @@ function handlemovement(obj) {
     return obj
 }
 
-function turretPos(x,y,rx,ry,r) { // I spent two thirds of my life in school for this...
-    rx = rx - data.dim.BATTLESHIP.x/2;
-    ry = ry - data.dim.BATTLESHIP.y/2;
+function turretPos(x, y, r, weapon) { // I spent two thirds of my life in school for this...
+    var rx = weapon.x;
+    var ry = weapon.y;
+    rx -= data.dim.BATTLESHIP.x/2;
+    ry -= data.dim.BATTLESHIP.y/2;
     // Offset x
     x = x+Math.cos(r)*rx;
     y = y+Math.sin(r)*rx;
     // Offset y
-    x = x+Math.cos(r-Math.PI/2)*ry;
-    y = y+Math.sin(r-Math.PI/2)*ry;
+    x += Math.cos(r-Math.PI/2)*ry;
+    y += Math.sin(r-Math.PI/2)*ry;
+    // Recoil
+    x -= Math.cos(weapon.aim+r)*weapon.recoil;
+    y -= Math.sin(weapon.aim+r)*weapon.recoil;
     return {x: x, y: y};
 }
 
@@ -409,7 +450,7 @@ function correctAngle(a) {
 }
 
 function turretRot(currentRot, rotSpeed, rotLimit, facing, aimPos, aimType, shipPos, cannonPos, currentAim){ // Only god knows how this works (or doesn't work)...
-    // 13 hours of my life and 3 failed prototypes
+    // 15 hours of my life and 4 failed prototypes later...
     if (aimType == 'Parallel') {
         aim = target(shipPos, aimPos);
     } else {
@@ -443,14 +484,14 @@ function turretRot(currentRot, rotSpeed, rotLimit, facing, aimPos, aimType, ship
     //console.log(`Step5: necessary turret rotation: ${necessaryRot*180/Math.PI}`);
     if (necessaryRot > 0) {
         currentAim += rotSpeed*2;
-        console.log('rotate +');
+        //console.log('rotate +');
     } else if (necessaryRot < 0) {
         currentAim -= rotSpeed*2;
-        console.log('rotate -');
+        //console.log('rotate -');
     }
     if (Math.abs(relativeAim-currentAim) < rotSpeed) {
         currentAim = relativeAim;
-        console.log('target');
+        //console.log('target');
     }
     currentAim = correctAngle(currentAim);
     //console.log(`Step6: after motion relative turret rotation: ${currentAim*180/Math.PI}`);
@@ -467,7 +508,7 @@ function turretRot(currentRot, rotSpeed, rotLimit, facing, aimPos, aimType, ship
 function aimTurrets(ship) {
     for (var i = 0; i < ship.weapons.length; i+=1) {
         if (ship.weapons[i].type == TURRET) {
-            var pos = turretPos(ship.x,ship.y,ship.weapons[i].x,ship.weapons[i].y,ship.r);
+            var pos = turretPos(ship.x,ship.y,ship.r,ship.weapons[i]);
             ship.weapons[i].ax = pos.x;
             ship.weapons[i].ay = pos.y;
             if (ship.weapons[i].ai) {
@@ -498,38 +539,42 @@ function handleMotion(objs) {
     return objs;
 }
 
-function shoot(weapon, team, shipRot) { // TODO: HELP!!!!!!!
+function attemptShoot(weapon, team, shipRot) {
+    if (weapon.reload == 0) {
+        console.log('shoooooot');
+        shoot(weapon, team, shipRot);
+        weapon.reload = weapon.reloadTime;
+        weapon.recoil = weapon.recoilAmount;
+    }
+    return weapon;
+}
+
+function shoot(weapon, team, shipRot) {
     var angle = weapon.aim + shipRot;
-    var bullet = data.construction[weapon.size+'BULLET'];
-
-    bullet.v *= weapon.bullet.speedMultiplier;
-    bullet.dmg *= weapon.bullet.dmgMultiplier;
-    bullet.dmgvb *= weapon.bullet.dmgMultiplier;
-    bullet.hp *= weapon.bullet.hpMultiplier;
-
-    bullet += { // does this work?
-        img: null,
-        team: team,
-        //Physics
-        x: weapon.ax,
-        y: weapon.ay,
-        px: weapon.ax,
-        py: weapon.ay,
-        vx: bullet.v*Math.cos(bullet.r),
-        vy: bullet.v*Math.sin(bullet.r),
-        r: angle,
-        a: 0, // Bullet does not accelerate, it starts at max speed
-        thrust: 0,
-        terminalAcceleration:0,
-        terminalVelocity:Infinity,
-        drag: 0,
-    };
-    
-    // add bullet to list of bullets (projectiles)
-
+    var bullet = JSON.parse(JSON.stringify(data.construction[weapon.size+'BULLET'])); // Deep copy (probably don't need to do it for everything but better safe than sorry)
+    bullet.v *= JSON.parse(JSON.stringify(weapon.bullet.speedMultiplier));
+    bullet.dmg *= JSON.parse(JSON.stringify(weapon.bullet.dmgMultiplier));
+    bullet.dmgvb *= JSON.parse(JSON.stringify(weapon.bullet.dmgMultiplier));
+    bullet.type = JSON.parse(JSON.stringify(weapon.size+'BULLET'));
+    bullet.team = team;
+    bullet.x = JSON.parse(JSON.stringify(weapon.ax));
+    bullet.y = JSON.parse(JSON.stringify(weapon.ay));
+    bullet.px = JSON.parse(JSON.stringify(weapon.ax));
+    bullet.py = JSON.parse(JSON.stringify(weapon.ay));
+    bullet.vx = JSON.parse(JSON.stringify(bullet.v*Math.cos(bullet.r)));
+    bullet.vy = JSON.parse(JSON.stringify(bullet.v*Math.sin(bullet.r)));
+    bullet.r = angle;
+    bullet.a = 0;
+    bullet.thrust = 0;
+    bullet.terminalAcceleration = 0;
+    bullet.terminalVelocity = Infinity;
+    bullet.drag = 0;
+    projectiles.push(bullet);
 }
 
 document.onkeydown = function (e) {
+    player.keyboard[e.key] = 1;
+    /*
     switch (e.key) {
         case 'w':
             keyboard[0] = 1;
@@ -553,11 +598,11 @@ document.onkeydown = function (e) {
             break;
         default:
             break;
-    }
+    }*/
 };
 
 document.onclick = function(e) {
-    player.hasfired = 1;
+    player.hasClicked = 1;
 };
 
 function tellPos(p){
@@ -566,20 +611,85 @@ function tellPos(p){
 addEventListener('mousemove', tellPos, false);
   
 console.log(player);
-console.log(keyboard);
+console.log(player.keyboard);
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function main() {
-    clearCanvas();
-    handleKeyboard();
+function handlePlayer(player) {
+    player = handleInputs(player);
     player = aimTurrets(player);
     player = handlemovement(player);
-    //var info = aimBattleship(player.x, player.y, player.r, mousepos, player.aimMode, player.weapons, player.agi)
-    //player.weapons.turretAim = info[1];
-    addShip(player)
+    addShip(player);
+    return player;
+}
+
+function handleProjectiles(projectiles) {
+    //console.log(projectiles);
+    projectiles = handleMotion(projectiles);
+    for (var i = 0; i < projectiles.length; i+=1) {
+        // check for collisions
+        /*
+        [code goes here] 
+        I'll write it later...
+        */
+        // draw the bullet if it didn't hit anything
+        addImage(data.img[projectiles[i].type], projectiles[i].x, projectiles[i].y, data.center[projectiles[i].type].x, data.center[projectiles[i].type].y, 1, projectiles[i].r);
+        
+    }
+
+
+    return projectiles;
+}
+
+function tick(objs) {
+    for (var i = 0; i < objs.length; i+=1) {
+        // if it dead, remove it
+        if (objs[i].hp <= 0) {
+            objs.splice(i,i);
+            continue;
+        }
+        // if it has life, reduce it
+        if (objs[i].life) {
+            objs[i].life -= 1;
+            if (objs[i].life < 0) {
+                objs.splice(i,i);
+                continue;
+            }
+        }
+        // if it has recoil, reduce it
+        if (objs[i].recoil) {
+            objs[i].recoil -= 1;
+            if (objs[i].recoil < 0) {
+                objs[i] = 0;
+            }
+        }
+        // if it has cooldown, reduce it
+        if (objs[i].cooldown) {
+            objs[i].cooldown -= 1;
+            if (objs[i].cooldown < 0) {
+                objs[i] = 0;
+            }
+        }
+        // if it is reloading, reload it
+        if (objs[i].reload) {
+            objs[i].reload -= 1;
+            if (objs[i].reload < 0) {
+                objs[i] = 0;
+            }
+        }
+    }
+    return objs;
+}
+
+function main() {
+    clearCanvas();
+    projectiles = tick(projectiles);
+    player.weapons = tick(player.weapons);
+    player = handlePlayer(player);
+    projectiles = handleProjectiles(projectiles);
+    
 }
 
 async function game() {
@@ -588,7 +698,7 @@ async function game() {
         tick +=1;
         //console.log(tick);
         main();
-        //await sleep(17);
-        await sleep(500);
+        await sleep(17);
+        //await sleep(500);
     }
 }
