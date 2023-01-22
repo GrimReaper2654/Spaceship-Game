@@ -53,6 +53,37 @@ const data = {
         SMALLBULLET:{x:0,y:0.5}, 
         PDBULLET:{x:0,y:0}, 
     },
+    hitbox: { // all sprites will use circular hitboxes (ez to code) Note: 'r' is radius not rotation
+        BATTLESHIP: [ // so many hitboxes... so much lag... 
+            {x:40, y:76, r:25}, 
+            {x:120, y:76, r:75},
+            {x:220, y:76, r:60},
+            {x:280, y:76, r:60},
+            {x:360, y:76, r:40},
+            {x:400, y:76, r:30},
+            {x:440, y:76, r:30},
+            {x:480, y:76, r:20},
+        ],
+        INTERCEPTOR: [ // annoyingly small and hard to hit
+            {x:25, y:22.5, r:22.5}, 
+            {x:52.5, y:22.5, r:10}, 
+        ],
+        HUGEBULLET: [ // wider than you think
+            {x:7.5, y:4, r:7.5}, 
+        ],
+        LARGEBULLET: [ // I would make 3 hitboxes for the 3 bullets but lag...
+            {x:3.5, y:12, r:12}, 
+        ],
+        MEDIUMBULLET: [ // the 2 lasers share 1 hitbox
+            {x:2.5, y:6, r:6}, 
+        ],
+        SMALLBULLET: [ // large-ish hitbox so you can actually hit something
+            {x:1.5, y:0.5, r:2}, 
+        ],
+        PDBULLET: [ // no hitbox necessary
+            {x:0, y:0, r:0}, 
+        ],
+    },
     img: {
         REDBATTLESHIP: document.getElementById("BattleshipRed"),
         REDINTERCEPTOR: document.getElementById("InterceptorRed"),
@@ -134,6 +165,7 @@ const data = {
 };
 
 var mousepos = {x:0,y:0};
+
 /* Play as interceptor
 var player = {
     // Physics
@@ -152,6 +184,7 @@ var player = {
     terminalVelocity:15,
     drag: 0.0001,
     scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
     // Stats
     hp: 1500,
     shield: 100,
@@ -214,8 +247,7 @@ var player = {
     hasClicked: 0,
     keyboard: {},
 }*/
-
-var player = {
+var player = { // Play as Battleship
     // Physics
     x: data.display.x/2,
     y: data.display.y/2,
@@ -232,6 +264,7 @@ var player = {
     terminalVelocity:3,
     drag: 0.001,
     scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
     // Stats
     hp: 1000000,
     shield: 10000,
@@ -365,7 +398,7 @@ var player = {
             }
         },
     ],
-    aimMode: 'Converge',
+    aimMode: 'Parallel',
     // Input
     hasClicked: 0,
     keyboard: {},
@@ -509,8 +542,8 @@ function turretPos(type, x, y, r, weapon) { // I spent two thirds of my life in 
     rx -= data.dim[type].x/2;
     ry -= data.dim[type].y/2;
     // Offset x
-    x = x+Math.cos(r)*rx;
-    y = y+Math.sin(r)*rx;
+    x += Math.cos(r)*rx;
+    y += Math.sin(r)*rx;
     // Offset y
     x += Math.cos(r-Math.PI/2)*ry;
     y += Math.sin(r-Math.PI/2)*ry;
@@ -518,6 +551,18 @@ function turretPos(type, x, y, r, weapon) { // I spent two thirds of my life in 
     x -= Math.cos(weapon.aim+r)*weapon.recoil;
     y -= Math.sin(weapon.aim+r)*weapon.recoil;
     return {x: x, y: y};
+}
+
+function hitboxPos(type, x, y, rx, ry, r, radius) { // turretPos but adapted to work for hitboxes (radius is not used)
+    rx -= data.dim[type].x/2;
+    ry -= data.dim[type].y/2;
+    // Offset x
+    x += Math.cos(r)*rx;
+    y += Math.sin(r)*rx;
+    // Offset y
+    x += Math.cos(r-Math.PI/2)*ry;
+    y += Math.sin(r-Math.PI/2)*ry;
+    return {x: x, y: y, r: radius};
 }
 
 function target(sPos, tPos) { // WARNING: Horifically inefficient coding (there goes 3 hours of my life...)
@@ -645,12 +690,13 @@ function attemptShoot(weapon, team, shipRot) {
 
 function shoot(weapon, team, shipRot) {
     var angle = weapon.aim + shipRot;
-    var bullet = JSON.parse(JSON.stringify(data.construction[weapon.size+'BULLET'])); // Deep copy (probably don't need to do it for everything but better safe than sorry)
+    var bullet = JSON.parse(JSON.stringify(data.construction[weapon.size+'BULLET'])); // Deep copy (probably don't need to do it for everything but better safe than sorry, and I'm lazy) 
+    bullet.hitbox = JSON.parse(JSON.stringify(data.hitbox[weapon.size+'BULLET']));
     bullet.v *= JSON.parse(JSON.stringify(weapon.bullet.speedMultiplier));
     bullet.dmg *= JSON.parse(JSON.stringify(weapon.bullet.dmgMultiplier));
     bullet.dmgvb *= JSON.parse(JSON.stringify(weapon.bullet.dmgMultiplier));
     bullet.type = JSON.parse(JSON.stringify(weapon.size+'BULLET'));
-    bullet.team = team;
+    bullet.team = JSON.parse(JSON.stringify(team));
     bullet.x = JSON.parse(JSON.stringify(weapon.ax));
     bullet.y = JSON.parse(JSON.stringify(weapon.ay));
     bullet.px = JSON.parse(JSON.stringify(weapon.ax));
@@ -685,11 +731,41 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function drawCircle(x, y, radius, fill, stroke, strokeWidth) { // draw a circle (I coppied most of this from stack overflow) also does not work
+    var canvas = document.getElementById("main");
+    ctx = canvas.getContext("2d");
+    ctx.resetTransform();
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+    if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fill();
+    }
+    if (stroke) {
+        ctx.lineWidth = strokeWidth;
+        ctx.strokeStyle = stroke;
+        ctx.stroke();
+    }
+}
+
+function updateHitboxes(obj, show) {
+    for (var i = 0; i < obj.hitbox.length; i+=1) {
+        obj.hitbox[i] = hitboxPos(obj.type, obj.x, obj.y, data.hitbox[obj.type][i].x, data.hitbox[obj.type][i].y, obj.r, obj.hitbox[i].r);
+        if (show) {
+            //console.log(obj.hitbox[i]);
+            //drawCircle(obj.hitbox[i].x+obj.x-data.center[obj.type].x, obj.hitbox[i].y+obj.y-data.center[obj.type].y, obj.hitbox[i].r, false, 'white', 2);
+            drawCircle(obj.hitbox[i].x, obj.hitbox[i].y, obj.hitbox[i].r, false, 'white', 2);
+        }
+    }
+    return obj;
+}
+
 function handlePlayer(player) {
     player = handleInputs(player);
     player = aimTurrets(player);
     player = handlemovement(player);
     addShip(player);
+    player = updateHitboxes(player, false);
     return player;
 }
 
@@ -704,7 +780,7 @@ function handleProjectiles(projectiles) {
         */
         // draw the bullet if it didn't hit anything
         addImage(data.img[projectiles[i].type], projectiles[i].x, projectiles[i].y, data.center[projectiles[i].type].x, data.center[projectiles[i].type].y, 1, projectiles[i].r);
-        
+        projectiles[i] = updateHitboxes(projectiles[i], false);
     }
 
 
