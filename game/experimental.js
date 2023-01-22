@@ -1,6 +1,8 @@
 // Teams
 const RED = 'RED';
 const GREEN = 'GREEN';
+const FRIENDLY = 'FRIENDLY';
+const HOSTILE = 'HOSTILE';
 
 // Weapon types
 const FIXED = 'FIXED';
@@ -16,14 +18,22 @@ const BOMB = 'BOMB';
 
 // Control
 const CLICK = 'CLICK';
+const ATTACK = 'ATTACK';
+const ESCORT = 'ESCORT';
+const IDLE = 'IDLE';
 
 // Ship Types
 const BATTLESHIP = 'BATTLESHIP';
 const CRUISER = 'CRUISER';
 const DESTROYER = 'DESTROYER';
 const FRIGATE = 'FRIGATE';
-const BOMBER = 'BOMBER';
 const INTERCEPTOR = 'INTERCEPTOR';
+const BOMBER = 'BOMBER';
+const ALL = 'ALL';
+const CAPITAL = ['BATTLESHIP','CRUISER'];
+const FIGHTER = ['INTERCEPTOR','BOMBER'];
+const NOTCAPITAL = ['DESTROYER','FRIGATE','INTERCEPTOR','BOMBER'];
+const NOTFIGHTER = ['BATTLESHIP','CRUISER','DESTROYER','FRIGATE'];
 
 const data = {
     display: {x:window.innerWidth,y:window.innerHeight},
@@ -117,8 +127,9 @@ const data = {
     construction: {
         AI: {
             target: '',
-            mission: '',
-            
+            task: '',
+            int: 1, // Lower is further sensor range
+            reactionTime: 10, // in ticks
         },
         BATTLESHIP: {
             thrust: 0.0014,
@@ -207,6 +218,7 @@ var player = {
     team: RED,
     type: INTERCEPTOR,
     aiControl: false,
+    id: 69420,
     // Weapons
     weapons: [
         {
@@ -288,6 +300,7 @@ var player = { // Play as Battleship
     team: RED,
     type: BATTLESHIP,
     aiControl: false,
+    id: 69420,
     // Weapons
     weapons: [
         {
@@ -783,26 +796,208 @@ function handlePlayer(player) {
     player = aimTurrets(player);
     player = handlemovement(player);
     addShip(player);
-    player = updateHitboxes(player, false);
+    player = updateHitboxes(player, true);
     return player;
 }
 
-function autoTarget(ship) {
+function autoTarget(type, team, pos, shipType, dist) { // inefficient, switch the order of the checks for better performance
+    var target = false;
+    var minDist = dist+1;
+    for (var i = 0; i < ships.length; i+=1) {
+        if ((ships[i].team != team && type == HOSTILE) || (ships[i].team == team && type == FRIENDLY)) {
+            var shouldCalculate = false;
+            if (shipType != ALL) {
+                if (shipType == FIGHTER || shipType == CAPITAL) {
+                    for (var j = 0; j < shipType.length; j+=1) {
+                        if (ships[i].type == shipType[j]) {
+                            shouldCalculate = true;
+                        }
+                    }
+                } else {
+                    if (ships[i].type == shipType[j]) {
+                        shouldCalculate = true;
+                    }
+                }
+            }
+            if (shouldCalculate) {
+                if (Math.sqrt(abs(ships[i].x-pos.x)**2+abs(ships[i].y-pos.y)**2) < minDist) {
+                    minDist = Math.sqrt(abs(ships[i].x-pos.x)**2+abs(ships[i].y-pos.y)**2);
+                    target = ships[i].id;
+                }
+            }
+        }
+    }
+    return target;
+}
+
+function autoMission(ship) {
     switch (ship.type) {
-        case BATTLESHIP:
-            break;
-        case CRUISER:
-            break;
-        case DESTROYER:
-            break;
-        case FRIGATE:
-            break;
-        case INTERCEPTOR:
-            break;
-        case BOMBER:
-            break;
-        default:
-            break;
+        case BATTLESHIP: // attack nearby capital ships then other ships
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, BATTLESHIP, 3100);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CRUISER, 3000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 4000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 20000/ship.int);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 50000/ship.int);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            return {mission: IDLE, target: null};
+        case CRUISER: // attack nearby ships then search for smaller ships to hunt. Escort the nearest battleship if there are no targets nearby. If there is no battleship to escort, attack the nearest enemy ship
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 3000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 2000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, DESTROYER, 6000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, FRIGATE, 5000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, BATTLESHIP, 15000/ship.int);
+            if (target) {
+                return {mission: ESCORT, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 30000/ship.int);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 60000/ship.int);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            return {mission: IDLE, target: null};
+        case DESTROYER: // attack nearby ships, otherwise try to find a capital ship to escort. attack the nearest non capital ship if there is nothing to escort
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 2000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 2000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, FRIGATE, 15000/ship.int);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, BATTLESHIP, 5000/ship.int);
+            if (target) {
+                return {mission: ESCORT, target: target};
+            }
+            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, CRUISER, 5000/ship.int);
+            if (target) {
+                return {mission: ESCORT, target: target};
+            }
+            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 15000/ship.int);
+            if (target) {
+                return {mission: ESCORT, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTCAPITAL, 20000/ship.int);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            return {mission: IDLE, target: null};
+        case FRIGATE: // If large ships in range, attack them, otherwise attack nearby small ships and fighters. If there are no fighters nearby, esort the nearest capital ship. If there are no capital ships in range, attack nearby fighters
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 1500);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTCAPITAL, 2000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 15000/ship.int);
+            if (target) {
+                return {mission: ESCORT, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, FIGHTER, 15000/ship.int);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            return {mission: IDLE, target: null};
+        case INTERCEPTOR: // Attack nearby bombers and other fighters followed by bigger ships, else, escort friendly bombers. If there are no nearby bombers, escort other ships
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, BOMBER, 1000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, FIGHTER, 2500);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, ALL, 1500);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, BOMBER, 1500);
+            if (target) {
+                return {mission: ESCORT, target: target};
+            }
+            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 3000);
+            if (target) {
+                return {mission: ESCORT, target: target};
+            }
+            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 5000);
+            if (target) {
+                return {mission: ESCORT, target: target};
+            }
+            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 20000/ship.int);
+            if (target) {
+                return {mission: ESCORT, target: target};
+            }
+            return {mission: IDLE, target: null};
+        case BOMBER: // Beeline the nearest capital ship and bomb it, otherwise bomb other bombable ships. If there is nothing to attack, follow a larger ship for protection
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 5000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 4000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 15000/ship.int);
+            if (target) {
+                return {mission: ESCORT, target: target};
+            }
+            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 25000/ship.int);
+            if (target) {
+                return {mission: ESCORT, target: target};
+            }
+            return {mission: IDLE, target: null};
+        default: // attack, attack and attack more
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 3000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 4000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 10000/ship.int);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, ALL, 25000/ship.int);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
+            return {mission: IDLE, target: null};
     }
 }
 
@@ -810,6 +1005,9 @@ function handleAi(ships) {
     for (var i = 0; i < ships.length; i+=1) {
         if (ships[i].aiControl) {
 
+            var mission = autoMission(ships[i]);
+            ships[i].task = mission.task;
+            ships[i].target = mission.target;
         }
     }
     return ships;
@@ -826,7 +1024,7 @@ function handleProjectiles(projectiles) {
         */
         // draw the bullet if it didn't hit anything
         addImage(data.img[projectiles[i].type], projectiles[i].x, projectiles[i].y, data.center[projectiles[i].type].x, data.center[projectiles[i].type].y, 1, projectiles[i].r);
-        projectiles[i] = updateHitboxes(projectiles[i], false);
+        projectiles[i] = updateHitboxes(projectiles[i], true);
     }
 
 
