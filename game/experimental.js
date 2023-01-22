@@ -115,6 +115,22 @@ const data = {
         SMALLTURRET: [{x:59,y:17}, {x:59,y:29}],
     },
     construction: {
+        AI: {
+            target: '',
+            mission: '',
+            
+        },
+        BATTLESHIP: {
+            thrust: 0.0014,
+            agi: 0.005,
+            terminalAcceleration:0.15,
+            terminalVelocity:3,
+            drag: 0.001,
+            scale: 1,
+            // Stats
+            hp: 1000000,
+            shield: 10000,
+        },
         INTERCEPTOR: {
             thrust: 0.1,
             agi: 0.05,
@@ -190,6 +206,7 @@ var player = {
     shield: 100,
     team: RED,
     type: INTERCEPTOR,
+    aiControl: false,
     // Weapons
     weapons: [
         {
@@ -270,6 +287,7 @@ var player = { // Play as Battleship
     shield: 10000,
     team: RED,
     type: BATTLESHIP,
+    aiControl: false,
     // Weapons
     weapons: [
         {
@@ -767,6 +785,34 @@ function handlePlayer(player) {
     addShip(player);
     player = updateHitboxes(player, false);
     return player;
+}
+
+function autoTarget(ship) {
+    switch (ship.type) {
+        case BATTLESHIP:
+            break;
+        case CRUISER:
+            break;
+        case DESTROYER:
+            break;
+        case FRIGATE:
+            break;
+        case INTERCEPTOR:
+            break;
+        case BOMBER:
+            break;
+        default:
+            break;
+    }
+}
+
+function handleAi(ships) {
+    for (var i = 0; i < ships.length; i+=1) {
+        if (ships[i].aiControl) {
+
+        }
+    }
+    return ships;
 }
 
 function handleProjectiles(projectiles) {

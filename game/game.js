@@ -769,6 +769,16 @@ function handlePlayer(player) {
     return player;
 }
 
+function handleEnemy(enemies) {
+    player = handleInputs(player);
+    player = aimTurrets(player);
+    player = handlemovement(player);
+    addShip(player);
+    player = updateHitboxes(player, false);
+    return player;
+}
+
+
 function handleProjectiles(projectiles) {
     //console.log(projectiles);
     projectiles = handleMotion(projectiles);
