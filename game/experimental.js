@@ -128,6 +128,7 @@ const data = {
         AI: {
             target: '',
             task: '',
+            method: '',
             int: 1, // Lower is further sensor range
             reactionTime: 10, // in ticks
         },
@@ -693,7 +694,7 @@ function aimTurrets(ship) {
 }
 
 function addShip(ship) {
-    addImage(data.img[ship.team+ship.type], ship.x, ship.y, data.center[ship.type].x, data.center[ship.type].y, ship.scale, ship.r);
+    addImage(data.img[ship.team+ship.type], ship.x, ship.y, data.center[ship.type].x, data.center[ship.type].y, 1, ship.r);
     for (var i = 0; i < ship.weapons.length; i+=1) {
         if (ship.weapons[i].type == TURRET) {
             //console.log(ship.team+ship.weapons[i].size+'TURRET');
@@ -800,6 +801,28 @@ function handlePlayer(player) {
     return player;
 }
 
+// AI attack methods
+function circleStrafe(attacker, target, dist, variation) { // circle around the target (fighters only)
+
+}
+
+function escort(attacker, target, dist) { // follow a target (can also follow a friendly ship)
+
+}
+
+function hitAndRun(attacker, target, minDist, variaton) { // fly towards emeny while firing and pull away when reaching minDist (interceptor only)
+
+}
+
+function bombingRun(attacker, target, variaton) { // fly over the enemy, dropping bombs on them (bomber only)
+
+}
+
+function snipe(attacker, target, distance, dodge) { // maintain distance and shoot at the target (ships with turrets only)
+
+}
+
+// Other functions
 function autoTarget(type, team, pos, shipType, dist) { // inefficient, switch the order of the checks for better performance
     var target = false;
     var minDist = dist+1;
@@ -1081,9 +1104,9 @@ function main() {
 }
 
 async function game() {
-    var tick = 0
+    var t = 0
     while (1) {
-        tick +=1;
+        t +=1;
         //console.log(tick);
         main();
         await sleep(1000/60);  // 60 FPS
