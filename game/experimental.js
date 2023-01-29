@@ -598,6 +598,7 @@ function hitboxPos(type, x, y, rx, ry, r, radius) { // turretPos but adapted to 
 }
 
 function target(sPos, tPos) { // WARNING: Horifically inefficient coding (there goes 3 hours of my life...)
+    // Huh, how does this work?
     var dx = tPos.x - sPos.x;
     var dy = tPos.y - sPos.y;
     var rotation = Math.atan(dy/dx);
@@ -801,7 +802,7 @@ function handlePlayer(player) {
     return player;
 }
 
-// AI attack methods
+// AI attack methods (I have no idea how to make these)
 function circleStrafe(attacker, target, dist, variation) { // circle around the target (fighters only)
 
 }
@@ -811,14 +812,28 @@ function escort(attacker, target, dist) { // follow a target (can also follow a 
 }
 
 function hitAndRun(attacker, target, minDist, variaton) { // fly towards emeny while firing and pull away when reaching minDist (interceptor only)
-
+    var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
+    if (attacker.r != aim) {
+        if (aim - attacker.r > 0 && aim - attacker.r < 180) {
+            attacker.r += attacker.agi;
+        } else {
+            attacker.r -= attacker.agi;
+        }
+    }
+    if (abs(aim - attacker.r) < attacker.agi) { // make it easier for the attacker to lock on to the target
+        attacker.r = aim;
+    }
 }
 
 function bombingRun(attacker, target, variaton) { // fly over the enemy, dropping bombs on them (bomber only)
 
 }
 
-function snipe(attacker, target, distance, dodge) { // maintain distance and shoot at the target (ships with turrets only)
+function snipe(attacker, target, distance) { // maintain distance and shoot at the target (ships with turrets only)
+
+}
+
+function rush(attacker, target, distance) { // get close to the enemy while shooting them and then match the enemy's velocity
 
 }
 
