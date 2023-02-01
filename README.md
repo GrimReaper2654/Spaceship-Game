@@ -16,4 +16,5 @@ E to shoot main cannon<br> <br>
 
 
 NOTE: the size of the game area is based on your screen resolution so if your screen is small, it will be hard (impossible) to manoeuver the spaceship. You can zoom out then reload the game to get a larger screen for the game.
+
 AKA: Zoom out to have large FOV and map.
