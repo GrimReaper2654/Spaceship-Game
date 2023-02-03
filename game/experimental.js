@@ -130,7 +130,6 @@ const data = {
             task: '',
             method: '',
             int: 1, // Lower is further sensor range
-            reactionTime: 10, // in ticks
         },
         BATTLESHIP: {
             thrust: 0.0014,
@@ -322,6 +321,8 @@ var player = { // Play as Battleship
             recoilAmount: 0,
             recoil: 0,
             // STATS
+            engagementRange: 3600,
+            spread: 5*Math.PI/180,
             reloadTime: 180,
             reload: 0,
             bullet: {
@@ -347,6 +348,8 @@ var player = { // Play as Battleship
             recoilAmount: 5,
             recoil: 0,
             // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
             reloadTime: 45,
             reload: 0,
             bullet: {
@@ -372,6 +375,8 @@ var player = { // Play as Battleship
             recoilAmount: 5,
             recoil: 0,
             // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
             reloadTime: 45,
             reload: 0,
             bullet: {
@@ -397,6 +402,8 @@ var player = { // Play as Battleship
             recoilAmount: 10,
             recoil: 0,
             // STATS
+            engagementRange: 3600,
+            spread: 0,
             reloadTime: 75,
             reload: 0,
             bullet: {
@@ -422,6 +429,8 @@ var player = { // Play as Battleship
             recoilAmount: 10,
             recoil: 0,
             // STATS
+            engagementRange: 3600,
+            spread: 0,
             reloadTime: 75,
             reload: 0,
             bullet: {
@@ -436,7 +445,95 @@ var player = { // Play as Battleship
     keyboard: {},
 }
 
-var ships = [player];
+var sampleEnemy = {
+    // Physics
+    x: 200,
+    y: 200,
+    px: 200,
+    py: 200,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.1,
+    agi: 0.05,
+    terminalAcceleration:1,
+    terminalVelocity:15,
+    drag: 0.0001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
+    // Stats
+    hp: 1500,
+    shield: 100,
+    team: RED,
+    type: INTERCEPTOR,
+    aiControl: false,
+    id: 25000, // Team (1,2) type (1-6) number (0-1000)
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 600,
+            spread: 2*Math.PI/180,
+            reloadTime: 10,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 600,
+            spread: 2*Math.PI/180,
+            reloadTime: 10,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1,
+            }
+        },
+    ],
+    target: '',
+    task: '',
+    method: '',
+    int: 1, // Lower is further sensor range
+}
+
+var ships = [player, sampleEnemy];
 var projectiles = [];
 
 function replacehtml(text) {
@@ -611,6 +708,14 @@ function target(sPos, tPos) { // WARNING: Horifically inefficient coding (there 
     return rotation; // rotation is absolute
 }
 
+function getDist(sPos, tPos) { 
+    // Mathematics METHods
+    var dx = tPos.x - sPos.x;
+    var dy = tPos.y - sPos.y;
+    var dist = Math.sqrt(dx*dx+dy*dy);
+    return dist;
+}
+
 function correctAngle(a) {
     a = a%(Math.PI*2);
     if (a > Math.PI) {
@@ -713,7 +818,6 @@ function handleMotion(objs) {
 
 function attemptShoot(weapon, team, shipRot) {
     if (weapon.reload == 0) {
-        console.log('shoooooot');
         shoot(weapon, team, shipRot);
         weapon.reload = weapon.reloadTime;
         weapon.recoil = weapon.recoilAmount;
@@ -736,7 +840,7 @@ function shoot(weapon, team, shipRot) {
     bullet.py = JSON.parse(JSON.stringify(weapon.ay));
     bullet.vx = JSON.parse(JSON.stringify(bullet.v*Math.cos(bullet.r)));
     bullet.vy = JSON.parse(JSON.stringify(bullet.v*Math.sin(bullet.r)));
-    bullet.r = angle;
+    bullet.r = angle+(Math.random()-0.5)*weapon.spread;
     bullet.a = 0;
     bullet.thrust = 0;
     bullet.terminalAcceleration = 0;
@@ -813,15 +917,51 @@ function escort(attacker, target, dist) { // follow a target (can also follow a 
 
 function hitAndRun(attacker, target, minDist, variaton) { // fly towards emeny while firing and pull away when reaching minDist (interceptor only)
     var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
-    if (attacker.r != aim) {
-        if (aim - attacker.r > 0 && aim - attacker.r < 180) {
+    console.log(`step 1: aim ${aim} cr ${attacker.r}`);
+    var rAim = aim - attacker.r // relative aim
+    if (rAim != 0) {
+        if (rAim > 0 && rAim < Math.PI) {
             attacker.r += attacker.agi;
         } else {
             attacker.r -= attacker.agi;
         }
     }
-    if (abs(aim - attacker.r) < attacker.agi) { // make it easier for the attacker to lock on to the target
+    if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
         attacker.r = aim;
+    }
+    console.log(`step 2: fr ${attacker.r}`);
+    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y}) < attacker.weapons[0].engagementRange && Math.abs(attacker.r-aim) < tolerence*Math.PI*2) {
+        for (var i = 0; i < attacker.weapons.length; i+=1) {
+            attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
+        }
+    }
+    var nearest = minDist+1;
+    for (var i = 0; i < target.hitbox.length; i+=1) {
+        var distance = getDist({x: attacker.x,y: attacker.y},target.hitbox[i]) + target.hitbox[i].r;
+        if (distance < nearest) {
+            nearest = distance;
+        }
+    }
+    if (nearest < minDist) {
+        attacker.method = 'flee';
+    }
+}
+
+function flee(attacker, target, dist) { // run away (attacker is the fleeing ship)
+    var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
+    var rAim = aim - attacker.r // relative aim
+    rAim+=Math.PI;
+    rAim = correctAngle(rAim);
+    if (rAim != 0) {
+        if (rAim > 0 && rAim < Math.PI) {
+            attacker.r += attacker.agi;
+        } else {
+            attacker.r -= attacker.agi;
+        }
+    }
+    attacker.a += attacker.thrust*2;
+    if (getDist({x:attacker.x,y:attacker.y},{x:target.x,y:target.y}) > dist) {
+        attacker.method = '';
     }
 }
 
@@ -835,6 +975,27 @@ function snipe(attacker, target, distance) { // maintain distance and shoot at t
 
 function rush(attacker, target, distance) { // get close to the enemy while shooting them and then match the enemy's velocity
 
+}
+
+function idle(ship) { // wander around the map
+    if (ship.target = '') {
+        ship.target = {x: Math.random()*data.display.x,y: Math.random()*data.display.y};
+    }
+    var aim = target({x: ship.x,y: ship.y},{x:ship.target.x,y:ship.target.y});
+    var rAim = aim - ship.r // relative aim
+    if (rAim != 0) {
+        if (rAim > 0 && rAim < Math.PI) {
+            ship.r += ship.agi;
+        } else {
+            ship.r -= ship.agi;
+        }
+    }
+    if (getDist({x: ship.x,y: ship.y},{x:ship.target.x,y:ship.target.y}) > 500 || ship.v < ship.terminalVelocity/4) {
+        ship.a += ship.thrust*2;
+    }
+    if (getDist({x: ship.x,y: ship.y},{x:ship.target.x,y:ship.target.y}) < 200) {
+        ship.target = '';
+    }
 }
 
 // Other functions
@@ -1042,10 +1203,19 @@ function autoMission(ship) {
 function handleAi(ships) {
     for (var i = 0; i < ships.length; i+=1) {
         if (ships[i].aiControl) {
-
-            var mission = autoMission(ships[i]);
-            ships[i].task = mission.task;
-            ships[i].target = mission.target;
+            if (ships[i].task == '' || ships[i].target == '') {
+                var mission = autoMission(ships[i]);
+                ships[i].task = mission.task;
+                ships[i].target = mission.target;
+            } else {
+                if (ships[i].task == 'idle') {
+                    idle(ships[i]);
+                    var mission = autoMission(ships[i]);
+                }
+                if (ships[i].method == '') {
+                    // choose a method to complete the task
+                }
+            }
         }
     }
     return ships;
