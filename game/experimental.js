@@ -912,10 +912,79 @@ function circleStrafe(attacker, target, dist, variation) { // circle around the 
 }
 
 function escort(attacker, target, dist) { // follow a target (can also follow a friendly ship)
+    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} > dist)) {
+        var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
+        var rAim = aim - attacker.r // relative aim
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        }
+        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        attacker.a += attacker.thrust*2;
+    } else {
+        var aim = target.r
+        var rAim = aim - attacker.r // relative aim
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        }
+        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        if (attacker.v < target.v) { // try to match target's speed
+            attacker.a += attacker.thrust*2;
+        } else {
+            attacker.a -= attacker.thrust*2;
+        }
+    }
+}
+
+function chase(attacker, target, dist) { // follow a target while shooting them
+    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} > dist)) {
+        var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
+        var rAim = aim - attacker.r // relative aim
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        }
+        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        attacker.a += attacker.thrust*2;
+    } else {
+        var aim = target.r
+        var rAim = aim - attacker.r // relative aim
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        }
+        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        if (attacker.v < target.v) { // try to match target's speed
+            attacker.a += attacker.thrust*2;
+        } else {
+            attacker.a -= attacker.thrust*2;
+        }
+    }
 
 }
 
-function hitAndRun(attacker, target, minDist, variaton) { // fly towards emeny while firing and pull away when reaching minDist (interceptor only)
+function hitAndRun(attacker, target, minDist, variaton) { // fly towards emeny while firing and flee when too close (interceptor only)
     var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
     console.log(`step 1: aim ${aim} cr ${attacker.r}`);
     var rAim = aim - attacker.r // relative aim
@@ -929,6 +998,7 @@ function hitAndRun(attacker, target, minDist, variaton) { // fly towards emeny w
     if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
         attacker.r = aim;
     }
+    attacker.a += attacker.thrust*2;
     console.log(`step 2: fr ${attacker.r}`);
     if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y}) < attacker.weapons[0].engagementRange && Math.abs(attacker.r-aim) < tolerence*Math.PI*2) {
         for (var i = 0; i < attacker.weapons.length; i+=1) {
@@ -966,15 +1036,59 @@ function flee(attacker, target, dist) { // run away (attacker is the fleeing shi
 }
 
 function bombingRun(attacker, target, variaton) { // fly over the enemy, dropping bombs on them (bomber only)
-
+    var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
+    console.log(`step 1: aim ${aim} cr ${attacker.r}`);
+    var rAim = aim - attacker.r // relative aim
+    if (rAim != 0) {
+        if (rAim > 0 && rAim < Math.PI) {
+            attacker.r += attacker.agi;
+        } else {
+            attacker.r -= attacker.agi;
+        }
+    }
+    if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+        attacker.r = aim;
+    }
+    attacker.a += attacker.thrust*2;
+    var shouldAttack = false;
+    for (var i = 0; i < target.hitbox.length; i+=1) {
+        var distance = getDist({x: attacker.x,y: attacker.y},target.hitbox[i]);
+        if (distance < target.hitbox[i].r) {
+            shouldAttack = true;
+        }
+    }
+    if (shouldAttack) {
+        for (var i = 0; i < attacker.weapons.length; i+=1) {
+            attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
+        }
+    }
 }
 
 function snipe(attacker, target, distance) { // maintain distance and shoot at the target (ships with turrets only)
 
 }
 
-function rush(attacker, target, distance) { // get close to the enemy while shooting them and then match the enemy's velocity
-
+function ram(attacker, target) { // get close to the enemy while shooting them and ram them
+    var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
+    console.log(`step 1: aim ${aim} cr ${attacker.r}`);
+    var rAim = aim - attacker.r // relative aim
+    if (rAim != 0) {
+        if (rAim > 0 && rAim < Math.PI) {
+            attacker.r += attacker.agi;
+        } else {
+            attacker.r -= attacker.agi;
+        }
+    }
+    if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+        attacker.r = aim;
+    }
+    attacker.a += attacker.thrust*2;
+    console.log(`step 2: fr ${attacker.r}`);
+    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y}) < attacker.weapons[0].engagementRange && Math.abs(attacker.r-aim) < tolerence*Math.PI*2) {
+        for (var i = 0; i < attacker.weapons.length; i+=1) {
+            attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
+        }
+    }
 }
 
 function idle(ship) { // wander around the map
@@ -996,6 +1110,7 @@ function idle(ship) { // wander around the map
     if (getDist({x: ship.x,y: ship.y},{x:ship.target.x,y:ship.target.y}) < 200) {
         ship.target = '';
     }
+    return ship;
 }
 
 // Other functions
@@ -1203,18 +1318,52 @@ function autoMission(ship) {
 function handleAi(ships) {
     for (var i = 0; i < ships.length; i+=1) {
         if (ships[i].aiControl) {
-            if (ships[i].task == '' || ships[i].target == '') {
+            var targetExists = false;
+            for (var j = 0; j < ships.length; j+=1) {
+                if (ships[i].target == ships[j].id) {
+                    targetExists = true;
+                }
+            }
+            if (targetExists == false) {
+                ships[i].target = '';
+            }
+            if ((ships[i].task == '' || ships[i].target == '') || (t%500 == 0 && (ships[i].task == 'idle' || ships[i].task == 'escort')) || t%5000 == 0) {
                 var mission = autoMission(ships[i]);
                 ships[i].task = mission.task;
                 ships[i].target = mission.target;
             } else {
                 if (ships[i].task == 'idle') {
-                    idle(ships[i]);
-                    var mission = autoMission(ships[i]);
-                }
-                if (ships[i].method == '') {
+                    ships[i] = idle(ships[i]);
+                } else if (ships[i].task == 'idle') {
+                    ships[i] = escort(ships[i],ships[i].target);
+                } else if (ships[i].method != '') {
                     // choose a method to complete the task
+                    if (ships[i].task == 'attack') {
+                        switch (ships[i].type) {
+                            case BATTLESHIP:
+                            case CRUISER:
+                                ships[i].method = '';
+                                break;
+                            case DESTROYER:
+                                ships[i].method = '';
+                                break;
+                            case FRIGATE:
+                                ships[i].method = '';
+                                break;
+                            case INTERCEPTOR:
+                                ships[i].method = '';
+                                break;
+                            case BOMBER:
+                                ships[i].method = '';
+                                break;
+                            default:
+                                ships[i].method = '';
+                                break;
+                        }
+
+                    }
                 }
+                
             }
         }
     }
@@ -1288,10 +1437,10 @@ function main() {
     
 }
 
+var t = 0
 async function game() {
-    var t = 0
     while (1) {
-        t +=1;
+        t += 1;
         //console.log(tick);
         main();
         await sleep(1000/60);  // 60 FPS
