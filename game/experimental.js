@@ -789,8 +789,7 @@ function aimTurrets(ship) {
         ship.weapons[i].ay = pos.y;
         if (ship.weapons[i].type == TURRET) {
             if (ship.weapons[i].ai) {
-                var aiTarget = {x:0,y:0}; // TODO: add targeting AI
-                ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, aiTarget, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
+                ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, {x: ship.target.x, y: ship.target.x}, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             } else {
                 ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, mousepos, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             }
@@ -981,6 +980,14 @@ function chase(attacker, target, dist) { // follow a target while shooting them
             attacker.a -= attacker.thrust*2;
         }
     }
+    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} < 5000)) {
+        attacker = aimTurrets(attacker);
+        for (var i = 0; i < attacker.weapons.length; i += 1) {
+            if (Math.abs(attacker.weapons[i].r-target({x: attacker.weapons[i].x, y: attacker.weapons[i].y},{x: target.x, y: target.y})) < 10*Math.PI/180 || attacker.weapons[i].reloadTime <= 45) {
+                attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
+            }
+        }
+    }
 
 }
 
@@ -1064,8 +1071,61 @@ function bombingRun(attacker, target, variaton) { // fly over the enemy, droppin
     }
 }
 
-function snipe(attacker, target, distance) { // maintain distance and shoot at the target (ships with turrets only)
-
+function snipe(attacker, target, distance, tolerence) { // maintain distance and shoot at the target (ships with turrets only)
+    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} > distance + distance * tolerence)) {
+        var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
+        var rAim = aim - attacker.r // relative aim
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        }
+        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        attacker.a += attacker.thrust*2;
+    } else if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} < distance - distance * tolerence)) {
+        var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
+        var rAim = aim - attacker.r // relative aim
+        rAim+=Math.PI;
+        rAim = correctAngle(rAim);
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        }
+        attacker.a += attacker.thrust*2;
+        if (getDist({x:attacker.x,y:attacker.y},{x:target.x,y:target.y}) > dist) {
+            attacker.method = '';
+        }
+    } else {
+        var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
+        var rAim = aim - attacker.r // relative aim
+        rAim += Math.PI/3;
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        }
+        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        attacker.a += attacker.thrust*2;
+    }
+    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} < 5000)) {
+        attacker = aimTurrets(attacker);
+        for (var i = 0; i < attacker.weapons.length; i += 1) {
+            if (Math.abs(attacker.weapons[i].r-target({x: attacker.weapons[i].x, y: attacker.weapons[i].y},{x: target.x, y: target.y})) < 10*Math.PI/180 || attacker.weapons[i].reloadTime <= 45) {
+                attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
+            }
+        }
+    }
 }
 
 function ram(attacker, target) { // get close to the enemy while shooting them and ram them
