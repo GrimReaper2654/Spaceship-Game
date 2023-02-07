@@ -1,7 +1,7 @@
 # Spaceship-Game
 
 https://grimreaper2654.github.io/Spaceship-Game/game/main.html <br>
-Game currently under development. <br> Working on: Enemies ▕████████░░░░░░░░░░░░▏<br><br>
+Game currently under development. <br> Working on: Enemies ▕██████████████░░░░░░▏<br><br>
 
 Currently, spaceship can move, rotate and shoot.<br><br>
 
