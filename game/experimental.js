@@ -46,9 +46,10 @@ const data = {
         PDTURRET:{x:17,y:10},
         HUGEBULLET:{x:15,y:8}, 
         LARGEBULLET:{x:7,y:24}, 
-        MEDIUMBULLET:{x:5,y:12}, 
-        SMALLBULLET:{x:3,y:1}, 
+        MEDIUMBULLET:{x:11,y:18}, 
+        SMALLBULLET:{x:11,y:5}, 
         PDBULLET:{x:0,y:0}, 
+        BATTLESHIPPLUME:{x:526,y:152}, 
     },
     center: {
         BATTLESHIP:{x:240,y:76}, 
@@ -59,9 +60,10 @@ const data = {
         PDTURRET:{x:6,y:5},
         HUGEBULLET:{x:0,y:4}, 
         LARGEBULLET:{x:0,y:12}, 
-        MEDIUMBULLET:{x:0,y:6}, 
-        SMALLBULLET:{x:0,y:0.5}, 
+        MEDIUMBULLET:{x:0,y:9}, 
+        SMALLBULLET:{x:0,y:2.5}, 
         PDBULLET:{x:0,y:0}, 
+        BATTLESHIPPLUME:{x:269,y:76}, 
     },
     hitbox: { // all sprites will use circular hitboxes (ez to code) Note: 'r' is radius not rotation
         BATTLESHIP: [ // so many hitboxes... so much lag... 
@@ -85,10 +87,10 @@ const data = {
             {x:3.5, y:12, r:12}, 
         ],
         MEDIUMBULLET: [ // the 2 lasers share 1 hitbox
-            {x:2.5, y:6, r:6}, 
+            {x:5.5, y:9, r:8}, 
         ],
         SMALLBULLET: [ // large-ish hitbox so you can actually hit something
-            {x:1.5, y:0.5, r:2}, 
+            {x:5.5, y:2.5, r:2}, 
         ],
         PDBULLET: [ // no hitbox necessary
             {x:0, y:0, r:0}, 

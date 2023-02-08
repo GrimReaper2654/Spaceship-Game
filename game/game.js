@@ -36,8 +36,8 @@ const data = {
         PDTURRET:{x:17,y:10},
         HUGEBULLET:{x:15,y:8}, 
         LARGEBULLET:{x:7,y:24}, 
-        MEDIUMBULLET:{x:5,y:12}, 
-        SMALLBULLET:{x:3,y:1}, 
+        MEDIUMBULLET:{x:11,y:18}, 
+        SMALLBULLET:{x:11,y:5}, 
         PDBULLET:{x:0,y:0}, 
     },
     center: {
@@ -49,8 +49,8 @@ const data = {
         PDTURRET:{x:6,y:5},
         HUGEBULLET:{x:0,y:4}, 
         LARGEBULLET:{x:0,y:12}, 
-        MEDIUMBULLET:{x:0,y:6}, 
-        SMALLBULLET:{x:0,y:0.5}, 
+        MEDIUMBULLET:{x:0,y:9}, 
+        SMALLBULLET:{x:0,y:2.5}, 
         PDBULLET:{x:0,y:0}, 
     },
     hitbox: { // all sprites will use circular hitboxes (ez to code) Note: 'r' is radius not rotation
