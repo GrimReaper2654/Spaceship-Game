@@ -50,6 +50,7 @@ const data = {
         SMALLBULLET:{x:11,y:5}, 
         PDBULLET:{x:0,y:0}, 
         BATTLESHIPPLUME:{x:526,y:152}, 
+        INTERCEPTORPLUME:{x:0,y:0}, 
     },
     center: {
         BATTLESHIP:{x:240,y:76}, 
@@ -64,6 +65,7 @@ const data = {
         SMALLBULLET:{x:0,y:2.5}, 
         PDBULLET:{x:0,y:0}, 
         BATTLESHIPPLUME:{x:269,y:76}, 
+        INTERCEPTORPLUME:{x:0,y:0}, 
     },
     hitbox: { // all sprites will use circular hitboxes (ez to code) Note: 'r' is radius not rotation
         BATTLESHIP: [ // so many hitboxes... so much lag... 
@@ -118,6 +120,13 @@ const data = {
         MEDIUMBULLET: document.getElementById("BulletSmall"),
         SMALLBULLET: document.getElementById("BulletTiny"),
         PDBULLET: document.getElementById("BulletPD"),
+
+        particle: document.getElementById("particle"),
+
+        BATTLESHIPPLUME: document.getElementById("BattleshipPlume"),
+        BATTLESHIPPLUMEOVERLAY: document.getElementById("BattleshipPlumeOverlay"),
+        INTERCEPTORPLUME: document.getElementById("InterceptorPlume"),
+        INTERCEPTORPLUMEOVERLAY: document.getElementById("InterceptorPlumeOverlay"),
     },
     BATTLESHIPMOUNT: {
         LARGETURRET: [{x:272,y:76}, {x:177,y:76}],
@@ -126,7 +135,32 @@ const data = {
     INTERCEPTORMOUNT: {
         SMALLTURRET: [{x:59,y:17}, {x:59,y:29}],
     },
+    BATTLESHIPENGINES: [ // r is radius
+        {x: -240, y: -10, r: 15},
+        {x: -240, y: -10, r: 15},
+        {x: -200, y: -50, r: 10},
+        {x: -200, y: 35, r: 10},
+    ],
+    INTERCEPTORENGINES: [
+        {x: -35, y: -10, r: 10},
+    ],
     construction: {
+        physics: {
+            x: 0,
+            y: 0,
+            px: 0,
+            py: 0,
+            v: 0,
+            vx: 0,
+            vy: 0,
+            r: 0,
+            a: 0,
+            thrust: 0,
+            agi: 0,
+            terminalAcceleration:250,
+            terminalVelocity:250,
+            drag: 0,
+        },
         AI: {
             target: '',
             task: '',
@@ -195,7 +229,7 @@ const data = {
 
 var mousepos = {x:0,y:0};
 
-/* Play as interceptor
+// Play as interceptor
 var player = {
     // Physics
     x: data.display.x/2,
@@ -277,7 +311,9 @@ var player = {
     // Input
     hasClicked: 0,
     keyboard: {},
-}*/
+}
+
+/*
 var player = { // Play as Battleship
     // Physics
     x: data.display.x/2,
@@ -445,7 +481,7 @@ var player = { // Play as Battleship
     // Input
     hasClicked: 0,
     keyboard: {},
-}
+}*/
 
 var sampleEnemy = {
     // Physics
@@ -468,7 +504,7 @@ var sampleEnemy = {
     // Stats
     hp: 1500,
     shield: 100,
-    team: RED,
+    team: GREEN,
     type: INTERCEPTOR,
     aiControl: false,
     id: 25000, // Team (1,2) type (1-6) number (0-1000)
@@ -537,6 +573,16 @@ var sampleEnemy = {
 
 var ships = [player, sampleEnemy];
 var projectiles = [];
+var decoratives = [];
+
+function isin(a, b) { // check is something is in a list
+    for (var i = 0; i < b.length; i += 1) {
+        if (a == b[i]) {
+            return true;
+        }
+    }
+    return false;
+}
 
 function replacehtml(text) {
     document.getElementById("game").innerHTML = text;
@@ -629,6 +675,15 @@ function handleInputs(player) {
     return player;
 }
 
+function logObj(obj) {
+    var l = '';
+    for(var key in obj) {
+        l += JSON.stringify(obj[key]);
+        l += ', ';
+    }
+    console.log(l);
+}
+
 function handlemovement(obj) {
     obj.px = obj.x;
     obj.py = obj.y;
@@ -638,7 +693,7 @@ function handlemovement(obj) {
             obj.a = 0;
         }
     }
-    if (obj.a === 0 && obj.v != 0) {
+    if (obj.a == 0 && obj.v != 0) {
         if (obj.v > 0) {
             obj.v -= obj.drag;
         } else {
@@ -651,16 +706,16 @@ function handlemovement(obj) {
     if (Math.abs(obj.a) > obj.terminalAcceleration) {
         obj.a = obj.terminalAcceleration;
     }
-    if (Math.abs(obj.v) > obj.terminalVelocity) {
+    if (obj.v > obj.terminalVelocity) {
         obj.v = obj.terminalVelocity;
     }
-    if (obj.v < obj.terminalVelocity/8 && obj.v < 0) {
-        obj.v = obj.terminalVelocity/8;
+    if (obj.v < -obj.terminalVelocity/16) {
+        obj.v = -obj.terminalVelocity/16;
     }
-    obj.x += obj.vx;
-    obj.y += obj.vy;
     obj.vx = obj.v*Math.cos(obj.r);
     obj.vy = obj.v*Math.sin(obj.r);
+    obj.x += obj.vx;
+    obj.y += obj.vy;
     obj.v += obj.a;
     //console.log(`V: ${obj.v}`);
     //console.log(`A: ${obj.a}`);
@@ -800,8 +855,31 @@ function aimTurrets(ship) {
     return ship;
 }
 
+function engineEffect(ship) {
+    var enginePos = data[ship.type+'ENGINES'];
+    for (var i = 0; i < enginePos.length; i+= 1) {
+        var p = JSON.parse(JSON.stringify(data.construction.physics));
+        p.img = data.img.particle;
+        p.v = 2-ship.v;
+        p.x = (Math.random() * enginePos[i].r + enginePos[i].x) * Math.cos(ship.r) + (Math.random() * enginePos[i].r + enginePos[i].y) * Math.sin(ship.r) + ship.x;
+        p.y = (Math.random() * enginePos[i].r + enginePos[i].x) * Math.cos(ship.r-Math.PI/2) + (Math.random() * enginePos[i].r + enginePos[i].y) * Math.sin(ship.r-Math.PI/2) + ship.y;
+        p.r = ship.r+Math.PI;
+        p.life = 10;
+        decoratives.push(p);
+    }
+}
+
 function addShip(ship) {
+    if (ship.a > 0) {
+        if (t % 3 == 0) {
+            engineEffect(ship);
+        }
+        addImage(data.img[ship.type+'PLUME'], ship.x, ship.y, data.center[ship.type+'PLUME'].x, data.center[ship.type+'PLUME'].y, 1, ship.r);
+    }
     addImage(data.img[ship.team+ship.type], ship.x, ship.y, data.center[ship.type].x, data.center[ship.type].y, 1, ship.r);
+    if (ship.a > 0) {
+        addImage(data.img[ship.type+'PLUMEOVERLAY'], ship.x, ship.y, data.center[ship.type+'PLUME'].x, data.center[ship.type+'PLUME'].y, 1, ship.r);
+    }
     for (var i = 0; i < ship.weapons.length; i+=1) {
         if (ship.weapons[i].type == TURRET) {
             //console.log(ship.team+ship.weapons[i].size+'TURRET');
@@ -907,9 +985,19 @@ function handlePlayer(player) {
     return player;
 }
 
+function handleShips(ships) {
+    for (var i = 1; i < ships.length; i++) {
+        ships[i] = handlemovement(ships[i]);
+        ships[i] = aimTurrets(ships[i]);
+        addShip(ships[i]);
+        ships[i] = updateHitboxes(ships[i], true);
+    }
+    return ships;
+}
+
 // AI attack methods (I have no idea how to make these)
 function circleStrafe(attacker, target, dist, variation) { // circle around the target (fighters only)
-
+    // HOW?
 }
 
 function escort(attacker, target, dist) { // follow a target (can also follow a friendly ship)
@@ -946,6 +1034,7 @@ function escort(attacker, target, dist) { // follow a target (can also follow a 
             attacker.a -= attacker.thrust*2;
         }
     }
+    return attacker;
 }
 
 function chase(attacker, target, dist) { // follow a target while shooting them
@@ -1176,6 +1265,17 @@ function idle(ship) { // wander around the map
 }
 
 // Other functions
+function detectCollision(obj1, obj2) { // TODO: utilise the past x and y to make sure objects don't glich past eachother if they go fast
+    for (var i = 0; i < obj1.hitbox.length; i += 1) {
+        for (var j = 0; j < obj2.hitbox.length; j += 1) {
+            if (getDist({x: obj1.hitbox[i].x, y: obj1.hitbox[i].y},{x: obj2.hitbox[i].x, y: obj2.hitbox[i].y}) < obj1.hitbox[i].r + obj2.hitbox[i].r) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 function autoTarget(type, team, pos, shipType, dist) { // inefficient, switch the order of the checks for better performance
     var target = false;
     var minDist = dist+1;
@@ -1389,40 +1489,40 @@ function handleAi(ships) {
             if (targetExists == false) {
                 ships[i].target = '';
             }
-            if ((ships[i].task == '' || ships[i].target == '') || (t%500 == 0 && (ships[i].task == 'idle' || ships[i].task == 'escort')) || t%5000 == 0) {
+            if ((ships[i].task == '' || ships[i].target == '') || (t%500 == 0 && (ships[i].task == 'idle' || ships[i].task == 'escort')) || t%00 == 0) {
                 var mission = autoMission(ships[i]);
                 ships[i].task = mission.task;
                 ships[i].target = mission.target;
             } else {
                 if (ships[i].task == 'idle') {
-                    ships[i] = idle(ships[i]);
-                } else if (ships[i].task == 'idle') {
-                    ships[i] = escort(ships[i],ships[i].target);
+                    ships[i].method = 'idle';
+                    //ships[i] = idle(ships[i]);
+                } else if (ships[i].task == 'escort') {
+                    ships[i].method = 'escort';
+                    //ships[i] = escort(ships[i],ships[i].target,1500);
                 } else if (ships[i].method != '') {
                     // choose a method to complete the task
                     if (ships[i].task == 'attack') {
                         switch (ships[i].type) {
                             case BATTLESHIP:
                             case CRUISER:
-                                ships[i].method = '';
-                                break;
                             case DESTROYER:
-                                ships[i].method = '';
-                                break;
                             case FRIGATE:
-                                ships[i].method = '';
-                                break;
+                                ships[i].method = 'chase';
                             case INTERCEPTOR:
-                                ships[i].method = '';
+                                if (ships[i].target.type == BOMBER) {
+                                    ships[i].method = 'chase';
+                                } else {
+                                    ships[i].method = 'hitAndRun';
+                                }
                                 break;
                             case BOMBER:
-                                ships[i].method = '';
+                                ships[i].method = 'bombingRun';
                                 break;
                             default:
-                                ships[i].method = '';
+                                ships[i].method = 'chase';
                                 break;
                         }
-
                     }
                 }
                 
@@ -1448,6 +1548,14 @@ function handleProjectiles(projectiles) {
 
 
     return projectiles;
+}
+
+function handleDecoratives(decoratives) {
+    decoratives = handleMotion(decoratives);
+    for (var i = 0; i < decoratives.length; i+=1) {
+        addImage(decoratives[i].img, decoratives[i].x, decoratives[i].y, 0, 0, 1, decoratives[i].r);
+    }
+    return decoratives;
 }
 
 function tick(objs) {
@@ -1492,11 +1600,16 @@ function tick(objs) {
 
 function main() {
     clearCanvas();
+    decoratives = tick(decoratives);
     projectiles = tick(projectiles);
-    player.weapons = tick(player.weapons);
+    for (var i = 0; i < ships.length; i += 1) {
+        ships[i].weapons = tick(ships[i].weapons);
+    }
+    ships = handleAi(ships);
+    decoratives = handleDecoratives(decoratives);
+    ships = handleShips(ships);
     player = handlePlayer(player);
     projectiles = handleProjectiles(projectiles);
-    
 }
 
 var t = 0
