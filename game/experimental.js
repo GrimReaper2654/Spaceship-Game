@@ -175,6 +175,7 @@ const data = {
             drag: 0.001,
             scale: 1,
             // Stats
+            type: BATTLESHIP,
             hp: 1000000,
             shield: 10000,
         },
@@ -186,12 +187,13 @@ const data = {
             drag: 0.001,
             scale: 1,
             // Stats
+            type: INTERCEPTOR,
             hp: 1500,
             shield: 100,
         },
         HUGEBULLET: { // cannon shell
             v: 20,
-            dmg: 8000, // 2666.66 DPS for Battleship
+            dmg: 12000, // a lot of DPS for Battleship
             dmgvb: 0,
             life: 180,
             physical: true
@@ -229,8 +231,8 @@ const data = {
 
 var mousepos = {x:0,y:0};
 
-// Play as interceptor
-var player = {
+/*
+var player = { // Play as interceptor
     // Physics
     x: data.display.x/2,
     y: data.display.y/2,
@@ -275,6 +277,7 @@ var player = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
+            spread: 2*Math.PI/180,
             reloadTime: 10,
             reload: 0,
             bullet: {
@@ -300,6 +303,7 @@ var player = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
+            spread: 2*Math.PI/180,
             reloadTime: 10,
             reload: 0,
             bullet: {
@@ -311,9 +315,8 @@ var player = {
     // Input
     hasClicked: 0,
     keyboard: {},
-}
+}*/
 
-/*
 var player = { // Play as Battleship
     // Physics
     x: data.display.x/2,
@@ -481,14 +484,14 @@ var player = { // Play as Battleship
     // Input
     hasClicked: 0,
     keyboard: {},
-}*/
+}
 
 var sampleEnemy = {
     // Physics
-    x: 200,
-    y: 200,
-    px: 200,
-    py: 200,
+    x: 500,
+    y: 500,
+    px: 500,
+    py: 500,
     v: 0,
     vx: 0,
     vy: 0,
@@ -506,7 +509,94 @@ var sampleEnemy = {
     shield: 100,
     team: GREEN,
     type: INTERCEPTOR,
-    aiControl: false,
+    aiControl: true,
+    id: 25000, // Team (1,2) type (1-6) number (0-1000)
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 600,
+            spread: 2*Math.PI/180,
+            reloadTime: 10,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 600,
+            spread: 2*Math.PI/180,
+            reloadTime: 10,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1,
+            }
+        },
+    ],
+    target: '',
+    task: '',
+    method: '',
+    int: 1, // Lower is further sensor range
+}
+var sampleTeammate = {
+    // Physics
+    x: 500,
+    y: 500,
+    px: 500,
+    py: 500,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.1,
+    agi: 0.05,
+    terminalAcceleration:1,
+    terminalVelocity:15,
+    drag: 0.0001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
+    // Stats
+    hp: 1500,
+    shield: 100,
+    team: RED,
+    type: INTERCEPTOR,
+    aiControl: true,
     id: 25000, // Team (1,2) type (1-6) number (0-1000)
     // Weapons
     weapons: [
@@ -685,6 +775,7 @@ function logObj(obj) {
 }
 
 function handlemovement(obj) {
+    //console.log('obj',obj);
     obj.px = obj.x;
     obj.py = obj.y;
     if (obj.a > 0) {
@@ -777,7 +868,7 @@ function correctAngle(a) {
     a = a%(Math.PI*2);
     if (a > Math.PI) {
         a = -(2*Math.PI-a);
-    } else if (aim < -Math.PI) {
+    } else if (a < -Math.PI) {
         a = (2*Math.PI+a);
     }
     return a;
@@ -906,25 +997,27 @@ function attemptShoot(weapon, team, shipRot) {
 
 function shoot(weapon, team, shipRot) {
     var angle = weapon.aim + shipRot;
-    var bullet = JSON.parse(JSON.stringify(data.construction[weapon.size+'BULLET'])); // Deep copy (probably don't need to do it for everything but better safe than sorry, and I'm lazy) 
+    var bullet = {...JSON.parse(JSON.stringify(data.construction.physics)), ...JSON.parse(JSON.stringify(data.construction[weapon.size+'BULLET']))};
     bullet.hitbox = JSON.parse(JSON.stringify(data.hitbox[weapon.size+'BULLET']));
     bullet.v *= JSON.parse(JSON.stringify(weapon.bullet.speedMultiplier));
+    console.log('v', bullet.v);
     bullet.dmg *= JSON.parse(JSON.stringify(weapon.bullet.dmgMultiplier));
     bullet.dmgvb *= JSON.parse(JSON.stringify(weapon.bullet.dmgMultiplier));
     bullet.type = JSON.parse(JSON.stringify(weapon.size+'BULLET'));
     bullet.team = JSON.parse(JSON.stringify(team));
     bullet.x = JSON.parse(JSON.stringify(weapon.ax));
+    console.log('x', bullet.x);
     bullet.y = JSON.parse(JSON.stringify(weapon.ay));
+    console.log('y', bullet.y);
     bullet.px = JSON.parse(JSON.stringify(weapon.ax));
     bullet.py = JSON.parse(JSON.stringify(weapon.ay));
-    bullet.vx = JSON.parse(JSON.stringify(bullet.v*Math.cos(bullet.r)));
-    bullet.vy = JSON.parse(JSON.stringify(bullet.v*Math.sin(bullet.r)));
     bullet.r = angle+(Math.random()-0.5)*weapon.spread;
-    bullet.a = 0;
-    bullet.thrust = 0;
-    bullet.terminalAcceleration = 0;
-    bullet.terminalVelocity = Infinity;
-    bullet.drag = 0;
+    console.log('angle', angle);
+    console.log('spread', weapon.spread);
+    console.log('r', bullet.r);
+    console.log('drag', bullet.drag);
+    console.log('a', bullet.a);
+    console.log(bullet);
     projectiles.push(bullet);
 }
 
@@ -985,7 +1078,7 @@ function handlePlayer(player) {
     return player;
 }
 
-function handleShips(ships) {
+function handleShips(ships) { // handles all ships that are not the player
     for (var i = 1; i < ships.length; i++) {
         ships[i] = handlemovement(ships[i]);
         ships[i] = aimTurrets(ships[i]);
@@ -996,13 +1089,15 @@ function handleShips(ships) {
 }
 
 // AI attack methods (I have no idea how to make these)
-function circleStrafe(attacker, target, dist, variation) { // circle around the target (fighters only)
-    // HOW?
-}
+// These are very scuffed and don't work as intended but somehow it works so I can't be bothered to fix it
 
-function escort(attacker, target, dist) { // follow a target (can also follow a friendly ship)
-    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} > dist)) {
-        var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
+function chase(attacker, dist) { // follow a target while shooting them and run away if the enemy gets too close
+    // It works, lets gooooooo!
+    console.log(attacker);
+    attacker.r = correctAngle(attacker.r);
+    if (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) >= dist) {
+        console.log('get closer');
+        var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
         var rAim = aim - attacker.r // relative aim
         if (rAim != 0) {
             if (rAim > 0 && rAim < Math.PI) {
@@ -1011,235 +1106,60 @@ function escort(attacker, target, dist) { // follow a target (can also follow a 
                 attacker.r -= attacker.agi;
             }
         }
-        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+        if (Math.abs(rAim) < attacker.agi*2) { // make it easier for the attacker to lock on to the target
             attacker.r = aim;
         }
         attacker.a += attacker.thrust*2;
     } else {
-        var aim = target.r
-        var rAim = aim - attacker.r // relative aim
-        if (rAim != 0) {
-            if (rAim > 0 && rAim < Math.PI) {
+        var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
+        //console.log(Math.abs(aim));
+        if ((Math.abs(aim) > 180*Math.PI/180 && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 500) || getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 100) {
+            console.log('flee');
+            attacker.a += attacker.thrust*2;
+            if (correctAngle(Math.abs(aim) - Math.PI) > 10*Math.PI/180) {
                 attacker.r += attacker.agi;
-            } else {
+            } else if (correctAngle(Math.abs(aim) - Math.PI) < 10*Math.PI/180) {
                 attacker.r -= attacker.agi;
+            } else {
+                if (Math.random() > 0.5) {
+                    attacker.r -= attacker.agi;
+                } else {
+                    attacker.r += attacker.agi;
+                }
+            }
+        } else {
+            console.log('maintain distance');
+            var aim = target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y});
+            var rAim = aim - attacker.r // relative aim
+            if (rAim != 0) {
+                if (rAim > 0 && rAim < Math.PI) {
+                    attacker.r += attacker.agi;
+                } else {
+                    attacker.r -= attacker.agi;
+                }
+            }
+            if (Math.abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+                attacker.r = aim;
+            }
+            if (attacker.v < attacker.target.v) { // try to match target's speed
+                //console.log('accelerate');
+                attacker.a += attacker.thrust*2;
+            } else {
+                attacker.a -= attacker.thrust*2;
+                //console.log('decelerate');
             }
         }
-        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
-            attacker.r = aim;
-        }
-        if (attacker.v < target.v) { // try to match target's speed
-            attacker.a += attacker.thrust*2;
-        } else {
-            attacker.a -= attacker.thrust*2;
+    }
+    if (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 5000) {
+        attacker = aimTurrets(attacker);
+        for (var i = 0; i < attacker.weapons.length; i += 1) {
+            if (Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 10*Math.PI/180 || (attacker.weapons[i].reloadTime <= 45 && Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 90*Math.PI/180)) {
+                //console.log('aligned');
+                attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
+            }
         }
     }
     return attacker;
-}
-
-function chase(attacker, target, dist) { // follow a target while shooting them
-    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} > dist)) {
-        var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
-        var rAim = aim - attacker.r // relative aim
-        if (rAim != 0) {
-            if (rAim > 0 && rAim < Math.PI) {
-                attacker.r += attacker.agi;
-            } else {
-                attacker.r -= attacker.agi;
-            }
-        }
-        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
-            attacker.r = aim;
-        }
-        attacker.a += attacker.thrust*2;
-    } else {
-        var aim = target.r
-        var rAim = aim - attacker.r // relative aim
-        if (rAim != 0) {
-            if (rAim > 0 && rAim < Math.PI) {
-                attacker.r += attacker.agi;
-            } else {
-                attacker.r -= attacker.agi;
-            }
-        }
-        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
-            attacker.r = aim;
-        }
-        if (attacker.v < target.v) { // try to match target's speed
-            attacker.a += attacker.thrust*2;
-        } else {
-            attacker.a -= attacker.thrust*2;
-        }
-    }
-    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} < 5000)) {
-        attacker = aimTurrets(attacker);
-        for (var i = 0; i < attacker.weapons.length; i += 1) {
-            if (Math.abs(attacker.weapons[i].r-target({x: attacker.weapons[i].x, y: attacker.weapons[i].y},{x: target.x, y: target.y})) < 10*Math.PI/180 || attacker.weapons[i].reloadTime <= 45) {
-                attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
-            }
-        }
-    }
-
-}
-
-function hitAndRun(attacker, target, minDist, variaton) { // fly towards emeny while firing and flee when too close (interceptor only)
-    var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
-    console.log(`step 1: aim ${aim} cr ${attacker.r}`);
-    var rAim = aim - attacker.r // relative aim
-    if (rAim != 0) {
-        if (rAim > 0 && rAim < Math.PI) {
-            attacker.r += attacker.agi;
-        } else {
-            attacker.r -= attacker.agi;
-        }
-    }
-    if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
-        attacker.r = aim;
-    }
-    attacker.a += attacker.thrust*2;
-    console.log(`step 2: fr ${attacker.r}`);
-    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y}) < attacker.weapons[0].engagementRange && Math.abs(attacker.r-aim) < tolerence*Math.PI*2) {
-        for (var i = 0; i < attacker.weapons.length; i+=1) {
-            attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
-        }
-    }
-    var nearest = minDist+1;
-    for (var i = 0; i < target.hitbox.length; i+=1) {
-        var distance = getDist({x: attacker.x,y: attacker.y},target.hitbox[i]) + target.hitbox[i].r;
-        if (distance < nearest) {
-            nearest = distance;
-        }
-    }
-    if (nearest < minDist) {
-        attacker.method = 'flee';
-    }
-}
-
-function flee(attacker, target, dist) { // run away (attacker is the fleeing ship)
-    var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
-    var rAim = aim - attacker.r // relative aim
-    rAim+=Math.PI;
-    rAim = correctAngle(rAim);
-    if (rAim != 0) {
-        if (rAim > 0 && rAim < Math.PI) {
-            attacker.r += attacker.agi;
-        } else {
-            attacker.r -= attacker.agi;
-        }
-    }
-    attacker.a += attacker.thrust*2;
-    if (getDist({x:attacker.x,y:attacker.y},{x:target.x,y:target.y}) > dist) {
-        attacker.method = '';
-    }
-}
-
-function bombingRun(attacker, target, variaton) { // fly over the enemy, dropping bombs on them (bomber only)
-    var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
-    console.log(`step 1: aim ${aim} cr ${attacker.r}`);
-    var rAim = aim - attacker.r // relative aim
-    if (rAim != 0) {
-        if (rAim > 0 && rAim < Math.PI) {
-            attacker.r += attacker.agi;
-        } else {
-            attacker.r -= attacker.agi;
-        }
-    }
-    if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
-        attacker.r = aim;
-    }
-    attacker.a += attacker.thrust*2;
-    var shouldAttack = false;
-    for (var i = 0; i < target.hitbox.length; i+=1) {
-        var distance = getDist({x: attacker.x,y: attacker.y},target.hitbox[i]);
-        if (distance < target.hitbox[i].r) {
-            shouldAttack = true;
-        }
-    }
-    if (shouldAttack) {
-        for (var i = 0; i < attacker.weapons.length; i+=1) {
-            attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
-        }
-    }
-}
-
-function snipe(attacker, target, distance, tolerence) { // maintain distance and shoot at the target (ships with turrets only)
-    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} > distance + distance * tolerence)) {
-        var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
-        var rAim = aim - attacker.r // relative aim
-        if (rAim != 0) {
-            if (rAim > 0 && rAim < Math.PI) {
-                attacker.r += attacker.agi;
-            } else {
-                attacker.r -= attacker.agi;
-            }
-        }
-        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
-            attacker.r = aim;
-        }
-        attacker.a += attacker.thrust*2;
-    } else if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} < distance - distance * tolerence)) {
-        var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
-        var rAim = aim - attacker.r // relative aim
-        rAim+=Math.PI;
-        rAim = correctAngle(rAim);
-        if (rAim != 0) {
-            if (rAim > 0 && rAim < Math.PI) {
-                attacker.r += attacker.agi;
-            } else {
-                attacker.r -= attacker.agi;
-            }
-        }
-        attacker.a += attacker.thrust*2;
-        if (getDist({x:attacker.x,y:attacker.y},{x:target.x,y:target.y}) > dist) {
-            attacker.method = '';
-        }
-    } else {
-        var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
-        var rAim = aim - attacker.r // relative aim
-        rAim += Math.PI/3;
-        if (rAim != 0) {
-            if (rAim > 0 && rAim < Math.PI) {
-                attacker.r += attacker.agi;
-            } else {
-                attacker.r -= attacker.agi;
-            }
-        }
-        if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
-            attacker.r = aim;
-        }
-        attacker.a += attacker.thrust*2;
-    }
-    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y} < 5000)) {
-        attacker = aimTurrets(attacker);
-        for (var i = 0; i < attacker.weapons.length; i += 1) {
-            if (Math.abs(attacker.weapons[i].r-target({x: attacker.weapons[i].x, y: attacker.weapons[i].y},{x: target.x, y: target.y})) < 10*Math.PI/180 || attacker.weapons[i].reloadTime <= 45) {
-                attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
-            }
-        }
-    }
-}
-
-function ram(attacker, target) { // get close to the enemy while shooting them and ram them
-    var aim = target({x:attacker.x,y:attacker.y},{x:target.x,y:target.y});
-    console.log(`step 1: aim ${aim} cr ${attacker.r}`);
-    var rAim = aim - attacker.r // relative aim
-    if (rAim != 0) {
-        if (rAim > 0 && rAim < Math.PI) {
-            attacker.r += attacker.agi;
-        } else {
-            attacker.r -= attacker.agi;
-        }
-    }
-    if (abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
-        attacker.r = aim;
-    }
-    attacker.a += attacker.thrust*2;
-    console.log(`step 2: fr ${attacker.r}`);
-    if (getDist({x: attacker.x,y: attacker.y},{x: target.x,y: target.y}) < attacker.weapons[0].engagementRange && Math.abs(attacker.r-aim) < tolerence*Math.PI*2) {
-        for (var i = 0; i < attacker.weapons.length; i+=1) {
-            attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
-        }
-    }
 }
 
 function idle(ship) { // wander around the map
@@ -1277,6 +1197,7 @@ function detectCollision(obj1, obj2) { // TODO: utilise the past x and y to make
 }
 
 function autoTarget(type, team, pos, shipType, dist) { // inefficient, switch the order of the checks for better performance
+    console.log(ships);
     var target = false;
     var minDist = dist+1;
     for (var i = 0; i < ships.length; i+=1) {
@@ -1294,19 +1215,29 @@ function autoTarget(type, team, pos, shipType, dist) { // inefficient, switch th
                         shouldCalculate = true;
                     }
                 }
+            } else {
+                shouldCalculate = true;
             }
             if (shouldCalculate) {
-                if (Math.sqrt(abs(ships[i].x-pos.x)**2+abs(ships[i].y-pos.y)**2) < minDist) {
-                    minDist = Math.sqrt(abs(ships[i].x-pos.x)**2+abs(ships[i].y-pos.y)**2);
-                    target = ships[i].id;
+                if (Math.sqrt(Math.abs(ships[i].x-pos.x)**2+Math.abs(ships[i].y-pos.y)**2) < minDist) {
+                    minDist = Math.sqrt(Math.abs(ships[i].x-pos.x)**2+Math.abs(ships[i].y-pos.y)**2);
+                    target = ships[i];
                 }
             }
         }
     }
+    console.log(target);
     return target;
 }
 
 function autoMission(ship) {
+    var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, ALL, 100000);
+    if (target) {
+        return {mission: ATTACK, target: target};
+    } else {
+        console.log('stupid');
+    }
+    /*
     switch (ship.type) {
         case BATTLESHIP: // attack nearby capital ships then other ships
             var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, BATTLESHIP, 3100);
@@ -1437,6 +1368,10 @@ function autoMission(ship) {
             if (target) {
                 return {mission: ESCORT, target: target};
             }
+            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, ALL, 10000);
+            if (target) {
+                return {mission: ATTACK, target: target};
+            }
             return {mission: IDLE, target: null};
         case BOMBER: // Beeline the nearest capital ship and bomb it, otherwise bomb other bombable ships. If there is nothing to attack, follow a larger ship for protection
             var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 5000);
@@ -1474,40 +1409,35 @@ function autoMission(ship) {
                 return {mission: ATTACK, target: target};
             }
             return {mission: IDLE, target: null};
-    }
+    }*/
 }
 
 function handleAi(ships) {
     for (var i = 0; i < ships.length; i+=1) {
         if (ships[i].aiControl) {
-            var targetExists = false;
-            for (var j = 0; j < ships.length; j+=1) {
-                if (ships[i].target == ships[j].id) {
-                    targetExists = true;
-                }
-            }
-            if (targetExists == false) {
+            if (ships.target == 0) {
                 ships[i].target = '';
             }
-            if ((ships[i].task == '' || ships[i].target == '') || (t%500 == 0 && (ships[i].task == 'idle' || ships[i].task == 'escort')) || t%00 == 0) {
+            if ((ships[i].task == '' || ships[i].target == '') || (t%500 == 0 && (ships[i].task == IDLE || ships[i].task == ESCORT)) || t%00 == 0) {
                 var mission = autoMission(ships[i]);
-                ships[i].task = mission.task;
+                ships[i].task = mission.mission;
                 ships[i].target = mission.target;
             } else {
-                if (ships[i].task == 'idle') {
+                /*
+                if (ships[i].task == IDLE) {
                     ships[i].method = 'idle';
                     //ships[i] = idle(ships[i]);
-                } else if (ships[i].task == 'escort') {
+                } else if (ships[i].task == ESCORT) {
                     ships[i].method = 'escort';
                     //ships[i] = escort(ships[i],ships[i].target,1500);
-                } else if (ships[i].method != '') {
+                } else if (ships[i].method == '') {
                     // choose a method to complete the task
-                    if (ships[i].task == 'attack') {
+                    if (ships[i].task == ATTACK) {
                         switch (ships[i].type) {
                             case BATTLESHIP:
                             case CRUISER:
                             case DESTROYER:
-                            case FRIGATE:
+                            case FRIGATE: 
                                 ships[i].method = 'chase';
                             case INTERCEPTOR:
                                 if (ships[i].target.type == BOMBER) {
@@ -1525,8 +1455,18 @@ function handleAi(ships) {
                         }
                     }
                 }
-                
+                */
+               var doNothing = 1;
             }
+        }
+    }
+    return ships;
+}
+
+function runAi(ships) { // TODO: add more attack methods
+    for (var i = 0; i < ships.length; i+=1) {
+        if (ships[i].aiControl) {
+            ships[i] = chase(ships[i], 500);
         }
     }
     return ships;
@@ -1606,6 +1546,7 @@ function main() {
         ships[i].weapons = tick(ships[i].weapons);
     }
     ships = handleAi(ships);
+    ships = runAi(ships);
     decoratives = handleDecoratives(decoratives);
     ships = handleShips(ships);
     player = handlePlayer(player);
@@ -1619,6 +1560,6 @@ async function game() {
         //console.log(tick);
         main();
         await sleep(1000/60);  // 60 FPS
-        //await sleep(500);    // Debug Mode
+        //await sleep(100);    // Debug Mode
     }
 }
