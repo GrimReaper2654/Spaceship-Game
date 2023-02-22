@@ -83,19 +83,16 @@ const data = {
             {x:52.5, y:22.5, r:10}, 
         ],
         HUGEBULLET: [ // wider than you think
-            {x:7.5, y:4, r:7.5}, 
+            {x:7.5, y:4, r:10}, 
         ],
         LARGEBULLET: [ // I would make 3 hitboxes for the 3 bullets but lag...
-            {x:3.5, y:12, r:12}, 
+            {x:3.5, y:12, r:20}, 
         ],
         MEDIUMBULLET: [ // the 2 lasers share 1 hitbox
-            {x:5.5, y:9, r:8}, 
+            {x:5.5, y:9, r:12}, 
         ],
         SMALLBULLET: [ // large-ish hitbox so you can actually hit something
-            {x:5.5, y:2.5, r:2}, 
-        ],
-        PDBULLET: [ // no hitbox necessary
-            {x:0, y:0, r:0}, 
+            {x:5.5, y:2.5, r:5}, 
         ],
     },
     img: {
@@ -199,24 +196,24 @@ const data = {
             physical: true
         },
         LARGEBULLET: { // cannon shell
-            v: 30,
+            v: 25,
             dmg: 10000, // 8000 DPS for Battleship
             dmgvb: 0,
             life: 120,
             physical: true
         },
         MEDIUMBULLET: { // laser
-            v: 60,
+            v: 30,
             dmg: 1000,  // 1333.33 DPS for Battleship
             dmgvb: 0,
             life: 30,
             physical: false
         },
         SMALLBULLET: { // laser
-            v: 60,
+            v: 45,
             dmg: 100,   // 450*2 DPS for Interceptor
             dmgvb: 0,
-            life: 10,
+            life: 15,
             physical: false
         },
         PDBULLET: { // point defence (∞ ms^-1 and no image)
@@ -337,7 +334,12 @@ var player = { // Play as Battleship
     hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
     // Stats
     hp: 1000000,
-    shield: 10000,
+    shield: {
+        shieldCap: 10000,
+        shield: 10000,
+        shieldRegen: 1,
+        cooldown: 0,
+    },
     team: RED,
     type: BATTLESHIP,
     aiControl: false,
@@ -488,25 +490,30 @@ var player = { // Play as Battleship
 
 var sampleEnemy = {
     // Physics
-    x: 500,
-    y: 500,
-    px: 500,
-    py: 500,
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
     r: 0,
     a: 0,
     thrust: 0.1,
-    agi: 0.05,
+    agi: 0.1,
     terminalAcceleration:1,
     terminalVelocity:15,
     drag: 0.0001,
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
     // Stats
-    hp: 1500,
-    shield: 100,
+    hp: 15000,
+    shield: {
+        shieldCap: 600,
+        shield: 600,
+        shieldRegen: 0.1,
+        cooldown: 0,
+    },
     team: GREEN,
     type: INTERCEPTOR,
     aiControl: true,
@@ -533,10 +540,10 @@ var sampleEnemy = {
             // STATS
             engagementRange: 600,
             spread: 2*Math.PI/180,
-            reloadTime: 10,
+            reloadTime: 4,
             reload: 0,
             bullet: {
-                dmgMultiplier: 1.5,
+                dmgMultiplier: 0.75,
                 speedMultiplier: 1
             }
         },
@@ -560,10 +567,10 @@ var sampleEnemy = {
             // STATS
             engagementRange: 600,
             spread: 2*Math.PI/180,
-            reloadTime: 10,
+            reloadTime: 4,
             reload: 0,
             bullet: {
-                dmgMultiplier: 1.5,
+                dmgMultiplier: 0.75,
                 speedMultiplier: 1,
             }
         },
@@ -575,17 +582,17 @@ var sampleEnemy = {
 }
 var sampleTeammate = {
     // Physics
-    x: 500,
-    y: 500,
-    px: 500,
-    py: 500,
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
     r: 0,
     a: 0,
     thrust: 0.1,
-    agi: 0.05,
+    agi: 0.1,
     terminalAcceleration:1,
     terminalVelocity:15,
     drag: 0.0001,
@@ -593,7 +600,12 @@ var sampleTeammate = {
     hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
     // Stats
     hp: 1500,
-    shield: 100,
+    shield: {
+        shieldCap: 600,
+        shield: 600,
+        shieldRegen: 0.1,
+        cooldown: 0,
+    },
     team: RED,
     type: INTERCEPTOR,
     aiControl: true,
@@ -620,10 +632,10 @@ var sampleTeammate = {
             // STATS
             engagementRange: 600,
             spread: 2*Math.PI/180,
-            reloadTime: 10,
+            reloadTime: 4,
             reload: 0,
             bullet: {
-                dmgMultiplier: 1.5,
+                dmgMultiplier: 0.75,
                 speedMultiplier: 1
             }
         },
@@ -647,10 +659,10 @@ var sampleTeammate = {
             // STATS
             engagementRange: 600,
             spread: 2*Math.PI/180,
-            reloadTime: 10,
+            reloadTime: 4,
             reload: 0,
             bullet: {
-                dmgMultiplier: 1.5,
+                dmgMultiplier: 0.75,
                 speedMultiplier: 1,
             }
         },
@@ -661,7 +673,8 @@ var sampleTeammate = {
     int: 1, // Lower is further sensor range
 }
 
-var ships = [player, sampleEnemy];
+var ships = [player, JSON.parse(JSON.stringify(sampleEnemy)), JSON.parse(JSON.stringify(sampleEnemy)), JSON.parse(JSON.stringify(sampleEnemy)), JSON.parse(JSON.stringify(sampleEnemy))];
+//console.log(ships);
 var projectiles = [];
 var decoratives = [];
 
@@ -1000,24 +1013,15 @@ function shoot(weapon, team, shipRot) {
     var bullet = {...JSON.parse(JSON.stringify(data.construction.physics)), ...JSON.parse(JSON.stringify(data.construction[weapon.size+'BULLET']))};
     bullet.hitbox = JSON.parse(JSON.stringify(data.hitbox[weapon.size+'BULLET']));
     bullet.v *= JSON.parse(JSON.stringify(weapon.bullet.speedMultiplier));
-    console.log('v', bullet.v);
     bullet.dmg *= JSON.parse(JSON.stringify(weapon.bullet.dmgMultiplier));
     bullet.dmgvb *= JSON.parse(JSON.stringify(weapon.bullet.dmgMultiplier));
     bullet.type = JSON.parse(JSON.stringify(weapon.size+'BULLET'));
     bullet.team = JSON.parse(JSON.stringify(team));
     bullet.x = JSON.parse(JSON.stringify(weapon.ax));
-    console.log('x', bullet.x);
     bullet.y = JSON.parse(JSON.stringify(weapon.ay));
-    console.log('y', bullet.y);
     bullet.px = JSON.parse(JSON.stringify(weapon.ax));
     bullet.py = JSON.parse(JSON.stringify(weapon.ay));
     bullet.r = angle+(Math.random()-0.5)*weapon.spread;
-    console.log('angle', angle);
-    console.log('spread', weapon.spread);
-    console.log('r', bullet.r);
-    console.log('drag', bullet.drag);
-    console.log('a', bullet.a);
-    console.log(bullet);
     projectiles.push(bullet);
 }
 
@@ -1071,19 +1075,26 @@ function updateHitboxes(obj, show) {
 
 function handlePlayer(player) {
     player = handleInputs(player);
-    player = aimTurrets(player);
-    player = handlemovement(player);
-    addShip(player);
-    player = updateHitboxes(player, true);
     return player;
 }
 
 function handleShips(ships) { // handles all ships that are not the player
-    for (var i = 1; i < ships.length; i++) {
+    for (var i = 0; i < ships.length; i++) {
+        if (ships[i].shield) {
+            if (ships[i].shield.cooldown == 0) {
+                ships[i].shield.shield += ships[i].shield.shieldRegen;
+                if (ships[i].shield.shield > ships[i].shield.shieldCap) {
+                    ships[i].shield.shield = ships[i].shield.shieldCap;
+                }
+            } else {
+                ships[i].shield.cooldown -= 1;
+            }
+        }
         ships[i] = handlemovement(ships[i]);
         ships[i] = aimTurrets(ships[i]);
         addShip(ships[i]);
         ships[i] = updateHitboxes(ships[i], true);
+        //console.log(ships[i].hp, ships[i].shield.shield);
     }
     return ships;
 }
@@ -1093,10 +1104,10 @@ function handleShips(ships) { // handles all ships that are not the player
 
 function chase(attacker, dist) { // follow a target while shooting them and run away if the enemy gets too close
     // It works, lets gooooooo!
-    console.log(attacker);
+    //console.log(attacker);
     attacker.r = correctAngle(attacker.r);
     if (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) >= dist) {
-        console.log('get closer');
+        //console.log('get closer');
         var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
         var rAim = aim - attacker.r // relative aim
         if (rAim != 0) {
@@ -1113,13 +1124,21 @@ function chase(attacker, dist) { // follow a target while shooting them and run 
     } else {
         var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
         //console.log(Math.abs(aim));
-        if ((Math.abs(aim) > 180*Math.PI/180 && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 500) || getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 100) {
-            console.log('flee');
+        if ((Math.abs(aim) > 180*Math.PI/180 && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 500) || getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 150 || (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 400 && isin(attacker.target.type, CAPITAL))) {
+            //console.log('flee');
             attacker.a += attacker.thrust*2;
             if (correctAngle(Math.abs(aim) - Math.PI) > 10*Math.PI/180) {
-                attacker.r += attacker.agi;
+                if (Math.random() < 0.9) {
+                    attacker.r += attacker.agi;
+                } else {
+                    attacker.r -= attacker.agi;
+                }
             } else if (correctAngle(Math.abs(aim) - Math.PI) < 10*Math.PI/180) {
-                attacker.r -= attacker.agi;
+                if (Math.random() < 0.9) {
+                    attacker.r -= attacker.agi;
+                } else {
+                    attacker.r += attacker.agi;
+                }
             } else {
                 if (Math.random() > 0.5) {
                     attacker.r -= attacker.agi;
@@ -1128,14 +1147,30 @@ function chase(attacker, dist) { // follow a target while shooting them and run 
                 }
             }
         } else {
-            console.log('maintain distance');
+            //console.log('maintain distance');
             var aim = target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y});
             var rAim = aim - attacker.r // relative aim
             if (rAim != 0) {
                 if (rAim > 0 && rAim < Math.PI) {
-                    attacker.r += attacker.agi;
+                    if (Math.random() < 0.9) {
+                        attacker.r += attacker.agi;
+                    } else {
+                        attacker.r -= attacker.agi;
+                    }
                 } else {
-                    attacker.r -= attacker.agi;
+                    if (Math.random() < 0.9) {
+                        attacker.r -= attacker.agi;
+                    } else {
+                        attacker.r += attacker.agi;
+                    }
+                }
+            } else {
+                if (Math.random() > 0.7) {
+                    if (Math.random() > 0.5) {
+                        attacker.r += attacker.agi;
+                    } else {
+                        attacker.r -= attacker.agi;
+                    }
                 }
             }
             if (Math.abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
@@ -1472,22 +1507,70 @@ function runAi(ships) { // TODO: add more attack methods
     return ships;
 }
 
-function handleProjectiles(projectiles) {
+function calculateDamage(bullet, ship) {
+    if (bullet.dmg > 0 && bullet.team != ship.team) {
+        if (bullet.dmg > ship.shield.shieldCap) {
+            bullet.dmg -= ship.shield.shield*(ship.shield.shield/bullet.dmg);
+            ship.shield.shield = 0;
+            ship.shield.cooldown = 300;
+        } else {
+            if (bullet.dmg < ship.shield.shield*0.1) {
+                ship.shield.shield -= bullet.dmg/2;
+                bullet.dmg = 0;
+            } else if (bullet.dmg < ship.shield.shield*0.75) {
+                ship.shield.shield -= bullet.dmg;
+                bullet.dmg = 0;
+                ship.shield.cooldown += 15;
+            } else {
+                ship.shield.shield -= bullet.dmg*1.1;
+                bullet.dmg = Math.max(bullet.dmg*0.9,bullet.dmg-ship.shield.shield);
+                ship.shield.cooldown += 20;
+            }
+        }
+        if (ship.shield.shield.cooldown > 300) {
+            ship.shield.shield.cooldown = 300;
+        }
+        if (ship.shield.shield < 0) {
+            ship.shield.shield.cooldown = 0;
+        }
+        if (bullet.dmg < 0) {
+            bullet.dmg = 0;
+        }
+        ship.hp -= bullet.dmg;
+        if (0-ship.hp > bullet.dmg*0.5) {
+            bullet.v *= (0-ship.hp)/bullet.dmg;
+            bullet.dmg = 0-ship.hp;
+        } else {
+            bullet.dmg = 0;
+        }
+    }
+    return [bullet, ship];
+}
+
+function handleProjectiles(projectiles, ships) {
     //console.log(projectiles);
     projectiles = handleMotion(projectiles);
-    for (var i = 0; i < projectiles.length; i+=1) {
+    for (var i = 0; i < projectiles.length; i +=1 ) {
         // check for collisions
-        /*
-        [code goes here] 
-        I'll write it later...
-        */
+        for (var j = 0; j < ships.length; j += 1) {
+            if (detectCollision(projectiles[i], ships[j])) {
+                console.log('hit');
+                var res = calculateDamage(projectiles[i], ships[j]);
+                projectiles[i] = res[0];
+                ships[j] = res[1];
+            }
+        }
         // draw the bullet if it didn't hit anything
         addImage(data.img[projectiles[i].type], projectiles[i].x, projectiles[i].y, data.center[projectiles[i].type].x, data.center[projectiles[i].type].y, 1, projectiles[i].r);
         projectiles[i] = updateHitboxes(projectiles[i], true);
     }
-
-
-    return projectiles;
+    var newProjectiles = [];
+    for (var i = 0; i < projectiles.length; i +=1 ) {
+        if (projectiles[i].dmg > 0 && projectiles[i].v > 2) {
+            newProjectiles.push(projectiles[i]);
+        }
+    }
+    return [newProjectiles, ships];
 }
 
 function handleDecoratives(decoratives) {
@@ -1503,6 +1586,7 @@ function tick(objs) {
         // if it dead, remove it
         if (objs[i].hp <= 0) {
             objs.splice(i,1);
+            i-=1;
             continue;
         }
         // if it has life, reduce it
@@ -1510,6 +1594,7 @@ function tick(objs) {
             objs[i].life -= 1;
             if (objs[i].life <= 0) {
                 objs.splice(i,1);
+                i-=1;
                 continue;
             }
         }
@@ -1542,6 +1627,7 @@ function main() {
     clearCanvas();
     decoratives = tick(decoratives);
     projectiles = tick(projectiles);
+    ships = tick(ships);
     for (var i = 0; i < ships.length; i += 1) {
         ships[i].weapons = tick(ships[i].weapons);
     }
@@ -1550,14 +1636,16 @@ function main() {
     decoratives = handleDecoratives(decoratives);
     ships = handleShips(ships);
     player = handlePlayer(player);
-    projectiles = handleProjectiles(projectiles);
+    var res = handleProjectiles(projectiles, ships);
+    projectiles = res[0];
+    ships = res[1];
 }
 
 var t = 0
 async function game() {
     while (1) {
         t += 1;
-        //console.log(tick);
+        //console.log('tick',t);
         main();
         await sleep(1000/60);  // 60 FPS
         //await sleep(100);    // Debug Mode
