@@ -1,9 +1,9 @@
 # Spaceship-Game
 
 https://grimreaper2654.github.io/Spaceship-Game/game/main.html <br>
-Game currently under development. <br> Working on: Enemies ▕███████████████████░▏<br><br>
+Game currently under development. <br> Working on: Improving Combat ▕█░░░░░░░░░░░░░░░░░░░░▏<br><br>
 
-Currently, spaceship can move, rotate and shoot. One enemy will appear at the start of the game and will attack you. However, collisions have not been implemented.<br><br>
+Currently, spaceship can move, rotate and shoot. Enemies are avalaible on the experimental version of the game, the ships are intentionally designed to not have collision with each other. Enemies can be killed and can kill you (given enough time) although the game is very unbalanced.<br><br>
 
 press 'initialise' then 'start game' to start the game. Don't press 'start game' more than once. <br>
 W to accelerate<br>
