@@ -1261,7 +1261,7 @@ function handlePlayer(player) {
     return player;
 }
 
-function handleShips(ships) { // handles all ships that are not the player
+function handleShips(ships) { // handles all ships
     for (var i = 0; i < ships.length; i++) {
         if (ships[i].shield) {
             if (ships[i].shield.cooldown == 0) {
@@ -1407,16 +1407,16 @@ function idle(ship) { // wander around the map (highly doubt this works)
 function detectCollision(obj1, obj2) { // Should detect collisions even when stuff goes really fast
     for (var i = 0; i < obj1.hitbox.length; i += 1) {
         for (var j = 0; j < obj2.hitbox.length; j += 1) {
-            var steps = obj1.v / obj1.hitbox[0].r;
+            var steps = Math.abs(obj1.v) / obj1.hitbox[0].r;
             if (steps <= 1) {
                 steps = 1;
             }
             for (var step = 0; step < steps; step += 1) {
-                if (getDist({x: obj1.hitbox[i].px+obj1.vx*(step/steps), y: obj1.hitbox[i].py+obj1.vy*(step/steps)},{x: obj2.hitbox[i].x, y: obj2.hitbox[i].y}) < obj1.hitbox[i].r + obj2.hitbox[i].r) {
+                if (getDist({x: obj1.hitbox[i].px+obj1.vx*(step/steps), y: obj1.hitbox[i].py+obj1.vy*(step/steps)},{x: obj2.hitbox[j].x, y: obj2.hitbox[j].y}) < obj1.hitbox[i].r + obj2.hitbox[j].r) {
                     return true;
                 }
             }
-            if (getDist({x: obj1.hitbox[i].x, y: obj1.hitbox[i].y},{x: obj2.hitbox[i].x, y: obj2.hitbox[i].y}) < obj1.hitbox[i].r + obj2.hitbox[i].r) {
+            if (getDist({x: obj1.hitbox[i].x, y: obj1.hitbox[i].y},{x: obj2.hitbox[j].x, y: obj2.hitbox[j].y}) < obj1.hitbox[i].r + obj2.hitbox[j].r) {
                 return true;
             }
         }
