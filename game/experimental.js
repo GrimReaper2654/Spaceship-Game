@@ -235,7 +235,6 @@ const data = {
         },
     }
 };
-
 var mousepos = {x:0,y:0};
 
 /*
@@ -345,9 +344,9 @@ var player = { // Play as Battleship
     // Stats
     hp: 1000000,
     shield: {
-        shieldCap: 10000,
-        shield: 10000,
-        shieldRegen: 1,
+        shieldCap: 25000,
+        shield: 25000,
+        shieldRegen: 10,
         cooldown: 0,
     },
     team: RED,
@@ -403,7 +402,7 @@ var player = { // Play as Battleship
             // STATS
             engagementRange: 1800,
             spread: 1*Math.PI/180,
-            reloadTime: 45,
+            reloadTime: 15,
             reload: 0,
             bullet: {
                 dmgMultiplier: 1,
@@ -430,7 +429,7 @@ var player = { // Play as Battleship
             // STATS
             engagementRange: 1800,
             spread: 1*Math.PI/180,
-            reloadTime: 45,
+            reloadTime: 15,
             reload: 0,
             bullet: {
                 dmgMultiplier: 1,
@@ -496,7 +495,7 @@ var player = { // Play as Battleship
     // Input
     hasClicked: 0,
     keyboard: {},
-}
+};
 
 var sampleEnemy = {
     // Physics
@@ -589,7 +588,99 @@ var sampleEnemy = {
     task: '',
     method: '',
     int: 1, // Lower is further sensor range TODO: actually implement this
-}
+};
+var sampleEnemy3 = {
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.1,
+    agi: 0.1,
+    terminalAcceleration:1,
+    terminalVelocity:15,
+    drag: 0.0001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
+    // Stats
+    hp: 15000,
+    shield: {
+        shieldCap: 600,
+        shield: 0,
+        shieldRegen: 0,
+        cooldown: 0,
+    },
+    team: GREEN,
+    type: INTERCEPTOR,
+    aiControl: true,
+    id: 25000, // Team (1,2) type (1-6) number (0-1000)
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 800,
+            spread: 2*Math.PI/180,
+            reloadTime: 3,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1.25
+            }
+        },
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 800,
+            spread: 2*Math.PI/180,
+            reloadTime: 3,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1.25,
+            }
+        },
+    ],
+    target: '',
+    task: '',
+    method: '',
+    int: 1, // Lower is further sensor range TODO: actually implement this
+};
 var sampleTeammate = {
     // Physics
     x: data.display.x/2,
@@ -611,9 +702,9 @@ var sampleTeammate = {
     // Stats
     hp: 1500,
     shield: {
-        shieldCap: 600,
-        shield: 600,
-        shieldRegen: 0.1,
+        shieldCap: 1200,
+        shield: 1200,
+        shieldRegen: 0.5,
         cooldown: 0,
     },
     team: RED,
@@ -640,13 +731,13 @@ var sampleTeammate = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            engagementRange: 600,
+            engagementRange: 800,
             spread: 2*Math.PI/180,
-            reloadTime: 4,
+            reloadTime: 2,
             reload: 0,
             bullet: {
-                dmgMultiplier: 0.75,
-                speedMultiplier: 1
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1.25
             }
         },
         {
@@ -667,13 +758,13 @@ var sampleTeammate = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            engagementRange: 600,
+            engagementRange: 800,
             spread: 2*Math.PI/180,
-            reloadTime: 4,
+            reloadTime: 2,
             reload: 0,
             bullet: {
-                dmgMultiplier: 0.75,
-                speedMultiplier: 1,
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1.25,
             }
         },
     ],
@@ -681,7 +772,7 @@ var sampleTeammate = {
     task: '',
     method: '',
     int: 1, // Lower is further sensor range
-}
+};
 var sampleEnemy2 = {
     // Physics
     x: data.display.x/4,
@@ -854,21 +945,31 @@ var sampleEnemy2 = {
     target: '',
     task: '',
     method: '',
-}
+};
 
-var ships = [player, JSON.parse(JSON.stringify(sampleEnemy2)), JSON.parse(JSON.stringify(sampleEnemy)), JSON.parse(JSON.stringify(sampleEnemy)), JSON.parse(JSON.stringify(sampleEnemy))];
+const enemies = [
+    JSON.parse(JSON.stringify(sampleEnemy)),  // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),  // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),  // standard interceptor
+    //JSON.pharse(JSON.stringify(sampleEnemy2)), // battleship (very powerful)
+    JSON.parse(JSON.stringify(sampleEnemy3)), // stronger but unshielded interceptor
+    JSON.parse(JSON.stringify(sampleTeammate)),  // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),  // stronger interceptor helping the player
+];
+
+var ships = [player];
 //console.log(ships);
 var projectiles = [];
 var decoratives = [];
 
-function isin(a, b) { // check is something is in a list
+function isin(a, b) { // check is a in b
     for (var i = 0; i < b.length; i += 1) {
         if (a == b[i]) {
             return true;
         }
     }
     return false;
-}
+};
 
 function replacehtml(text) {
     document.getElementById("game").innerHTML = text;
@@ -1720,8 +1821,8 @@ function calculateDamage(bullet, ship) {
                 ship.shield.cooldown += 20;
             }
         }
-        if (ship.shield.shield.cooldown > 300) {
-            ship.shield.shield.cooldown = 300;
+        if (ship.shield.cooldown > 300) {
+            ship.shield.cooldown = 300;
         }
         if (ship.shield.shield < 0) {
             ship.shield.shield = 0;
@@ -1790,6 +1891,50 @@ function handleDecoratives(decoratives) {
     return decoratives;
 }
 
+function generatePos(ship) { // put the newly generated ship off screen somewhere. This makes the ship appear as if it has been there for the whole time and isn't recently generated
+    ship.x = Math.floor(Math.random() * (data.display.x + 251)) - 250;
+    ship.y = Math.floor(Math.random() * (data.display.y + 251)) - 250;
+    console.log(ship.x,ship.y);
+    var edge = null;
+    if (Math.random() > 0.5) {
+        edge = 'x';
+    } else {
+        edge = 'y'
+    }
+    if (Math.random() > 0.5) {
+        ship[edge] = data.display[edge]+250;
+    } else {
+        ship[edge] = -250;
+    }
+    return ship;
+}
+
+function generateShips(ships, step, rate) {
+    console.log(t);
+    if (t % step === 0) {
+        console.log('gen');
+        if (Math.random() < rate) {
+            var chosen = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
+            if (isin(chosen.type, FIGHTER)) {
+                var gen = true;
+                while (gen) {
+                    chosen = generatePos(chosen);
+                    console.log(chosen.x,chosen.y);
+                    ships.push(JSON.parse(JSON.stringify(chosen)));
+                    if (Math.random() < Math.min(rate*2,0.75)) {
+                        gen = false;
+                    }
+                }
+            }
+            chosen = generatePos(chosen);
+            ships.push(chosen);
+        }
+    } else {
+        console.log('skip');
+    }
+    return ships;
+}
+
 function tick(objs) {
     for (var i = 0; i < objs.length; i+=1) {
         // if it dead, remove it
@@ -1834,6 +1979,7 @@ function tick(objs) {
 
 function main() {
     clearCanvas();
+    ships = generateShips(ships, 120, 0.25);
     decoratives = tick(decoratives);
     projectiles = tick(projectiles);
     ships = tick(ships);
@@ -1854,10 +2000,21 @@ var t = 0
 async function game() {
     while (1) {
         t += 1;
-        //console.log('tick',t);
         main();
         await sleep(1000/60);  // 60 FPS
-        //await sleep(100);    // Debug Mode
+        /*
+        try {
+            t += 1;
+            //console.log('tick',t);
+            main();
+            await sleep(1000/60);  // 60 FPS
+            //await sleep(100);    // Debug Mode
+        } catch (error) {
+            console.error(`An error occurred on tick ${t}: ${error}`);
+            console.log(`It is very likely that the player died and caused this error`);
+            break;
+        }*/
     }
+    console.log('gg');
 }
 
