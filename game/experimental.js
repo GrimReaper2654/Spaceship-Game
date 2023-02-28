@@ -15,6 +15,7 @@ const MEDIUM = 'MEDIUM';
 const LARGE = 'LARGE';
 const HUGE = 'HUGE';
 const BOMB = 'BOMB';
+const RAIL = 'RAIL';
 
 // Control
 const CLICK = 'CLICK';
@@ -39,6 +40,7 @@ const data = {
     display: {x:window.innerWidth,y:window.innerHeight},
     dim: {
         BATTLESHIP:{x:497,y:152}, 
+        CRUISER:{x:465,y:122}, 
         INTERCEPTOR:{x:73,y:45}, 
         LARGETURRET:{x:109,y:44}, 
         MEDIUMTURRET:{x:45,y:28},
@@ -53,10 +55,12 @@ const data = {
         BLUECIRCLE:{x:12,y:12}, 
         SILVERCIRCLE:{x:12,y:12}, 
         BATTLESHIPPLUME:{x:526,y:152}, 
+        CRUISERPLUME:{x:526,y:152}, 
         INTERCEPTORPLUME:{x:0,y:0}, 
     },
     center: {
         BATTLESHIP:{x:240,y:76}, 
+        CRUISER:{x:155,y:61}, 
         INTERCEPTOR:{x:35,y:22.5}, 
         LARGETURRET:{x:36,y:22},
         MEDIUMTURRET:{x:20,y:14}, 
@@ -71,6 +75,7 @@ const data = {
         BLUECIRCLE:{x:6,y:6}, 
         SILVERCIRCLE:{x:6,y:6}, 
         BATTLESHIPPLUME:{x:269,y:76}, 
+        CRUISERPLUME:{x:269,y:61}, 
         INTERCEPTORPLUME:{x:0,y:0}, 
     },
     hitbox: { // all sprites will use circular hitboxes (ez to code) Note: 'r' is radius not rotation
@@ -83,6 +88,17 @@ const data = {
             {x:400, y:76, r:30},
             {x:440, y:76, r:30},
             {x:480, y:76, r:20},
+        ],
+        CRUISER: [ // even more hitboxes... why did I make this ship so long and square
+            {x:120, y:61, r:40}, 
+            {x:180, y:61, r:40}, 
+            {x:250, y:61, r:60}, 
+            {x:320, y:61, r:40}, 
+            {x:360, y:61, r:40}, 
+            {x:400, y:61, r:40}, 
+            {x:440, y:61, r:40}, 
+            {x:480, y:61, r:40}, 
+            {x:510, y:61, r:30}, 
         ],
         INTERCEPTOR: [ // annoyingly small and hard to hit
             {x:25, y:22.5, r:22.5}, 
@@ -103,6 +119,7 @@ const data = {
     },
     img: {
         REDBATTLESHIP: document.getElementById("BattleshipRed"),
+        REDCRUISER: document.getElementById("CruiserRed"),
         REDINTERCEPTOR: document.getElementById("InterceptorRed"),
 
         REDLARGETURRET: document.getElementById("MainCannonRed"),
@@ -111,6 +128,7 @@ const data = {
         REDPDTURRET: document.getElementById("PDCannon"),
 
         GREENBATTLESHIP: document.getElementById("BattleshipGreen"),
+        GREENCRUISER: document.getElementById("CruiserGreen"),
         GREENINTERCEPTOR: document.getElementById("InterceptorGreen"),
 
         GREENLARGETURRET: document.getElementById("MainCannonGreen"),
@@ -132,6 +150,8 @@ const data = {
 
         BATTLESHIPPLUME: document.getElementById("BattleshipPlume"),
         BATTLESHIPPLUMEOVERLAY: document.getElementById("BattleshipPlumeOverlay"),
+        CRUISERPLUME: document.getElementById("CruiserPlume"),
+        CRUISERPLUMEOVERLAY: document.getElementById("CruiserPlumeOverlay"),
         INTERCEPTORPLUME: document.getElementById("InterceptorPlume"),
         INTERCEPTORPLUMEOVERLAY: document.getElementById("InterceptorPlumeOverlay"),
     },
@@ -139,14 +159,25 @@ const data = {
         LARGETURRET: [{x:272,y:76}, {x:177,y:76}],
         MEDIUMTURRET: [{x:329,y:76}, {x:406,y:76}],
     },
+    CRUISERMOUNT: {
+        MEDIUMTURRET: [{x:450,y:61},{x:390,y:61}, {x:340,y:61}],
+        SMALLTURRET: [{x:510,y:61}],
+    },
     INTERCEPTORMOUNT: {
         SMALLTURRET: [{x:59,y:17}, {x:59,y:29}],
     },
     BATTLESHIPENGINES: [ // r is radius
         {x: -240, y: -10, r: 15},
-        {x: -240, y: -10, r: 15},
         {x: -200, y: -50, r: 10},
         {x: -200, y: 35, r: 10},
+    ],
+    CRUISERENGINES: [ // r is radius
+        {x: -170, y: -10, r: 25},
+        {x: -170, y: 10, r: 20},
+        {x: -170, y: -30, r: 20},
+        {x: -190, y: -10, r: 25},
+        {x: -190, y: 10, r: 20},
+        {x: -190, y: -30, r: 20},
     ],
     INTERCEPTORENGINES: [
         {x: -35, y: -10, r: 10},
@@ -174,6 +205,7 @@ const data = {
             method: '',
             int: 1, // Lower is further sensor range
         },
+        
         BATTLESHIP: {
             thrust: 0.0014,
             agi: 0.005,
@@ -182,56 +214,135 @@ const data = {
             drag: 0.001,
             scale: 1,
             // Stats
-            type: BATTLESHIP,
             hp: 1000000,
-            shield: 10000,
+            shield: {
+                shieldCap: 25000,
+                shield: 25000,
+                shieldRegen: 10,
+                cooldown: 0,
+            },
         },
-        INTERCEPTOR: {
-            thrust: 0.1,
-            agi: 0.05,
-            terminalAcceleration:1,
-            terminalVelocity:15,
+        CRUISER: {
+            thrust: 0.075,
+            agi: 0.025,
+            terminalAcceleration:0.5,
+            terminalVelocity:7.5,
             drag: 0.001,
             scale: 1,
             // Stats
-            type: INTERCEPTOR,
+            hp: 250000,
+            shield: {
+                shieldCap: 80000,
+                shield: 80000,
+                shieldRegen: 15,
+                cooldown: 0,
+            },
+        },
+        INTERCEPTOR: {
+            thrust: 0.1,
+            agi: 0.1,
+            terminalAcceleration:1,
+            terminalVelocity:15,
+            drag: 0.0001,
+            scale: 1,
+            // Stats
             hp: 15000,
-            shield: 100,
+            shield: {
+                shieldCap: 600,
+                shield: 600,
+                shieldRegen: 0.1,
+                cooldown: 0,
+            },
+        },
+        MISSILEBULLET: { // a missile that explodes on impact
+            v: 5,
+            dmg: 1500, // this acts more as health than damage
+            dmgvb: 0,
+            life: 216000, // basically lives forever (1 hour of life)
+            physical: true,
+            effect: true,
+            explosion: {r: 20, dmg: 6000, dropoff: 0.1}
+        },
+        MEGABULLET: { // giant ball of plasma
+            v: 5,
+            dmg: 150000, // instakills almost everything but is very slow
+            dmgvb: 0,
+            life: 720,
+            physical: false,
+            effect: true,
+            explosion: {r: 50, dmg: 100000, dropoff: 0.9}
+        },
+        RAILBULLET: { // railgin round
+            v: 100,
+            dmg: 100000, // instakills smaller ships and pierces through them
+            dmgvb: 0,
+            life: 50,
+            physical: true,
+            effect: true,
+            explosion: false,
         },
         HUGEBULLET: { // cannon shell
             v: 20,
-            dmg: 12000, // a lot of DPS for Battleship
+            dmg: 24000, // 16k dps per turret
             dmgvb: 0,
-            life: 180,
-            physical: true
+            life: 240,
+            physical: true,
+            effect: false,
+            explosion: false,
         },
         LARGEBULLET: { // cannon shell
             v: 25,
-            dmg: 10000, // 8000 DPS for Battleship
+            dmg: 18000, // 14.4k DPS per turret
             dmgvb: 0,
             life: 120,
-            physical: true
+            physical: true,
+            effect: false,
+            explosion: false,
         },
         MEDIUMBULLET: { // laser
             v: 30,
-            dmg: 1000,  // 1333.33 DPS for Battleship
+            dmg: 2000, // 8k dps per turret
             dmgvb: 0,
-            life: 30,
-            physical: false
+            life: 45,
+            physical: false,
+            effect: false,
+            explosion: false,
+        },
+        DUBULLET: { // depleted uranium cannon shell
+            v: 35,
+            dmg: 25, // shreds almost anything instantly
+            dmgvb: 0,
+            life: 20,
+            physical: true,
+            effect: false,
+            explosion: false,
         },
         SMALLBULLET: { // laser
             v: 45,
-            dmg: 100,   // 450*2 DPS for Interceptor
+            dmg: 100, // weak individually but dangerous in large quantities
             dmgvb: 0,
             life: 15,
-            physical: false
+            physical: false,
+            effect: false,
+            explosion: false,
         },
-        PDBULLET: { // point defence (∞ ms^-1 and no image)
-            v: 250,
-            dmg: 2,     // 120 DPS against ships
-            dmgvb: 100, // 2000 against large bullet, 3100 against huge bullet
+        BOMBBULLET: { // laser
+            v: 0,
+            dmg: 0, // it explodes
+            dmgvb: 0,
             life: 1,
-            physical: false
+            physical: false,
+            effect: false,
+            explosion: {r: 20, dmg: 20000, dropoff: 0.6},
+        },
+        PDBULLET: { // point defence (∞ ms^-1)
+            v: 250,
+            dmg: 20, // basiclly nothing against larger ships but effective against fighters (1.2k dps)
+            dmgvb: 100, // 2000 against large bullet, 3100 against huge bullet in total
+            life: 1,
+            physical: false,
+            effect: false,
+            explosion: false,
         },
     }
 };
@@ -322,7 +433,7 @@ var player = { // Play as interceptor
     hasClicked: 0,
     keyboard: {},
 }*/
-
+/*
 var player = { // Play as Battleship
     // Physics
     x: data.display.x/2,
@@ -487,6 +598,152 @@ var player = { // Play as Battleship
             reload: 0,
             bullet: {
                 dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+    ],
+    aimMode: 'Parallel',
+    // Input
+    hasClicked: 0,
+    keyboard: {},
+};*/
+
+var player = { // Play as Cruiser
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.075,
+    agi: 0.025,
+    terminalAcceleration:0.5,
+    terminalVelocity:7.5,
+    drag: 0.001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.CRUISER)),
+    // Stats
+    hp: 250000,
+    shield: {
+        shieldCap: 80000,
+        shield: 80000,
+        shieldRegen: 15,
+        cooldown: 0,
+    },
+    team: RED,
+    type: CRUISER,
+    aiControl: false,
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: TURRET,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            y: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            ax: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            ay: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.075,
+            arc: 210*Math.PI/180,
+            recoilAmount: 1,
+            recoil: 0,
+            // STATS
+            engagementRange: 1400,
+            spread: 5*Math.PI/180,
+            reloadTime: 1,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 2
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
                 speedMultiplier: 1
             }
         },
@@ -700,7 +957,7 @@ var sampleTeammate = {
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
     // Stats
-    hp: 1500,
+    hp: 15000,
     shield: {
         shieldCap: 1200,
         shield: 1200,
@@ -1482,6 +1739,91 @@ function chase(attacker, dist) { // follow a target while shooting them and run 
     return attacker;
 }
 
+function escort(attacker, dist) { // follow a target and defend them TODO: make escorting ship use its turrets to shoot nearby enemies
+    //console.log(attacker);
+    attacker.r = correctAngle(attacker.r);
+    currentDist = getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y});
+    if (currentDist >= dist*2) {
+        //console.log('get closer');
+        var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
+        var rAim = aim - attacker.r // relative aim
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        }
+        if (Math.abs(rAim) < attacker.agi*2) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        attacker.a += attacker.thrust*2;
+    } else if(currentDist < dist) {
+        var rAim = attacker.r - attacker.r // relative aim
+        if (rAim > 0 && rAim < Math.PI) {
+            if (Math.random() < 0.9) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        } else {
+            if (Math.random() < 0.9) {
+                attacker.r -= attacker.agi;
+            } else {
+                attacker.r += attacker.agi;
+            }
+        }
+        if (Math.abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        if (attacker.v < attacker.target.v) { // try to match target's speed
+            //console.log('accelerate');
+            attacker.a += attacker.thrust*2;
+        } else {
+            attacker.a -= attacker.thrust*2;
+            //console.log('decelerate');
+        }
+    } else {
+        //console.log('maintain distance');
+        var aim = target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y});
+        var rAim = aim - attacker.r // relative aim
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                if (Math.random() < 0.9) {
+                    attacker.r += attacker.agi;
+                } else {
+                    attacker.r -= attacker.agi;
+                }
+            } else {
+                if (Math.random() < 0.9) {
+                    attacker.r -= attacker.agi;
+                } else {
+                    attacker.r += attacker.agi;
+                }
+            }
+        } else {
+            if (Math.random() > 0.7) {
+                if (Math.random() > 0.5) {
+                    attacker.r += attacker.agi;
+                } else {
+                    attacker.r -= attacker.agi;
+                }
+            }
+        }
+        if (Math.abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        if (attacker.v < attacker.target.v) { // try to match target's speed
+            //console.log('accelerate');
+            attacker.a += attacker.thrust*2;
+        } else {
+            attacker.a -= attacker.thrust*2;
+            //console.log('decelerate');
+        }
+    }
+    return attacker;
+}
+
 function idle(ship) { // wander around the map (highly doubt this works)
     if (ship.target = '') {
         ship.target = {x: Math.random()*data.display.x,y: Math.random()*data.display.y};
@@ -1559,233 +1901,37 @@ function autoTarget(type, team, pos, shipType, dist) { // inefficient, switch th
     return target;
 }
 
-function autoMission(ship) {
+function autoMission(ship) { // Expand this later
     var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, ALL, 100000);
     if (target) {
         return {mission: ATTACK, target: target};
     } else {
-        console.log('stupid');
+        var target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 100000);
+        if (target) {
+            return {mission: ESCORT, target: target};
+        } else {
+            return {mission: IDLE, target: null};
+        }
     }
-    /*
-    switch (ship.type) {
-        case BATTLESHIP: // attack nearby capital ships then other ships
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, BATTLESHIP, 3100);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CRUISER, 3000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 4000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 20000/ship.int);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 50000/ship.int);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            return {mission: IDLE, target: null};
-        case CRUISER: // attack nearby ships then search for smaller ships to hunt. Escort the nearest battleship if there are no targets nearby. If there is no battleship to escort, attack the nearest enemy ship
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 3000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 2000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, DESTROYER, 6000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, FRIGATE, 5000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, BATTLESHIP, 15000/ship.int);
-            if (target) {
-                return {mission: ESCORT, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 30000/ship.int);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 60000/ship.int);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            return {mission: IDLE, target: null};
-        case DESTROYER: // attack nearby ships, otherwise try to find a capital ship to escort. attack the nearest non capital ship if there is nothing to escort
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 2000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 2000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, FRIGATE, 15000/ship.int);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, BATTLESHIP, 5000/ship.int);
-            if (target) {
-                return {mission: ESCORT, target: target};
-            }
-            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, CRUISER, 5000/ship.int);
-            if (target) {
-                return {mission: ESCORT, target: target};
-            }
-            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 15000/ship.int);
-            if (target) {
-                return {mission: ESCORT, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTCAPITAL, 20000/ship.int);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            return {mission: IDLE, target: null};
-        case FRIGATE: // If large ships in range, attack them, otherwise attack nearby small ships and fighters. If there are no fighters nearby, esort the nearest capital ship. If there are no capital ships in range, attack nearby fighters
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 1500);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTCAPITAL, 2000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 15000/ship.int);
-            if (target) {
-                return {mission: ESCORT, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, FIGHTER, 15000/ship.int);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            return {mission: IDLE, target: null};
-        case INTERCEPTOR: // Attack nearby bombers and other fighters followed by bigger ships, else, escort friendly bombers. If there are no nearby bombers, escort other ships
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, BOMBER, 1000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, FIGHTER, 2500);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, ALL, 1500);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, BOMBER, 1500);
-            if (target) {
-                return {mission: ESCORT, target: target};
-            }
-            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 3000);
-            if (target) {
-                return {mission: ESCORT, target: target};
-            }
-            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 5000);
-            if (target) {
-                return {mission: ESCORT, target: target};
-            }
-            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 20000/ship.int);
-            if (target) {
-                return {mission: ESCORT, target: target};
-            }
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, ALL, 10000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            return {mission: IDLE, target: null};
-        case BOMBER: // Beeline the nearest capital ship and bomb it, otherwise bomb other bombable ships. If there is nothing to attack, follow a larger ship for protection
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 5000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 4000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 15000/ship.int);
-            if (target) {
-                return {mission: ESCORT, target: target};
-            }
-            target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 25000/ship.int);
-            if (target) {
-                return {mission: ESCORT, target: target};
-            }
-            return {mission: IDLE, target: null};
-        default: // attack, attack and attack more
-            var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, CAPITAL, 3000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 4000);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 10000/ship.int);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, ALL, 25000/ship.int);
-            if (target) {
-                return {mission: ATTACK, target: target};
-            }
-            return {mission: IDLE, target: null};
-    }*/
 }
 
 function handleAi(ships) {
     for (var i = 0; i < ships.length; i+=1) {
         if (ships[i].aiControl) {
-            if (ships.target == 0) {
+            if (ships.target == null) {
                 ships[i].target = '';
             }
-            if ((ships[i].task == '' || ships[i].target == '') || (t%500 == 0 && (ships[i].task == IDLE || ships[i].task == ESCORT)) || t%00 == 0) {
+            if ((ships[i].task == '' || ships[i].target == '') || (t%60 == 0 && (ships[i].task == IDLE || ships[i].task == ESCORT)) || t%600 == 0) {
                 var mission = autoMission(ships[i]);
                 ships[i].task = mission.mission;
                 ships[i].target = mission.target;
+            } 
+            if (ships[i].task == ATTACK) {
+                ships[i] = chase(ships[i], 500);
+            } else if(ships[i].task == ESCORT) {
+                ships[i] = escort(ships[i], 1000);
             } else {
-                /*
-                if (ships[i].task == IDLE) {
-                    ships[i].method = 'idle';
-                    //ships[i] = idle(ships[i]);
-                } else if (ships[i].task == ESCORT) {
-                    ships[i].method = 'escort';
-                    //ships[i] = escort(ships[i],ships[i].target,1500);
-                } else if (ships[i].method == '') {
-                    // choose a method to complete the task
-                    if (ships[i].task == ATTACK) {
-                        switch (ships[i].type) {
-                            case BATTLESHIP:
-                            case CRUISER:
-                            case DESTROYER:
-                            case FRIGATE: 
-                                ships[i].method = 'chase';
-                            case INTERCEPTOR:
-                                if (ships[i].target.type == BOMBER) {
-                                    ships[i].method = 'chase';
-                                } else {
-                                    ships[i].method = 'hitAndRun';
-                                }
-                                break;
-                            case BOMBER:
-                                ships[i].method = 'bombingRun';
-                                break;
-                            default:
-                                ships[i].method = 'chase';
-                                break;
-                        }
-                    }
-                }
-                */
-               var doNothing = 1;
+                ships[i] = idle(ships[i]);
             }
         }
     }
@@ -1911,7 +2057,24 @@ function generatePos(ship) { // put the newly generated ship off screen somewher
 
 function generateShips(ships, step, rate) {
     console.log(t);
-    if (t % step === 0) {
+    if (t === 0) {
+        for (var i = 0; i < 5; i += 1) {
+            var chosen = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
+            if (isin(chosen.type, FIGHTER)) {
+                var gen = true;
+                while (gen) {
+                    chosen = generatePos(chosen);
+                    console.log(chosen.x,chosen.y);
+                    ships.push(JSON.parse(JSON.stringify(chosen)));
+                    if (Math.random() < Math.min(rate*2,0.75)) {
+                        gen = false;
+                    }
+                }
+            }
+            chosen = generatePos(chosen);
+            ships.push(chosen);
+        }
+    } else if (t % step === 0) {
         console.log('gen');
         if (Math.random() < rate) {
             var chosen = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
@@ -1987,7 +2150,6 @@ function main() {
         ships[i].weapons = tick(ships[i].weapons);
     }
     ships = handleAi(ships);
-    ships = runAi(ships);
     decoratives = handleDecoratives(decoratives);
     ships = handleShips(ships);
     player = handlePlayer(player);
@@ -1999,6 +2161,7 @@ function main() {
 var t = 0
 async function game() {
     while (1) {
+        ships = generateShips(ships, 0, 1);
         t += 1;
         main();
         await sleep(1000/60);  // 60 FPS
