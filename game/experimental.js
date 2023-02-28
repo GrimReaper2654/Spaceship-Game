@@ -55,7 +55,7 @@ const data = {
         BLUECIRCLE:{x:12,y:12}, 
         SILVERCIRCLE:{x:12,y:12}, 
         BATTLESHIPPLUME:{x:526,y:152}, 
-        CRUISERPLUME:{x:526,y:152}, 
+        CRUISERPLUME:{x:546,y:122}, 
         INTERCEPTORPLUME:{x:0,y:0}, 
     },
     center: {
@@ -75,7 +75,7 @@ const data = {
         BLUECIRCLE:{x:6,y:6}, 
         SILVERCIRCLE:{x:6,y:6}, 
         BATTLESHIPPLUME:{x:269,y:76}, 
-        CRUISERPLUME:{x:269,y:61}, 
+        CRUISERPLUME:{x:236,y:61}, 
         INTERCEPTORPLUME:{x:0,y:0}, 
     },
     hitbox: { // all sprites will use circular hitboxes (ez to code) Note: 'r' is radius not rotation
