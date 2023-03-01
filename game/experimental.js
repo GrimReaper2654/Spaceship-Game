@@ -1,3 +1,15 @@
+/*
+-----------------------------------------Balancing-----------------------------------------
+1/3/2023
+ • buffed Battleship health 1M --> 2.5M
+ • added Cruiser (well shielded ship designed to deal with swarms of fighters)
+    • 250k hp
+    • 80k  shd
+    • 15   reg
+
+-------------------------------------------------------------------------------------------
+*/
+
 // Teams
 const RED = 'RED';
 const GREEN = 'GREEN';
@@ -214,7 +226,7 @@ const data = {
             drag: 0.001,
             scale: 1,
             // Stats
-            hp: 1000000,
+            hp: 2500000,
             shield: {
                 shieldCap: 25000,
                 shield: 25000,
@@ -453,7 +465,7 @@ var player = { // Play as Battleship
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
     // Stats
-    hp: 1000000,
+    hp: 2500000,
     shield: {
         shieldCap: 25000,
         shield: 25000,
@@ -1364,7 +1376,7 @@ var sampleEnemy5 = {
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
     // Stats
-    hp: 1000000,
+    hp: 2500000,
     shield: {
         shieldCap: 25000,
         shield: 25000,
@@ -1676,7 +1688,7 @@ var sampleTeammate3 = {
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
     // Stats
-    hp: 1000000,
+    hp: 2500000,
     shield: {
         shieldCap: 25000,
         shield: 25000,
@@ -1970,8 +1982,6 @@ function handleInputs(player) {
             }
         }
     }
-    //player.keyboard = {};
-    player.hasClicked = 0;
     return player;
 }
 
@@ -2224,11 +2234,16 @@ function shoot(weapon, team, shipRot) {
 
 window.onkeyup = function(e) { player.keyboard[e.key] = false; }
 window.onkeydown = function(e) { player.keyboard[e.key] = true; }
-
-document.onclick = function(e) {
-    player.hasClicked = 1;
-};
-
+document.addEventListener('mousedown', function(event) {
+  if (event.button === 0) { // Check if left mouse button was clicked
+    player.hasClicked = true;
+  }
+});
+document.addEventListener('mouseup', function(event) {
+  if (event.button === 0) { // Check if left mouse button was released
+    player.hasClicked = false;
+  }
+});
 function tellPos(p){
     mousepos = {x: p.pageX, y:p.pageY};
 }
