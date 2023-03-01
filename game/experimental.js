@@ -1238,7 +1238,7 @@ var sampleEnemy4 = {
             // CONTROL
             type: TURRET,
             size: SMALL,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.CRUISERMOUNT.SMALLTURRET[0].x,
@@ -1265,7 +1265,7 @@ var sampleEnemy4 = {
             // CONTROL
             type: TURRET,
             size: MEDIUM,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
@@ -1292,7 +1292,7 @@ var sampleEnemy4 = {
             // CONTROL
             type: TURRET,
             size: MEDIUM,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
@@ -1319,7 +1319,7 @@ var sampleEnemy4 = {
             // CONTROL
             type: TURRET,
             size: MEDIUM,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
@@ -1408,7 +1408,7 @@ var sampleEnemy5 = {
             // CONTROL
             type: TURRET,
             size: MEDIUM,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
@@ -1435,7 +1435,7 @@ var sampleEnemy5 = {
             // CONTROL
             type: TURRET,
             size: MEDIUM,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
@@ -1462,7 +1462,7 @@ var sampleEnemy5 = {
             // CONTROL
             type: TURRET,
             size: LARGE,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.BATTLESHIPMOUNT.LARGETURRET[0].x,
@@ -1489,7 +1489,7 @@ var sampleEnemy5 = {
             // CONTROL
             type: TURRET,
             size: LARGE,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.BATTLESHIPMOUNT.LARGETURRET[1].x,
@@ -1550,7 +1550,7 @@ var sampleTeammate2 = {
             // CONTROL
             type: TURRET,
             size: SMALL,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.CRUISERMOUNT.SMALLTURRET[0].x,
@@ -1577,7 +1577,7 @@ var sampleTeammate2 = {
             // CONTROL
             type: TURRET,
             size: MEDIUM,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
@@ -1604,7 +1604,7 @@ var sampleTeammate2 = {
             // CONTROL
             type: TURRET,
             size: MEDIUM,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
@@ -1631,7 +1631,7 @@ var sampleTeammate2 = {
             // CONTROL
             type: TURRET,
             size: MEDIUM,
-            ai: false,
+            ai: true,
             keybind: CLICK,
             // PHYSICS
             x: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
@@ -1657,8 +1657,178 @@ var sampleTeammate2 = {
     ],
     aimMode: 'Parallel',
 };
+var sampleTeammate3 = {
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.0014,
+    agi: 0.005,
+    terminalAcceleration:0.15,
+    terminalVelocity:3,
+    drag: 0.001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
+    // Stats
+    hp: 1000000,
+    shield: {
+        shieldCap: 25000,
+        shield: 25000,
+        shieldRegen: 10,
+        cooldown: 0,
+    },
+    team: RED,
+    type: BATTLESHIP,
+    aiControl: true,
+    id: 69420,
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: FIXED,
+            size: HUGE,
+            ai: false,
+            keybind: 'e',
+            // PHYSICS
+            x: data.dim.BATTLESHIP.x,
+            y: data.center.BATTLESHIP.y,
+            ax: data.dim.BATTLESHIP.x,
+            ay: data.center.BATTLESHIP.y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 3600,
+            spread: 5*Math.PI/180,
+            reloadTime: 180,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: true,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+            y: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+            ax: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+            ay: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 15,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: true,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+            y: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+            ax: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+            ay: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 15,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: LARGE,
+            ai: true,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.LARGETURRET[0].x,
+            y: data.BATTLESHIPMOUNT.LARGETURRET[0].y,
+            ax: data.BATTLESHIPMOUNT.LARGETURRET[0].x,
+            ay: data.BATTLESHIPMOUNT.LARGETURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.015,
+            arc: 270*Math.PI/180,
+            recoilAmount: 10,
+            recoil: 0,
+            // STATS
+            engagementRange: 3600,
+            spread: 0,
+            reloadTime: 75,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: LARGE,
+            ai: true,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.LARGETURRET[1].x,
+            y: data.BATTLESHIPMOUNT.LARGETURRET[1].y,
+            ax: data.BATTLESHIPMOUNT.LARGETURRET[1].x,
+            ay: data.BATTLESHIPMOUNT.LARGETURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.015,
+            arc: 270*Math.PI/180,
+            recoilAmount: 10,
+            recoil: 0,
+            // STATS
+            engagementRange: 3600,
+            spread: 0,
+            reloadTime: 75,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+    ],
+    aimMode: 'Parallel',
+};
 
-const enemies = [
+const enemies = [ // list of enemies to choose from
     JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
     JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
     JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
@@ -1678,6 +1848,26 @@ const enemies = [
     JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
     JSON.parse(JSON.stringify(sampleTeammate2)),  // cruiser helping the player
     JSON.parse(JSON.stringify(sampleTeammate2)),  // cruiser helping the player
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy4)),     // cruiser
+    JSON.parse(JSON.stringify(sampleEnemy4)),     // cruiser
+    JSON.parse(JSON.stringify(sampleEnemy5)),     // battleship (very strong)
+    JSON.parse(JSON.stringify(sampleEnemy3)),     // stronger but unshielded interceptor
+    JSON.parse(JSON.stringify(sampleEnemy3)),     // stronger but unshielded interceptor
+    JSON.parse(JSON.stringify(sampleEnemy3)),     // stronger but unshielded interceptor
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate2)),  // cruiser helping the player
+    JSON.parse(JSON.stringify(sampleTeammate2)),  // cruiser helping the player
+    JSON.parse(JSON.stringify(sampleTeammate3)),  // battleship helping the player
 ];
 
 var ships = [player];
@@ -1957,7 +2147,7 @@ function aimTurrets(ship) {
         ship.weapons[i].ay = pos.y;
         if (ship.weapons[i].type == TURRET) {
             if (ship.weapons[i].ai) {
-                ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, {x: ship.target.x, y: ship.target.x}, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
+                ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, {x: ship.target.x, y: ship.target.y}, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             } else {
                 ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, mousepos, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             }
