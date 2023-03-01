@@ -2639,8 +2639,8 @@ function main() {
 
 var t = 0
 async function game() {
+    ships = generateShips(ships, 0, 1);
     while (1) {
-        ships = generateShips(ships, 1, 1);
         t += 1;
         main();
         await sleep(1000/60);  // 60 FPS
