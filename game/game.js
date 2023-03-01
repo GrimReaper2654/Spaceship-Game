@@ -1,6 +1,8 @@
 // Teams
 const RED = 'RED';
 const GREEN = 'GREEN';
+const FRIENDLY = 'FRIENDLY';
+const HOSTILE = 'HOSTILE';
 
 // Weapon types
 const FIXED = 'FIXED';
@@ -13,22 +15,32 @@ const MEDIUM = 'MEDIUM';
 const LARGE = 'LARGE';
 const HUGE = 'HUGE';
 const BOMB = 'BOMB';
+const RAIL = 'RAIL';
 
 // Control
 const CLICK = 'CLICK';
+const ATTACK = 'ATTACK';
+const ESCORT = 'ESCORT';
+const IDLE = 'IDLE';
 
 // Ship Types
 const BATTLESHIP = 'BATTLESHIP';
 const CRUISER = 'CRUISER';
 const DESTROYER = 'DESTROYER';
 const FRIGATE = 'FRIGATE';
-const BOMBER = 'BOMBER';
 const INTERCEPTOR = 'INTERCEPTOR';
+const BOMBER = 'BOMBER';
+const ALL = 'ALL';
+const CAPITAL = ['BATTLESHIP','CRUISER'];
+const FIGHTER = ['INTERCEPTOR','BOMBER'];
+const NOTCAPITAL = ['DESTROYER','FRIGATE','INTERCEPTOR','BOMBER'];
+const NOTFIGHTER = ['BATTLESHIP','CRUISER','DESTROYER','FRIGATE'];
 
 const data = {
     display: {x:window.innerWidth,y:window.innerHeight},
     dim: {
         BATTLESHIP:{x:497,y:152}, 
+        CRUISER:{x:465,y:122}, 
         INTERCEPTOR:{x:73,y:45}, 
         LARGETURRET:{x:109,y:44}, 
         MEDIUMTURRET:{x:45,y:28},
@@ -39,9 +51,16 @@ const data = {
         MEDIUMBULLET:{x:11,y:18}, 
         SMALLBULLET:{x:11,y:5}, 
         PDBULLET:{x:0,y:0}, 
+        GREYCIRCLE:{x:12,y:12}, 
+        BLUECIRCLE:{x:12,y:12}, 
+        SILVERCIRCLE:{x:12,y:12}, 
+        BATTLESHIPPLUME:{x:526,y:152}, 
+        CRUISERPLUME:{x:546,y:122}, 
+        INTERCEPTORPLUME:{x:0,y:0}, 
     },
     center: {
         BATTLESHIP:{x:240,y:76}, 
+        CRUISER:{x:155,y:61}, 
         INTERCEPTOR:{x:35,y:22.5}, 
         LARGETURRET:{x:36,y:22},
         MEDIUMTURRET:{x:20,y:14}, 
@@ -52,6 +71,12 @@ const data = {
         MEDIUMBULLET:{x:0,y:9}, 
         SMALLBULLET:{x:0,y:2.5}, 
         PDBULLET:{x:0,y:0}, 
+        GREYCIRCLE:{x:6,y:6}, 
+        BLUECIRCLE:{x:6,y:6}, 
+        SILVERCIRCLE:{x:6,y:6}, 
+        BATTLESHIPPLUME:{x:269,y:76}, 
+        CRUISERPLUME:{x:236,y:61}, 
+        INTERCEPTORPLUME:{x:0,y:0}, 
     },
     hitbox: { // all sprites will use circular hitboxes (ez to code) Note: 'r' is radius not rotation
         BATTLESHIP: [ // so many hitboxes... so much lag... 
@@ -64,28 +89,37 @@ const data = {
             {x:440, y:76, r:30},
             {x:480, y:76, r:20},
         ],
+        CRUISER: [ // even more hitboxes... why did I make this ship so long and square
+            {x:120, y:61, r:40}, 
+            {x:180, y:61, r:40}, 
+            {x:250, y:61, r:60}, 
+            {x:320, y:61, r:40}, 
+            {x:360, y:61, r:40}, 
+            {x:400, y:61, r:40}, 
+            {x:440, y:61, r:40}, 
+            {x:480, y:61, r:40}, 
+            {x:510, y:61, r:30}, 
+        ],
         INTERCEPTOR: [ // annoyingly small and hard to hit
             {x:25, y:22.5, r:22.5}, 
             {x:52.5, y:22.5, r:10}, 
         ],
         HUGEBULLET: [ // wider than you think
-            {x:7.5, y:4, r:7.5}, 
+            {x:7.5, y:4, r:10}, 
         ],
         LARGEBULLET: [ // I would make 3 hitboxes for the 3 bullets but lag...
-            {x:3.5, y:12, r:12}, 
+            {x:3.5, y:12, r:20}, 
         ],
         MEDIUMBULLET: [ // the 2 lasers share 1 hitbox
-            {x:2.5, y:6, r:6}, 
+            {x:5.5, y:9, r:12}, 
         ],
         SMALLBULLET: [ // large-ish hitbox so you can actually hit something
-            {x:1.5, y:0.5, r:2}, 
-        ],
-        PDBULLET: [ // no hitbox necessary
-            {x:0, y:0, r:0}, 
+            {x:5.5, y:2.5, r:5}, 
         ],
     },
     img: {
         REDBATTLESHIP: document.getElementById("BattleshipRed"),
+        REDCRUISER: document.getElementById("CruiserRed"),
         REDINTERCEPTOR: document.getElementById("InterceptorRed"),
 
         REDLARGETURRET: document.getElementById("MainCannonRed"),
@@ -94,6 +128,7 @@ const data = {
         REDPDTURRET: document.getElementById("PDCannon"),
 
         GREENBATTLESHIP: document.getElementById("BattleshipGreen"),
+        GREENCRUISER: document.getElementById("CruiserGreen"),
         GREENINTERCEPTOR: document.getElementById("InterceptorGreen"),
 
         GREENLARGETURRET: document.getElementById("MainCannonGreen"),
@@ -106,68 +141,215 @@ const data = {
         MEDIUMBULLET: document.getElementById("BulletSmall"),
         SMALLBULLET: document.getElementById("BulletTiny"),
         PDBULLET: document.getElementById("BulletPD"),
+
+        GREYCIRCLE: document.getElementById("greyCircle"),
+        BLUECIRCLE: document.getElementById("blueCircle"),
+        SILVERCIRCLE: document.getElementById("silverCircle"),
+
+        particle: document.getElementById("particle"),
+
+        BATTLESHIPPLUME: document.getElementById("BattleshipPlume"),
+        BATTLESHIPPLUMEOVERLAY: document.getElementById("BattleshipPlumeOverlay"),
+        CRUISERPLUME: document.getElementById("CruiserPlume"),
+        CRUISERPLUMEOVERLAY: document.getElementById("CruiserPlumeOverlay"),
+        INTERCEPTORPLUME: document.getElementById("InterceptorPlume"),
+        INTERCEPTORPLUMEOVERLAY: document.getElementById("InterceptorPlumeOverlay"),
     },
     BATTLESHIPMOUNT: {
         LARGETURRET: [{x:272,y:76}, {x:177,y:76}],
         MEDIUMTURRET: [{x:329,y:76}, {x:406,y:76}],
     },
+    CRUISERMOUNT: {
+        MEDIUMTURRET: [{x:450,y:61},{x:390,y:61}, {x:340,y:61}],
+        SMALLTURRET: [{x:510,y:61}],
+    },
     INTERCEPTORMOUNT: {
         SMALLTURRET: [{x:59,y:17}, {x:59,y:29}],
     },
+    BATTLESHIPENGINES: [ // r is radius
+        {x: -240, y: -10, r: 15},
+        {x: -200, y: -50, r: 10},
+        {x: -200, y: 35, r: 10},
+    ],
+    CRUISERENGINES: [ // r is radius
+        {x: -170, y: -10, r: 25},
+        {x: -170, y: 10, r: 20},
+        {x: -170, y: -30, r: 20},
+        {x: -190, y: -10, r: 25},
+        {x: -190, y: 10, r: 20},
+        {x: -190, y: -30, r: 20},
+    ],
+    INTERCEPTORENGINES: [
+        {x: -35, y: -10, r: 10},
+    ],
     construction: {
-        INTERCEPTOR: {
-            thrust: 0.1,
-            agi: 0.05,
-            terminalAcceleration:1,
-            terminalVelocity:15,
+        physics: {
+            x: 0,
+            y: 0,
+            px: 0,
+            py: 0,
+            v: 0,
+            vx: 0,
+            vy: 0,
+            r: 0,
+            a: 0,
+            thrust: 0,
+            agi: 0,
+            terminalAcceleration:250,
+            terminalVelocity:250,
+            drag: 0,
+        },
+        AI: {
+            target: '',
+            task: '',
+            method: '',
+            int: 1, // Lower is further sensor range
+        },
+        
+        BATTLESHIP: {
+            thrust: 0.0014,
+            agi: 0.005,
+            terminalAcceleration:0.15,
+            terminalVelocity:3,
             drag: 0.001,
             scale: 1,
             // Stats
-            hp: 1500,
-            shield: 100,
+            hp: 1000000,
+            shield: {
+                shieldCap: 25000,
+                shield: 25000,
+                shieldRegen: 10,
+                cooldown: 0,
+            },
+        },
+        CRUISER: {
+            thrust: 0.075,
+            agi: 0.025,
+            terminalAcceleration:0.5,
+            terminalVelocity:7.5,
+            drag: 0.001,
+            scale: 1,
+            // Stats
+            hp: 250000,
+            shield: {
+                shieldCap: 80000,
+                shield: 80000,
+                shieldRegen: 15,
+                cooldown: 0,
+            },
+        },
+        INTERCEPTOR: {
+            thrust: 0.1,
+            agi: 0.1,
+            terminalAcceleration:1,
+            terminalVelocity:15,
+            drag: 0.0001,
+            scale: 1,
+            // Stats
+            hp: 15000,
+            shield: {
+                shieldCap: 600,
+                shield: 600,
+                shieldRegen: 0.1,
+                cooldown: 0,
+            },
+        },
+        MISSILEBULLET: { // a missile that explodes on impact
+            v: 5,
+            dmg: 1500, // this acts more as health than damage
+            dmgvb: 0,
+            life: 216000, // basically lives forever (1 hour of life)
+            physical: true,
+            effect: true,
+            explosion: {r: 20, dmg: 6000, dropoff: 0.1}
+        },
+        MEGABULLET: { // giant ball of plasma
+            v: 5,
+            dmg: 150000, // instakills almost everything but is very slow
+            dmgvb: 0,
+            life: 720,
+            physical: false,
+            effect: true,
+            explosion: {r: 50, dmg: 100000, dropoff: 0.9}
+        },
+        RAILBULLET: { // railgin round
+            v: 100,
+            dmg: 100000, // instakills smaller ships and pierces through them
+            dmgvb: 0,
+            life: 50,
+            physical: true,
+            effect: true,
+            explosion: false,
         },
         HUGEBULLET: { // cannon shell
             v: 20,
-            dmg: 8000, // 2666.66 DPS for Battleship
+            dmg: 24000, // 16k dps per turret
             dmgvb: 0,
-            life: 180,
-            physical: true
+            life: 240,
+            physical: true,
+            effect: false,
+            explosion: false,
         },
         LARGEBULLET: { // cannon shell
-            v: 30,
-            dmg: 10000, // 8000 DPS for Battleship
+            v: 25,
+            dmg: 18000, // 14.4k DPS per turret
             dmgvb: 0,
             life: 120,
-            physical: true
+            physical: true,
+            effect: false,
+            explosion: false,
         },
         MEDIUMBULLET: { // laser
-            v: 60,
-            dmg: 1000,  // 1333.33 DPS for Battleship
+            v: 30,
+            dmg: 2000, // 8k dps per turret
             dmgvb: 0,
-            life: 30,
-            physical: false
+            life: 45,
+            physical: false,
+            effect: false,
+            explosion: false,
+        },
+        DUBULLET: { // depleted uranium cannon shell
+            v: 35,
+            dmg: 25, // shreds almost anything instantly
+            dmgvb: 0,
+            life: 20,
+            physical: true,
+            effect: false,
+            explosion: false,
         },
         SMALLBULLET: { // laser
-            v: 60,
-            dmg: 100,   // 450*2 DPS for Interceptor
+            v: 45,
+            dmg: 100, // weak individually but dangerous in large quantities
             dmgvb: 0,
-            life: 10,
-            physical: false
+            life: 15,
+            physical: false,
+            effect: false,
+            explosion: false,
         },
-        PDBULLET: { // point defence (∞ ms^-1 and no image)
-            v: 250,
-            dmg: 2,     // 120 DPS against ships
-            dmgvb: 100, // 2000 against large bullet, 3100 against huge bullet
+        BOMBBULLET: { // laser
+            v: 0,
+            dmg: 0, // it explodes
+            dmgvb: 0,
             life: 1,
-            physical: false
+            physical: false,
+            effect: false,
+            explosion: {r: 20, dmg: 20000, dropoff: 0.6},
+        },
+        PDBULLET: { // point defence (∞ ms^-1)
+            v: 250,
+            dmg: 20, // basiclly nothing against larger ships but effective against fighters (1.2k dps)
+            dmgvb: 100, // 2000 against large bullet, 3100 against huge bullet in total
+            life: 1,
+            physical: false,
+            effect: false,
+            explosion: false,
         },
     }
 };
-
 var mousepos = {x:0,y:0};
 
-/* Play as interceptor
-var player = {
+/*
+var player = { // Play as interceptor
     // Physics
     x: data.display.x/2,
     y: data.display.y/2,
@@ -190,6 +372,8 @@ var player = {
     shield: 100,
     team: RED,
     type: INTERCEPTOR,
+    aiControl: false,
+    id: 69420,
     // Weapons
     weapons: [
         {
@@ -210,6 +394,7 @@ var player = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
+            spread: 2*Math.PI/180,
             reloadTime: 10,
             reload: 0,
             bullet: {
@@ -235,6 +420,7 @@ var player = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
+            spread: 2*Math.PI/180,
             reloadTime: 10,
             reload: 0,
             bullet: {
@@ -247,6 +433,7 @@ var player = {
     hasClicked: 0,
     keyboard: {},
 }*/
+
 var player = { // Play as Battleship
     // Physics
     x: data.display.x/2,
@@ -267,9 +454,16 @@ var player = { // Play as Battleship
     hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
     // Stats
     hp: 1000000,
-    shield: 10000,
+    shield: {
+        shieldCap: 25000,
+        shield: 25000,
+        shieldRegen: 10,
+        cooldown: 0,
+    },
     team: RED,
     type: BATTLESHIP,
+    aiControl: false,
+    id: 69420,
     // Weapons
     weapons: [
         {
@@ -290,6 +484,8 @@ var player = { // Play as Battleship
             recoilAmount: 0,
             recoil: 0,
             // STATS
+            engagementRange: 3600,
+            spread: 5*Math.PI/180,
             reloadTime: 180,
             reload: 0,
             bullet: {
@@ -315,7 +511,9 @@ var player = { // Play as Battleship
             recoilAmount: 5,
             recoil: 0,
             // STATS
-            reloadTime: 45,
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 15,
             reload: 0,
             bullet: {
                 dmgMultiplier: 1,
@@ -340,7 +538,9 @@ var player = { // Play as Battleship
             recoilAmount: 5,
             recoil: 0,
             // STATS
-            reloadTime: 45,
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 15,
             reload: 0,
             bullet: {
                 dmgMultiplier: 1,
@@ -365,6 +565,8 @@ var player = { // Play as Battleship
             recoilAmount: 10,
             recoil: 0,
             // STATS
+            engagementRange: 3600,
+            spread: 0,
             reloadTime: 75,
             reload: 0,
             bullet: {
@@ -390,6 +592,8 @@ var player = { // Play as Battleship
             recoilAmount: 10,
             recoil: 0,
             // STATS
+            engagementRange: 3600,
+            spread: 0,
             reloadTime: 75,
             reload: 0,
             bullet: {
@@ -402,10 +606,1093 @@ var player = { // Play as Battleship
     // Input
     hasClicked: 0,
     keyboard: {},
-}
+};
+/*
+var player = { // Play as Cruiser
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.075,
+    agi: 0.025,
+    terminalAcceleration:0.5,
+    terminalVelocity:7.5,
+    drag: 0.001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.CRUISER)),
+    // Stats
+    hp: 250000,
+    shield: {
+        shieldCap: 80000,
+        shield: 80000,
+        shieldRegen: 15,
+        cooldown: 0,
+    },
+    team: RED,
+    type: CRUISER,
+    aiControl: false,
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: TURRET,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            y: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            ax: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            ay: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.075,
+            arc: 210*Math.PI/180,
+            recoilAmount: 1,
+            recoil: 0,
+            // STATS
+            engagementRange: 1400,
+            spread: 5*Math.PI/180,
+            reloadTime: 1,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 2
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+    ],
+    aimMode: 'Parallel',
+    // Input
+    hasClicked: 0,
+    keyboard: {},
+};*/
+
+var sampleEnemy = {
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.1,
+    agi: 0.1,
+    terminalAcceleration:1,
+    terminalVelocity:15,
+    drag: 0.0001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
+    // Stats
+    hp: 15000,
+    shield: {
+        shieldCap: 600,
+        shield: 600,
+        shieldRegen: 0.1,
+        cooldown: 0,
+    },
+    team: GREEN,
+    type: INTERCEPTOR,
+    aiControl: true,
+    id: 25000, // Team (1,2) type (1-6) number (0-1000)
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 700,
+            spread: 2*Math.PI/180,
+            reloadTime: 3,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 700,
+            spread: 2*Math.PI/180,
+            reloadTime: 3,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1,
+            }
+        },
+    ],
+    target: '',
+    task: '',
+    method: '',
+    int: 1, // Lower is further sensor range TODO: actually implement this
+};
+var sampleEnemy3 = {
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.1,
+    agi: 0.1,
+    terminalAcceleration:1,
+    terminalVelocity:15,
+    drag: 0.0001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
+    // Stats
+    hp: 15000,
+    shield: {
+        shieldCap: 600,
+        shield: 0,
+        shieldRegen: 0,
+        cooldown: 0,
+    },
+    team: GREEN,
+    type: INTERCEPTOR,
+    aiControl: true,
+    id: 25000, // Team (1,2) type (1-6) number (0-1000)
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 850,
+            spread: 2*Math.PI/180,
+            reloadTime: 3,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 2,
+                speedMultiplier: 1.25
+            }
+        },
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 850,
+            spread: 2*Math.PI/180,
+            reloadTime: 3,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 2,
+                speedMultiplier: 1.25,
+            }
+        },
+    ],
+    target: '',
+    task: '',
+    method: '',
+    int: 1, // Lower is further sensor range TODO: actually implement this
+};
+var sampleTeammate = {
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.1,
+    agi: 0.1,
+    terminalAcceleration:1,
+    terminalVelocity:15,
+    drag: 0.0001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
+    // Stats
+    hp: 15000,
+    shield: {
+        shieldCap: 1200,
+        shield: 1200,
+        shieldRegen: 0.5,
+        cooldown: 0,
+    },
+    team: RED,
+    type: INTERCEPTOR,
+    aiControl: true,
+    id: 25000, // Team (1,2) type (1-6) number (0-1000)
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 850,
+            spread: 2*Math.PI/180,
+            reloadTime: 3,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1.25
+            }
+        },
+        {
+            // CONTROL
+            type: FIXED,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            y: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            ax: data.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+            ay: data.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 850,
+            spread: 2*Math.PI/180,
+            reloadTime: 2,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 3,
+                speedMultiplier: 1.25,
+            }
+        },
+    ],
+    target: '',
+    task: '',
+    method: '',
+    int: 1, // Lower is further sensor range
+};
+var sampleEnemy2 = {
+    // Physics
+    x: data.display.x/4,
+    y: data.display.y/4,
+    px: data.display.x/4,
+    py: data.display.y/4,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.0014,
+    agi: 0.005,
+    terminalAcceleration:0.15,
+    terminalVelocity:3,
+    drag: 0.001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
+    // Stats
+    hp: 1000000,
+    shield: {
+        shieldCap: 10000,
+        shield: 10000,
+        shieldRegen: 1,
+        cooldown: 0,
+    },
+    team: GREEN,
+    type: BATTLESHIP,
+    aiControl: true,
+    id: 69420,
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: FIXED,
+            size: HUGE,
+            ai: false,
+            keybind: 'e',
+            // PHYSICS
+            x: data.dim.BATTLESHIP.x,
+            y: data.center.BATTLESHIP.y,
+            ax: data.dim.BATTLESHIP.x,
+            ay: data.center.BATTLESHIP.y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 3600,
+            spread: 5*Math.PI/180,
+            reloadTime: 180,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: true,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+            y: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+            ax: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+            ay: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 45,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: true,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+            y: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+            ax: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+            ay: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 45,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: LARGE,
+            ai: true,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.LARGETURRET[0].x,
+            y: data.BATTLESHIPMOUNT.LARGETURRET[0].y,
+            ax: data.BATTLESHIPMOUNT.LARGETURRET[0].x,
+            ay: data.BATTLESHIPMOUNT.LARGETURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.015,
+            arc: 270*Math.PI/180,
+            recoilAmount: 10,
+            recoil: 0,
+            // STATS
+            engagementRange: 3600,
+            spread: 0,
+            reloadTime: 75,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: LARGE,
+            ai: true,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.LARGETURRET[1].x,
+            y: data.BATTLESHIPMOUNT.LARGETURRET[1].y,
+            ax: data.BATTLESHIPMOUNT.LARGETURRET[1].x,
+            ay: data.BATTLESHIPMOUNT.LARGETURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.015,
+            arc: 270*Math.PI/180,
+            recoilAmount: 10,
+            recoil: 0,
+            // STATS
+            engagementRange: 3600,
+            spread: 0,
+            reloadTime: 75,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+    ],
+    aimMode: 'Parallel',
+    target: '',
+    task: '',
+    method: '',
+};
+var sampleEnemy4 = {
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.075,
+    agi: 0.025,
+    terminalAcceleration:0.5,
+    terminalVelocity:7.5,
+    drag: 0.001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.CRUISER)),
+    // Stats
+    hp: 250000,
+    shield: {
+        shieldCap: 80000,
+        shield: 80000,
+        shieldRegen: 15,
+        cooldown: 0,
+    },
+    team: GREEN,
+    type: CRUISER,
+    aiControl: true,
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: TURRET,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            y: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            ax: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            ay: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.075,
+            arc: 210*Math.PI/180,
+            recoilAmount: 1,
+            recoil: 0,
+            // STATS
+            engagementRange: 1400,
+            spread: 5*Math.PI/180,
+            reloadTime: 1,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 2
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+    ],
+    aimMode: 'Parallel',
+};
+var sampleEnemy5 = {
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.0014,
+    agi: 0.005,
+    terminalAcceleration:0.15,
+    terminalVelocity:3,
+    drag: 0.001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
+    // Stats
+    hp: 1000000,
+    shield: {
+        shieldCap: 25000,
+        shield: 25000,
+        shieldRegen: 10,
+        cooldown: 0,
+    },
+    team: GREEN,
+    type: BATTLESHIP,
+    aiControl: true,
+    id: 69420,
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: FIXED,
+            size: HUGE,
+            ai: false,
+            keybind: 'e',
+            // PHYSICS
+            x: data.dim.BATTLESHIP.x,
+            y: data.center.BATTLESHIP.y,
+            ax: data.dim.BATTLESHIP.x,
+            ay: data.center.BATTLESHIP.y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            engagementRange: 3600,
+            spread: 5*Math.PI/180,
+            reloadTime: 180,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+            y: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+            ax: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+            ay: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 15,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+            y: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+            ax: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+            ay: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 15,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: LARGE,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.LARGETURRET[0].x,
+            y: data.BATTLESHIPMOUNT.LARGETURRET[0].y,
+            ax: data.BATTLESHIPMOUNT.LARGETURRET[0].x,
+            ay: data.BATTLESHIPMOUNT.LARGETURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.015,
+            arc: 270*Math.PI/180,
+            recoilAmount: 10,
+            recoil: 0,
+            // STATS
+            engagementRange: 3600,
+            spread: 0,
+            reloadTime: 75,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: LARGE,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.BATTLESHIPMOUNT.LARGETURRET[1].x,
+            y: data.BATTLESHIPMOUNT.LARGETURRET[1].y,
+            ax: data.BATTLESHIPMOUNT.LARGETURRET[1].x,
+            ay: data.BATTLESHIPMOUNT.LARGETURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.015,
+            arc: 270*Math.PI/180,
+            recoilAmount: 10,
+            recoil: 0,
+            // STATS
+            engagementRange: 3600,
+            spread: 0,
+            reloadTime: 75,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
+    ],
+    aimMode: 'Parallel',
+};
+var sampleTeammate2 = {
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.075,
+    agi: 0.025,
+    terminalAcceleration:0.5,
+    terminalVelocity:7.5,
+    drag: 0.001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.CRUISER)),
+    // Stats
+    hp: 250000,
+    shield: {
+        shieldCap: 80000,
+        shield: 80000,
+        shieldRegen: 15,
+        cooldown: 0,
+    },
+    team: RED,
+    type: CRUISER,
+    aiControl: true,
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: TURRET,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            y: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            ax: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            ay: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.075,
+            arc: 210*Math.PI/180,
+            recoilAmount: 1,
+            recoil: 0,
+            // STATS
+            engagementRange: 1400,
+            spread: 5*Math.PI/180,
+            reloadTime: 1,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 2
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+    ],
+    aimMode: 'Parallel',
+};
+
+const enemies = [
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy4)),     // cruiser
+    JSON.parse(JSON.stringify(sampleEnemy4)),     // cruiser
+    JSON.parse(JSON.stringify(sampleEnemy5)),     // battleship (very strong)
+    JSON.parse(JSON.stringify(sampleEnemy3)),     // stronger but unshielded interceptor
+    JSON.parse(JSON.stringify(sampleEnemy3)),     // stronger but unshielded interceptor
+    JSON.parse(JSON.stringify(sampleEnemy3)),     // stronger but unshielded interceptor
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate2)),  // cruiser helping the player
+    JSON.parse(JSON.stringify(sampleTeammate2)),  // cruiser helping the player
+];
 
 var ships = [player];
+//console.log(ships);
 var projectiles = [];
+var decoratives = [];
+
+function isin(a, b) { // check is a in b
+    for (var i = 0; i < b.length; i += 1) {
+        if (a == b[i]) {
+            return true;
+        }
+    }
+    return false;
+};
 
 function replacehtml(text) {
     document.getElementById("game").innerHTML = text;
@@ -498,7 +1785,17 @@ function handleInputs(player) {
     return player;
 }
 
+function logObj(obj) {
+    var l = '';
+    for(var key in obj) {
+        l += JSON.stringify(obj[key]);
+        l += ', ';
+    }
+    console.log(l);
+}
+
 function handlemovement(obj) {
+    //console.log('obj',obj);
     obj.px = obj.x;
     obj.py = obj.y;
     if (obj.a > 0) {
@@ -507,7 +1804,7 @@ function handlemovement(obj) {
             obj.a = 0;
         }
     }
-    if (obj.a === 0 && obj.v != 0) {
+    if (obj.a == 0 && obj.v != 0) {
         if (obj.v > 0) {
             obj.v -= obj.drag;
         } else {
@@ -520,16 +1817,16 @@ function handlemovement(obj) {
     if (Math.abs(obj.a) > obj.terminalAcceleration) {
         obj.a = obj.terminalAcceleration;
     }
-    if (Math.abs(obj.v) > obj.terminalVelocity) {
+    if (obj.v > obj.terminalVelocity) {
         obj.v = obj.terminalVelocity;
     }
-    if (obj.v < obj.terminalVelocity/8 && obj.v < 0) {
-        obj.v = obj.terminalVelocity/8;
+    if (obj.v < -obj.terminalVelocity/16) {
+        obj.v = -obj.terminalVelocity/16;
     }
-    obj.x += obj.vx;
-    obj.y += obj.vy;
     obj.vx = obj.v*Math.cos(obj.r);
     obj.vy = obj.v*Math.sin(obj.r);
+    obj.x += obj.vx;
+    obj.y += obj.vy;
     obj.v += obj.a;
     //console.log(`V: ${obj.v}`);
     //console.log(`A: ${obj.a}`);
@@ -566,6 +1863,7 @@ function hitboxPos(type, x, y, rx, ry, r, radius) { // turretPos but adapted to 
 }
 
 function target(sPos, tPos) { // WARNING: Horifically inefficient coding (there goes 3 hours of my life...)
+    // Huh, how does this work?
     var dx = tPos.x - sPos.x;
     var dy = tPos.y - sPos.y;
     var rotation = Math.atan(dy/dx);
@@ -578,11 +1876,19 @@ function target(sPos, tPos) { // WARNING: Horifically inefficient coding (there 
     return rotation; // rotation is absolute
 }
 
+function getDist(sPos, tPos) { 
+    // Mathematics METHods
+    var dx = tPos.x - sPos.x;
+    var dy = tPos.y - sPos.y;
+    var dist = Math.sqrt(dx*dx+dy*dy);
+    return dist;
+}
+
 function correctAngle(a) {
     a = a%(Math.PI*2);
     if (a > Math.PI) {
         a = -(2*Math.PI-a);
-    } else if (aim < -Math.PI) {
+    } else if (a < -Math.PI) {
         a = (2*Math.PI+a);
     }
     return a;
@@ -651,8 +1957,7 @@ function aimTurrets(ship) {
         ship.weapons[i].ay = pos.y;
         if (ship.weapons[i].type == TURRET) {
             if (ship.weapons[i].ai) {
-                var aiTarget = {x:0,y:0}; // TODO: add targeting AI
-                ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, aiTarget, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
+                ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, {x: ship.target.x, y: ship.target.x}, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             } else {
                 ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, mousepos, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             }
@@ -661,8 +1966,31 @@ function aimTurrets(ship) {
     return ship;
 }
 
+function engineEffect(ship) {
+    var enginePos = data[ship.type+'ENGINES'];
+    for (var i = 0; i < enginePos.length; i+= 1) {
+        var p = JSON.parse(JSON.stringify(data.construction.physics));
+        p.img = data.img.particle;
+        p.v = 2-ship.v;
+        p.x = (Math.random() * enginePos[i].r + enginePos[i].x) * Math.cos(ship.r) + (Math.random() * enginePos[i].r + enginePos[i].y) * Math.sin(ship.r) + ship.x;
+        p.y = (Math.random() * enginePos[i].r + enginePos[i].x) * Math.cos(ship.r-Math.PI/2) + (Math.random() * enginePos[i].r + enginePos[i].y) * Math.sin(ship.r-Math.PI/2) + ship.y;
+        p.r = ship.r+Math.PI;
+        p.life = 10;
+        decoratives.push(p);
+    }
+}
+
 function addShip(ship) {
-    addImage(data.img[ship.team+ship.type], ship.x, ship.y, data.center[ship.type].x, data.center[ship.type].y, ship.scale, ship.r);
+    if (ship.a > 0) {
+        if (t % 3 == 0) {
+            engineEffect(ship);
+        }
+        addImage(data.img[ship.type+'PLUME'], ship.x, ship.y, data.center[ship.type+'PLUME'].x, data.center[ship.type+'PLUME'].y, 1, ship.r);
+    }
+    addImage(data.img[ship.team+ship.type], ship.x, ship.y, data.center[ship.type].x, data.center[ship.type].y, 1, ship.r);
+    if (ship.a > 0) {
+        addImage(data.img[ship.type+'PLUMEOVERLAY'], ship.x, ship.y, data.center[ship.type+'PLUME'].x, data.center[ship.type+'PLUME'].y, 1, ship.r);
+    }
     for (var i = 0; i < ship.weapons.length; i+=1) {
         if (ship.weapons[i].type == TURRET) {
             //console.log(ship.team+ship.weapons[i].size+'TURRET');
@@ -680,7 +2008,6 @@ function handleMotion(objs) {
 
 function attemptShoot(weapon, team, shipRot) {
     if (weapon.reload == 0) {
-        console.log('shoooooot');
         shoot(weapon, team, shipRot);
         weapon.reload = weapon.reloadTime;
         weapon.recoil = weapon.recoilAmount;
@@ -690,7 +2017,7 @@ function attemptShoot(weapon, team, shipRot) {
 
 function shoot(weapon, team, shipRot) {
     var angle = weapon.aim + shipRot;
-    var bullet = JSON.parse(JSON.stringify(data.construction[weapon.size+'BULLET'])); // Deep copy (probably don't need to do it for everything but better safe than sorry, and I'm lazy) 
+    var bullet = {...JSON.parse(JSON.stringify(data.construction.physics)), ...JSON.parse(JSON.stringify(data.construction[weapon.size+'BULLET']))};
     bullet.hitbox = JSON.parse(JSON.stringify(data.hitbox[weapon.size+'BULLET']));
     bullet.v *= JSON.parse(JSON.stringify(weapon.bullet.speedMultiplier));
     bullet.dmg *= JSON.parse(JSON.stringify(weapon.bullet.dmgMultiplier));
@@ -701,14 +2028,7 @@ function shoot(weapon, team, shipRot) {
     bullet.y = JSON.parse(JSON.stringify(weapon.ay));
     bullet.px = JSON.parse(JSON.stringify(weapon.ax));
     bullet.py = JSON.parse(JSON.stringify(weapon.ay));
-    bullet.vx = JSON.parse(JSON.stringify(bullet.v*Math.cos(bullet.r)));
-    bullet.vy = JSON.parse(JSON.stringify(bullet.v*Math.sin(bullet.r)));
-    bullet.r = angle;
-    bullet.a = 0;
-    bullet.thrust = 0;
-    bullet.terminalAcceleration = 0;
-    bullet.terminalVelocity = Infinity;
-    bullet.drag = 0;
+    bullet.r = angle+(Math.random()-0.5)*weapon.spread;
     projectiles.push(bullet);
 }
 
@@ -762,39 +2082,486 @@ function updateHitboxes(obj, show) {
 
 function handlePlayer(player) {
     player = handleInputs(player);
-    player = aimTurrets(player);
-    player = handlemovement(player);
-    addShip(player);
-    player = updateHitboxes(player, false);
     return player;
 }
 
-function handleEnemy(enemies) {
-    player = handleInputs(player);
-    player = aimTurrets(player);
-    player = handlemovement(player);
-    addShip(player);
-    player = updateHitboxes(player, false);
-    return player;
+function handleShips(ships) { // handles all ships
+    for (var i = 0; i < ships.length; i++) {
+        if (ships[i].shield) {
+            if (ships[i].shield.cooldown == 0) {
+                ships[i].shield.shield += ships[i].shield.shieldRegen;
+                if (ships[i].shield.shield > ships[i].shield.shieldCap) {
+                    ships[i].shield.shield = ships[i].shield.shieldCap;
+                }
+            } else {
+                ships[i].shield.cooldown -= 1;
+            }
+        }
+        ships[i] = handlemovement(ships[i]);
+        ships[i] = aimTurrets(ships[i]);
+        addShip(ships[i]);
+        ships[i] = updateHitboxes(ships[i], true);
+        healthBar(50, ships[i], 2);
+        //console.log(ships[i].hp, ships[i].shield.shield);
+    }
+    return ships;
 }
 
+// AI attack methods (I have no idea how to make these)
+// These are very scuffed and don't work as intended but somehow it works so I can't be bothered to fix it
 
-function handleProjectiles(projectiles) {
+function chase(attacker, dist) { // follow a target while shooting them and run away if the enemy gets too close
+    // It works, lets gooooooo!
+    //console.log(attacker);
+    attacker.r = correctAngle(attacker.r);
+    if (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) >= dist) {
+        //console.log('get closer');
+        var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
+        var rAim = aim - attacker.r // relative aim
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        }
+        if (Math.abs(rAim) < attacker.agi*2) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        attacker.a += attacker.thrust*2;
+    } else {
+        var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
+        //console.log(Math.abs(aim));
+        if ((Math.abs(aim) > 180*Math.PI/180 && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 500) || getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 150 || (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 400 && isin(attacker.target.type, CAPITAL))) {
+            //console.log('flee');
+            attacker.a += attacker.thrust*2;
+            if (correctAngle(Math.abs(aim) - Math.PI) > 10*Math.PI/180) {
+                if (Math.random() < 0.9) {
+                    attacker.r += attacker.agi;
+                } else {
+                    attacker.r -= attacker.agi;
+                }
+            } else if (correctAngle(Math.abs(aim) - Math.PI) < 10*Math.PI/180) {
+                if (Math.random() < 0.9) {
+                    attacker.r -= attacker.agi;
+                } else {
+                    attacker.r += attacker.agi;
+                }
+            } else {
+                if (Math.random() > 0.5) {
+                    attacker.r -= attacker.agi;
+                } else {
+                    attacker.r += attacker.agi;
+                }
+            }
+        } else {
+            //console.log('maintain distance');
+            var aim = target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y});
+            var rAim = aim - attacker.r // relative aim
+            if (rAim != 0) {
+                if (rAim > 0 && rAim < Math.PI) {
+                    if (Math.random() < 0.9) {
+                        attacker.r += attacker.agi;
+                    } else {
+                        attacker.r -= attacker.agi;
+                    }
+                } else {
+                    if (Math.random() < 0.9) {
+                        attacker.r -= attacker.agi;
+                    } else {
+                        attacker.r += attacker.agi;
+                    }
+                }
+            } else {
+                if (Math.random() > 0.7) {
+                    if (Math.random() > 0.5) {
+                        attacker.r += attacker.agi;
+                    } else {
+                        attacker.r -= attacker.agi;
+                    }
+                }
+            }
+            if (Math.abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+                attacker.r = aim;
+            }
+            if (attacker.v < attacker.target.v) { // try to match target's speed
+                //console.log('accelerate');
+                attacker.a += attacker.thrust*2;
+            } else {
+                attacker.a -= attacker.thrust*2;
+                //console.log('decelerate');
+            }
+        }
+    }
+    if (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 5000) {
+        attacker = aimTurrets(attacker);
+        for (var i = 0; i < attacker.weapons.length; i += 1) {
+            if ((Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 10*Math.PI/180 || (attacker.weapons[i].reloadTime <= 45 && Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 90*Math.PI/180)) && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < attacker.weapons[i].engagementRange) {
+                //console.log('aligned');
+                attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
+            }
+        }
+    }
+    return attacker;
+}
+
+function escort(attacker, dist) { // follow a target and defend them TODO: make escorting ship use its turrets to shoot nearby enemies
+    //console.log(attacker);
+    attacker.r = correctAngle(attacker.r);
+    currentDist = getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y});
+    if (currentDist >= dist*2) {
+        //console.log('get closer');
+        var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
+        var rAim = aim - attacker.r // relative aim
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        }
+        if (Math.abs(rAim) < attacker.agi*2) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        attacker.a += attacker.thrust*2;
+    } else if(currentDist < dist) {
+        var rAim = attacker.r - attacker.r // relative aim
+        if (rAim > 0 && rAim < Math.PI) {
+            if (Math.random() < 0.9) {
+                attacker.r += attacker.agi;
+            } else {
+                attacker.r -= attacker.agi;
+            }
+        } else {
+            if (Math.random() < 0.9) {
+                attacker.r -= attacker.agi;
+            } else {
+                attacker.r += attacker.agi;
+            }
+        }
+        if (Math.abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        if (attacker.v < attacker.target.v) { // try to match target's speed
+            //console.log('accelerate');
+            attacker.a += attacker.thrust*2;
+        } else {
+            attacker.a -= attacker.thrust*2;
+            //console.log('decelerate');
+        }
+    } else {
+        //console.log('maintain distance');
+        var aim = target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y});
+        var rAim = aim - attacker.r // relative aim
+        if (rAim != 0) {
+            if (rAim > 0 && rAim < Math.PI) {
+                if (Math.random() < 0.9) {
+                    attacker.r += attacker.agi;
+                } else {
+                    attacker.r -= attacker.agi;
+                }
+            } else {
+                if (Math.random() < 0.9) {
+                    attacker.r -= attacker.agi;
+                } else {
+                    attacker.r += attacker.agi;
+                }
+            }
+        } else {
+            if (Math.random() > 0.7) {
+                if (Math.random() > 0.5) {
+                    attacker.r += attacker.agi;
+                } else {
+                    attacker.r -= attacker.agi;
+                }
+            }
+        }
+        if (Math.abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+            attacker.r = aim;
+        }
+        if (attacker.v < attacker.target.v) { // try to match target's speed
+            //console.log('accelerate');
+            attacker.a += attacker.thrust*2;
+        } else {
+            attacker.a -= attacker.thrust*2;
+            //console.log('decelerate');
+        }
+    }
+    return attacker;
+}
+
+function idle(ship) { // wander around the map (highly doubt this works)
+    if (ship.target = '') {
+        ship.target = {x: Math.random()*data.display.x,y: Math.random()*data.display.y};
+    }
+    var aim = target({x: ship.x,y: ship.y},{x:ship.target.x,y:ship.target.y});
+    var rAim = aim - ship.r // relative aim
+    if (rAim != 0) {
+        if (rAim > 0 && rAim < Math.PI) {
+            ship.r += ship.agi;
+        } else {
+            ship.r -= ship.agi;
+        }
+    }
+    if (getDist({x: ship.x,y: ship.y},{x:ship.target.x,y:ship.target.y}) > 500 || ship.v < ship.terminalVelocity/4) {
+        ship.a += ship.thrust*2;
+    }
+    if (getDist({x: ship.x,y: ship.y},{x:ship.target.x,y:ship.target.y}) < 200) {
+        ship.target = '';
+    }
+    return ship;
+}
+
+// Other functions
+function detectCollision(obj1, obj2) { // Should detect collisions even when stuff goes really fast
+    for (var i = 0; i < obj1.hitbox.length; i += 1) {
+        for (var j = 0; j < obj2.hitbox.length; j += 1) {
+            var steps = Math.abs(obj1.v) / obj1.hitbox[0].r;
+            if (steps <= 1) {
+                steps = 1;
+            }
+            for (var step = 0; step < steps; step += 1) {
+                if (getDist({x: obj1.hitbox[i].px+obj1.vx*(step/steps), y: obj1.hitbox[i].py+obj1.vy*(step/steps)},{x: obj2.hitbox[j].x, y: obj2.hitbox[j].y}) < obj1.hitbox[i].r + obj2.hitbox[j].r) {
+                    return true;
+                }
+            }
+            if (getDist({x: obj1.hitbox[i].x, y: obj1.hitbox[i].y},{x: obj2.hitbox[j].x, y: obj2.hitbox[j].y}) < obj1.hitbox[i].r + obj2.hitbox[j].r) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function autoTarget(type, team, pos, shipType, dist) { // inefficient, switch the order of the checks for better performance
+    console.log(ships);
+    var target = false;
+    var minDist = dist+1;
+    for (var i = 0; i < ships.length; i+=1) {
+        if ((ships[i].team != team && type == HOSTILE) || (ships[i].team == team && type == FRIENDLY)) {
+            var shouldCalculate = false;
+            if (shipType != ALL) {
+                if (shipType == FIGHTER || shipType == CAPITAL) {
+                    for (var j = 0; j < shipType.length; j+=1) {
+                        if (ships[i].type == shipType[j]) {
+                            shouldCalculate = true;
+                        }
+                    }
+                } else {
+                    if (ships[i].type == shipType[j]) {
+                        shouldCalculate = true;
+                    }
+                }
+            } else {
+                shouldCalculate = true;
+            }
+            if (shouldCalculate) {
+                if (Math.sqrt(Math.abs(ships[i].x-pos.x)**2+Math.abs(ships[i].y-pos.y)**2) < minDist) {
+                    minDist = Math.sqrt(Math.abs(ships[i].x-pos.x)**2+Math.abs(ships[i].y-pos.y)**2);
+                    target = ships[i];
+                }
+            }
+        }
+    }
+    console.log(target);
+    return target;
+}
+
+function autoMission(ship) { // Expand this later
+    var target = autoTarget(HOSTILE, ship.team, {x:ship.x,y:ship.y}, ALL, 100000);
+    if (target) {
+        return {mission: ATTACK, target: target};
+    } else {
+        var target = autoTarget(FRIENDLY, ship.team, {x:ship.x,y:ship.y}, NOTFIGHTER, 100000);
+        if (target) {
+            return {mission: ESCORT, target: target};
+        } else {
+            return {mission: IDLE, target: null};
+        }
+    }
+}
+
+function handleAi(ships) {
+    for (var i = 0; i < ships.length; i+=1) {
+        if (ships[i].aiControl) {
+            if (ships.target == null) {
+                ships[i].target = '';
+            }
+            if ((ships[i].task == '' || ships[i].target == '') || (t%60 == 0 && (ships[i].task == IDLE || ships[i].task == ESCORT)) || t%600 == 0) {
+                var mission = autoMission(ships[i]);
+                ships[i].task = mission.mission;
+                ships[i].target = mission.target;
+            } 
+            if (ships[i].task == ATTACK) {
+                ships[i] = chase(ships[i], 500);
+            } else if(ships[i].task == ESCORT) {
+                ships[i] = escort(ships[i], 1000);
+            } else {
+                ships[i] = idle(ships[i]);
+            }
+        }
+    }
+    return ships;
+}
+
+function runAi(ships) { // TODO: add more attack methods
+    for (var i = 0; i < ships.length; i+=1) {
+        if (ships[i].aiControl) {
+            ships[i] = chase(ships[i], 500);
+        }
+    }
+    return ships;
+}
+
+function calculateDamage(bullet, ship) {
+    if (bullet.dmg > 0 && bullet.team != ship.team) {
+        if (bullet.dmg > ship.shield.shieldCap) {
+            bullet.dmg -= ship.shield.shield*(ship.shield.shield/bullet.dmg);
+            ship.shield.shield = 0;
+            ship.shield.cooldown = 300;
+        } else {
+            if (bullet.dmg < ship.shield.shield*0.1) {
+                ship.shield.shield -= bullet.dmg/2;
+                bullet.dmg = 0;
+            } else if (bullet.dmg < ship.shield.shield*0.75) {
+                ship.shield.shield -= bullet.dmg;
+                bullet.dmg = 0;
+                ship.shield.cooldown += 15;
+            } else {
+                ship.shield.shield -= bullet.dmg*1.1;
+                bullet.dmg = Math.max(bullet.dmg*0.9,bullet.dmg-ship.shield.shield);
+                ship.shield.cooldown += 20;
+            }
+        }
+        if (ship.shield.cooldown > 300) {
+            ship.shield.cooldown = 300;
+        }
+        if (ship.shield.shield < 0) {
+            ship.shield.shield = 0;
+        }
+        if (bullet.dmg < 0) {
+            bullet.dmg = 0;
+        }
+        ship.hp -= bullet.dmg;
+        if (0-ship.hp > bullet.dmg*0.5) {
+            bullet.v *= (0-ship.hp)/bullet.dmg;
+            bullet.dmg = 0-ship.hp;
+        } else {
+            bullet.dmg = 0;
+        }
+    }
+    return [bullet, ship];
+}
+
+function bar(image, pos, size, step) {
+    for (var i = 0; i < size; i += 1) {
+        addImage(data.img[image], pos.x+i*step, pos.y, data.dim[image].x, data.dim[image].x, 1, 0)
+    }
+}
+
+function healthBar(size, ship, step) {
+    var length = size * step;
+    var pos = {x: ship.x-length/2, y: ship.y + data.center[ship.type].y*1.5};
+    var top = Math.round(ship.shield.shield / ship.shield.shieldCap * size);
+    var bottom = Math.round(ship.hp / data.construction[ship.type].hp * size);
+    bar('GREYCIRCLE', pos, size, step);
+    bar('BLUECIRCLE', pos, top, step);
+    bar('SILVERCIRCLE', pos, bottom, step);
+}
+
+function handleProjectiles(projectiles, ships) {
     //console.log(projectiles);
     projectiles = handleMotion(projectiles);
-    for (var i = 0; i < projectiles.length; i+=1) {
+    for (var i = 0; i < projectiles.length; i +=1 ) {
         // check for collisions
-        /*
-        [code goes here] 
-        I'll write it later...
-        */
+        for (var j = 0; j < ships.length; j += 1) {
+            if (detectCollision(projectiles[i], ships[j])) {
+                console.log('hit');
+                var res = calculateDamage(projectiles[i], ships[j]);
+                projectiles[i] = res[0];
+                ships[j] = res[1];
+            }
+        }
         // draw the bullet if it didn't hit anything
         addImage(data.img[projectiles[i].type], projectiles[i].x, projectiles[i].y, data.center[projectiles[i].type].x, data.center[projectiles[i].type].y, 1, projectiles[i].r);
-        projectiles[i] = updateHitboxes(projectiles[i], false);
+        projectiles[i] = updateHitboxes(projectiles[i], true);
     }
+    var newProjectiles = [];
+    for (var i = 0; i < projectiles.length; i +=1 ) {
+        if (projectiles[i].dmg > 0 && projectiles[i].v > 2) {
+            newProjectiles.push(projectiles[i]);
+        }
+    }
+    return [newProjectiles, ships];
+}
 
+function handleDecoratives(decoratives) {
+    decoratives = handleMotion(decoratives);
+    for (var i = 0; i < decoratives.length; i+=1) {
+        addImage(decoratives[i].img, decoratives[i].x, decoratives[i].y, 0, 0, 1, decoratives[i].r);
+    }
+    return decoratives;
+}
 
-    return projectiles;
+function generatePos(ship) { // put the newly generated ship off screen somewhere. This makes the ship appear as if it has been there for the whole time and isn't recently generated
+    ship.x = Math.floor(Math.random() * (data.display.x + 251)) - 250;
+    ship.y = Math.floor(Math.random() * (data.display.y + 251)) - 250;
+    console.log(ship.x,ship.y);
+    var edge = null;
+    if (Math.random() > 0.5) {
+        edge = 'x';
+    } else {
+        edge = 'y'
+    }
+    if (Math.random() > 0.5) {
+        ship[edge] = data.display[edge]+250;
+    } else {
+        ship[edge] = -250;
+    }
+    return ship;
+}
+
+function generateShips(ships, step, rate) {
+    console.log(t);
+    if (t === 0) {
+        for (var i = 0; i < 5; i += 1) {
+            var chosen = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
+            if (isin(chosen.type, FIGHTER)) {
+                var gen = true;
+                while (gen) {
+                    chosen = generatePos(chosen);
+                    console.log(chosen.x,chosen.y);
+                    ships.push(JSON.parse(JSON.stringify(chosen)));
+                    if (Math.random() < Math.min(rate*2,0.75)) {
+                        gen = false;
+                    }
+                }
+            }
+            chosen = generatePos(chosen);
+            ships.push(chosen);
+        }
+    } else if (t % step === 0) {
+        console.log('gen');
+        if (Math.random() < rate) {
+            var chosen = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
+            if (isin(chosen.type, FIGHTER)) {
+                var gen = true;
+                while (gen) {
+                    chosen = generatePos(chosen);
+                    console.log(chosen.x,chosen.y);
+                    ships.push(JSON.parse(JSON.stringify(chosen)));
+                    if (Math.random() < Math.min(rate*2,0.75)) {
+                        gen = false;
+                    }
+                }
+            }
+            chosen = generatePos(chosen);
+            ships.push(chosen);
+        }
+    } else {
+        console.log('skip');
+    }
+    return ships;
 }
 
 function tick(objs) {
@@ -802,6 +2569,7 @@ function tick(objs) {
         // if it dead, remove it
         if (objs[i].hp <= 0) {
             objs.splice(i,1);
+            i-=1;
             continue;
         }
         // if it has life, reduce it
@@ -809,6 +2577,7 @@ function tick(objs) {
             objs[i].life -= 1;
             if (objs[i].life <= 0) {
                 objs.splice(i,1);
+                i-=1;
                 continue;
             }
         }
@@ -837,22 +2606,45 @@ function tick(objs) {
     return objs;
 }
 
-function main() {
-    clearCanvas();
-    projectiles = tick(projectiles);
-    player.weapons = tick(player.weapons);
-    player = handlePlayer(player);
-    projectiles = handleProjectiles(projectiles);
-    
+var shouldAddShips = false;
+function test() {
+    shouldAddShips = true;
 }
 
+function main() {
+    clearCanvas();
+    if (shouldAddShips) {
+        shouldAddShips = false;
+        ships = generateShips(ships, 1, 1);
+        ships = generateShips(ships, 1, 1);
+        ships = generateShips(ships, 1, 1);
+        ships = generateShips(ships, 1, 1);
+        ships = generateShips(ships, 1, 1);
+    }
+    ships = generateShips(ships, 120, 0.25);
+    decoratives = tick(decoratives);
+    projectiles = tick(projectiles);
+    ships = tick(ships);
+    for (var i = 0; i < ships.length; i += 1) {
+        ships[i].weapons = tick(ships[i].weapons);
+    }
+    ships = handleAi(ships);
+    decoratives = handleDecoratives(decoratives);
+    ships = handleShips(ships);
+    player = handlePlayer(player);
+    var res = handleProjectiles(projectiles, ships);
+    projectiles = res[0];
+    ships = res[1];
+}
+
+var t = 0
 async function game() {
-    var tick = 0
     while (1) {
-        tick +=1;
-        //console.log(tick);
+        ships = generateShips(ships, 1, 1);
+        t += 1;
         main();
         await sleep(1000/60);  // 60 FPS
-        //await sleep(500);    // Debug Mode
     }
+    console.log('gg');
 }
+
