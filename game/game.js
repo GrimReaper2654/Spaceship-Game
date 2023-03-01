@@ -2100,7 +2100,7 @@ function handleShips(ships) { // handles all ships
         ships[i] = handlemovement(ships[i]);
         ships[i] = aimTurrets(ships[i]);
         addShip(ships[i]);
-        ships[i] = updateHitboxes(ships[i], true);
+        ships[i] = updateHitboxes(ships[i], false);
         healthBar(50, ships[i], 2);
         //console.log(ships[i].hp, ships[i].shield.shield);
     }
