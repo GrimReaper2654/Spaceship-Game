@@ -433,7 +433,7 @@ var player = { // Play as interceptor
     hasClicked: 0,
     keyboard: {},
 }*/
-/*
+
 var player = { // Play as Battleship
     // Physics
     x: data.display.x/2,
@@ -606,8 +606,8 @@ var player = { // Play as Battleship
     // Input
     hasClicked: 0,
     keyboard: {},
-};*/
-
+};
+/*
 var player = { // Play as Cruiser
     // Physics
     x: data.display.x/2,
@@ -752,7 +752,7 @@ var player = { // Play as Cruiser
     // Input
     hasClicked: 0,
     keyboard: {},
-};
+};*/
 
 var sampleEnemy = {
     // Physics
@@ -1203,15 +1203,310 @@ var sampleEnemy2 = {
     task: '',
     method: '',
 };
+var sampleEnemy4 = {
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.075,
+    agi: 0.025,
+    terminalAcceleration:0.5,
+    terminalVelocity:7.5,
+    drag: 0.001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.CRUISER)),
+    // Stats
+    hp: 250000,
+    shield: {
+        shieldCap: 80000,
+        shield: 80000,
+        shieldRegen: 15,
+        cooldown: 0,
+    },
+    team: GREEN,
+    type: CRUISER,
+    aiControl: true,
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: TURRET,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            y: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            ax: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            ay: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.075,
+            arc: 210*Math.PI/180,
+            recoilAmount: 1,
+            recoil: 0,
+            // STATS
+            engagementRange: 1400,
+            spread: 5*Math.PI/180,
+            reloadTime: 1,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 2
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+    ],
+    aimMode: 'Parallel',
+};
+var sampleTeammate2 = {
+    // Physics
+    x: data.display.x/2,
+    y: data.display.y/2,
+    px: data.display.x/2,
+    py: data.display.y/2,
+    v: 0,
+    vx: 0,
+    vy: 0,
+    r: 0,
+    a: 0,
+    thrust: 0.075,
+    agi: 0.025,
+    terminalAcceleration:0.5,
+    terminalVelocity:7.5,
+    drag: 0.001,
+    scale: 1,
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.CRUISER)),
+    // Stats
+    hp: 250000,
+    shield: {
+        shieldCap: 80000,
+        shield: 80000,
+        shieldRegen: 15,
+        cooldown: 0,
+    },
+    team: RED,
+    type: CRUISER,
+    aiControl: true,
+    // Weapons
+    weapons: [
+        {
+            // CONTROL
+            type: TURRET,
+            size: SMALL,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            y: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            ax: data.CRUISERMOUNT.SMALLTURRET[0].x,
+            ay: data.CRUISERMOUNT.SMALLTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.075,
+            arc: 210*Math.PI/180,
+            recoilAmount: 1,
+            recoil: 0,
+            // STATS
+            engagementRange: 1400,
+            spread: 5*Math.PI/180,
+            reloadTime: 1,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 2
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[0].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[0].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[1].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[1].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+        {
+            // CONTROL
+            type: TURRET,
+            size: MEDIUM,
+            ai: false,
+            keybind: CLICK,
+            // PHYSICS
+            x: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            y: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            ax: data.CRUISERMOUNT.MEDIUMTURRET[2].x,
+            ay: data.CRUISERMOUNT.MEDIUMTURRET[2].y,
+            facing: 0,
+            aim: 0,
+            agi: 0.02,
+            arc: 270*Math.PI/180,
+            recoilAmount: 5,
+            recoil: 0,
+            // STATS
+            engagementRange: 1800,
+            spread: 1*Math.PI/180,
+            reloadTime: 20,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1.5,
+                speedMultiplier: 1
+            }
+        },
+    ],
+    aimMode: 'Parallel',
+};
 
 const enemies = [
-    JSON.parse(JSON.stringify(sampleEnemy)),  // standard interceptor
-    JSON.parse(JSON.stringify(sampleEnemy)),  // standard interceptor
-    JSON.parse(JSON.stringify(sampleEnemy)),  // standard interceptor
-    //JSON.pharse(JSON.stringify(sampleEnemy2)), // battleship (very powerful)
-    JSON.parse(JSON.stringify(sampleEnemy3)), // stronger but unshielded interceptor
-    JSON.parse(JSON.stringify(sampleTeammate)),  // stronger interceptor helping the player
-    JSON.parse(JSON.stringify(sampleTeammate)),  // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy)),      // standard interceptor
+    JSON.parse(JSON.stringify(sampleEnemy4)),     // cruiser
+    JSON.parse(JSON.stringify(sampleEnemy4)),     // cruiser
+    JSON.parse(JSON.stringify(sampleEnemy3)),     // stronger but unshielded interceptor
+    JSON.parse(JSON.stringify(sampleEnemy3)),     // stronger but unshielded interceptor
+    JSON.parse(JSON.stringify(sampleEnemy3)),     // stronger but unshielded interceptor
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate)),   // stronger interceptor helping the player
+    JSON.parse(JSON.stringify(sampleTeammate2)),  // cruiser helping the player
+    JSON.parse(JSON.stringify(sampleTeammate2)),  // cruiser helping the player
 ];
 
 var ships = [player];
