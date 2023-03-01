@@ -804,12 +804,12 @@ var sampleEnemy = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            engagementRange: 600,
+            engagementRange: 700,
             spread: 2*Math.PI/180,
-            reloadTime: 4,
+            reloadTime: 3,
             reload: 0,
             bullet: {
-                dmgMultiplier: 0.75,
+                dmgMultiplier: 1.5,
                 speedMultiplier: 1
             }
         },
@@ -831,12 +831,12 @@ var sampleEnemy = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            engagementRange: 600,
+            engagementRange: 700,
             spread: 2*Math.PI/180,
-            reloadTime: 4,
+            reloadTime: 3,
             reload: 0,
             bullet: {
-                dmgMultiplier: 0.75,
+                dmgMultiplier: 1.5,
                 speedMultiplier: 1,
             }
         },
@@ -896,12 +896,12 @@ var sampleEnemy3 = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            engagementRange: 800,
+            engagementRange: 850,
             spread: 2*Math.PI/180,
             reloadTime: 3,
             reload: 0,
             bullet: {
-                dmgMultiplier: 1,
+                dmgMultiplier: 2,
                 speedMultiplier: 1.25
             }
         },
@@ -923,12 +923,12 @@ var sampleEnemy3 = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            engagementRange: 800,
+            engagementRange: 850,
             spread: 2*Math.PI/180,
             reloadTime: 3,
             reload: 0,
             bullet: {
-                dmgMultiplier: 1,
+                dmgMultiplier: 2,
                 speedMultiplier: 1.25,
             }
         },
@@ -988,12 +988,12 @@ var sampleTeammate = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            engagementRange: 800,
+            engagementRange: 850,
             spread: 2*Math.PI/180,
-            reloadTime: 2,
+            reloadTime: 3,
             reload: 0,
             bullet: {
-                dmgMultiplier: 1.5,
+                dmgMultiplier: 1,
                 speedMultiplier: 1.25
             }
         },
@@ -1015,12 +1015,12 @@ var sampleTeammate = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            engagementRange: 800,
+            engagementRange: 850,
             spread: 2*Math.PI/180,
             reloadTime: 2,
             reload: 0,
             bullet: {
-                dmgMultiplier: 1.5,
+                dmgMultiplier: 3,
                 speedMultiplier: 1.25,
             }
         },
@@ -2025,7 +2025,7 @@ function chase(attacker, dist) { // follow a target while shooting them and run 
     if (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 5000) {
         attacker = aimTurrets(attacker);
         for (var i = 0; i < attacker.weapons.length; i += 1) {
-            if (Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 10*Math.PI/180 || (attacker.weapons[i].reloadTime <= 45 && Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 90*Math.PI/180)) {
+            if ((Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 10*Math.PI/180 || (attacker.weapons[i].reloadTime <= 45 && Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 90*Math.PI/180)) && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < attacker.weapons[i].engagementRange) {
                 //console.log('aligned');
                 attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
             }
@@ -2435,8 +2435,21 @@ function tick(objs) {
     return objs;
 }
 
+var shouldAddShips = false;
+function test() {
+    shouldAddShips = true;
+}
+
 function main() {
     clearCanvas();
+    if (shouldAddShips) {
+        shouldAddShips = false;
+        ships = generateShips(ships, 1, 1);
+        ships = generateShips(ships, 1, 1);
+        ships = generateShips(ships, 1, 1);
+        ships = generateShips(ships, 1, 1);
+        ships = generateShips(ships, 1, 1);
+    }
     ships = generateShips(ships, 120, 0.25);
     decoratives = tick(decoratives);
     projectiles = tick(projectiles);
