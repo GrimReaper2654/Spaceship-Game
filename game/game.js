@@ -2484,7 +2484,7 @@ function handleProjectiles(projectiles, ships) {
         }
         // draw the bullet if it didn't hit anything
         addImage(data.img[projectiles[i].type], projectiles[i].x, projectiles[i].y, data.center[projectiles[i].type].x, data.center[projectiles[i].type].y, 1, projectiles[i].r);
-        projectiles[i] = updateHitboxes(projectiles[i], true);
+        projectiles[i] = updateHitboxes(projectiles[i], false);
     }
     var newProjectiles = [];
     for (var i = 0; i < projectiles.length; i +=1 ) {
