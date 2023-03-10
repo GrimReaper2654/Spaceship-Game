@@ -2852,16 +2852,6 @@ function tick(objs) {
     return objs;
 }
 
-function gridAssist(start, end, spacing) {
-    const firstMultiple = Math.ceil(start / spacing) * spacing - spacing;
-    const lastMultiple = Math.floor(end / spacing) * spacing + spacing;
-    const multiples = [];
-    for (let i = firstMultiple; i <= lastMultiple; i += spacing) {
-      multiples.push(i);
-    }
-    return multiples;
-}
-
 function grid(spacing) {
     var start = (player.y - data.display.y / 2) < 0 ? Math.ceil((player.y - data.display.y / 2) / spacing) * spacing : Math.floor((player.y - data.display.y / 2) / spacing) * spacing - spacing * 2;
     var end = (player.y + data.display.y / 2) < 0 ? Math.ceil((player.y + data.display.y / 2) / spacing) * spacing : Math.floor((player.y + data.display.y / 2) / spacing) * spacing + spacing * 2;

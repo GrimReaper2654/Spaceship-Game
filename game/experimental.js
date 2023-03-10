@@ -524,7 +524,6 @@ var player = { // Play as interceptor
     keyboard: {},
 }*/
 
-
 var player = { // Play as Battleship
     // Physics
     x: data.display.x/2,
@@ -694,6 +693,13 @@ var player = { // Play as Battleship
         },
     ],
     aimMode: 'Parallel',
+    // Boost
+    boost: {
+        keybind: 'r',
+        a: 3,
+        reloadTime: 600,
+        reload: 0,
+    },
     // Input
     hasClicked: 0,
     keyboard: {},
@@ -2004,6 +2010,12 @@ function handleInputs(player) {
         }
         player.keyboard.q = false;
     }
+    if (player.boost) {
+        if (player.keyboard[player.boost.keybind] && player.boost.reload == 0) {
+            player.boost.reload = player.boost.reloadTime;
+            player.a += player.boost.a;
+        }
+    }
     for (var i = 0; i < player.weapons.length; i+=1) {
         if (player.weapons[i].keybind == CLICK) {
             if (player.hasClicked) {
@@ -2048,13 +2060,13 @@ function handlemovement(obj) {
         }
     }
     if (Math.abs(obj.a) > obj.terminalAcceleration) {
-        obj.a = obj.terminalAcceleration;
+        obj.a = Math.max(obj.a-Math.max(0.5-obj.thrust, 0.1),obj.terminalAcceleration);
     }
     if (obj.v > obj.terminalVelocity) {
-        obj.v = obj.terminalVelocity;
+        obj.v = Math.max(obj.v-obj.terminalAcceleration,obj.terminalVelocity);
     }
     if (obj.v < -obj.terminalVelocity/16) {
-        obj.v = -obj.terminalVelocity/16;
+        obj.v = Math.min(obj.v+obj.terminalAcceleration,-obj.terminalVelocity/16);
     }
     obj.vx = obj.v*Math.cos(obj.r);
     obj.vy = obj.v*Math.sin(obj.r);
@@ -2224,6 +2236,18 @@ function engineEffect(ship) {
         p.r = ship.r+Math.PI;
         p.life = 10;
         decoratives.push(p);
+    }
+    if (ship.a > ship.terminalAcceleration) {
+        for (var i = 0; i < engine.length; i+= 1) {
+            var p = JSON.parse(JSON.stringify(data.construction.physics));
+            p.img = data.img.particle;
+            p.v = 15-ship.v;
+            p.x = (Math.random() * engine[i].r + engine[i].x) * Math.cos(ship.r) + (Math.random() * engine[i].r + engine[i].y) * Math.sin(ship.r) + ship.x;
+            p.y = (Math.random() * engine[i].r + engine[i].x) * Math.cos(ship.r-Math.PI/2) + (Math.random() * engine[i].r + engine[i].y) * Math.sin(ship.r-Math.PI/2) + ship.y;
+            p.r = ship.r+Math.PI;
+            p.life = 15;
+            decoratives.push(p);
+        }
     }
 }
 
@@ -2852,16 +2876,6 @@ function tick(objs) {
     return objs;
 }
 
-function gridAssist(start, end, spacing) {
-    const firstMultiple = Math.ceil(start / spacing) * spacing - spacing;
-    const lastMultiple = Math.floor(end / spacing) * spacing + spacing;
-    const multiples = [];
-    for (let i = firstMultiple; i <= lastMultiple; i += spacing) {
-      multiples.push(i);
-    }
-    return multiples;
-}
-
 function grid(spacing) {
     var start = (player.y - data.display.y / 2) < 0 ? Math.ceil((player.y - data.display.y / 2) / spacing) * spacing : Math.floor((player.y - data.display.y / 2) / spacing) * spacing - spacing * 2;
     var end = (player.y + data.display.y / 2) < 0 ? Math.ceil((player.y + data.display.y / 2) / spacing) * spacing : Math.floor((player.y + data.display.y / 2) / spacing) * spacing + spacing * 2;
@@ -2871,7 +2885,6 @@ function grid(spacing) {
     start = (player.x - data.display.x / 2) < 0 ? Math.ceil((player.x - data.display.x / 2) / spacing) * spacing : Math.floor((player.x - data.display.x / 2) / spacing) * spacing - spacing * 2;
     end = (player.x + data.display.x / 2) < 0 ? Math.ceil((player.x + data.display.x / 2) / spacing) * spacing : Math.floor((player.x + data.display.x / 2) / spacing) * spacing + spacing * 2;
     for (var i = start; i < end; i += spacing) {
-        console.log(i);
         drawLine({x:i,y:(player.y - data.display.y / 2) -spacing}, r=Math.PI/2, data.display.y+spacing*2, {colour:'#999999',width:10,opacity:0.1});
     }
 }
@@ -2898,6 +2911,11 @@ function main() {
     ships = tick(ships);
     for (var i = 0; i < ships.length; i += 1) {
         ships[i].weapons = tick(ships[i].weapons);
+        if (ships[i].boost) {
+            if (ships[i].boost.reload > 0) {
+                ships[i].boost.reload -= 1;
+            }
+        }
     }
     ships = handleAi(ships);
     decoratives = handleDecoratives(decoratives);
@@ -2914,6 +2932,7 @@ async function game() {
     while (1) {
         t += 1;
         main();
+        console.log(player.x, player.y, player.v, player.a)
         //await sleep(500);  // Debug Mode
         await sleep(1000/60);  // 60 FPS
     }
