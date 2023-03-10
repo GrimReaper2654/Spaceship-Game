@@ -1905,12 +1905,18 @@ function load() {
     replacehtml(`<canvas id="main" width="${data.display.x}" height="${data.display.y}"></canvas>`);
 };
 
-function addImage(img, x, y, cx, cy, scale, r) {
+function addImage(img, x, y, cx, cy, scale, r, absolute) {
     var c = document.getElementById("main");
     var ctx = c.getContext("2d");
-    ctx.setTransform(scale, 0, 0, scale, x, y); // sets scale and origin
-    ctx.rotate(r);
-    ctx.drawImage(img, -cx, -cy);
+    if (absolute) {
+        ctx.setTransform(scale, 0, 0, scale, x, y); // sets scale and origin
+        ctx.rotate(r);
+        ctx.drawImage(img, -cx, -cy);
+    } else {
+        ctx.setTransform(scale, 0, 0, scale, x-player.x+data.display.x/2, y-player.y+data.display.y/2); // position relative to player
+        ctx.rotate(r);
+        ctx.drawImage(img, -cx, -cy);
+    }
 }
 
 function clearCanvas() {
@@ -1922,7 +1928,7 @@ function clearCanvas() {
     ctx.restore();
 }
 
-function drawLine(pos, r, length, style) {
+function drawLine(pos, r, length, style, absolute) {
     var c = document.getElementById("main");
     var ctx = c.getContext("2d");
     ctx.save();
@@ -1933,8 +1939,13 @@ function drawLine(pos, r, length, style) {
         ctx.globalAlpha = style.opacity;
     }
     ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-    ctx.lineTo(pos.x + length * Math.cos(r), pos.y + length * Math.sin(r));
+    if (absolute) {
+        ctx.moveTo(pos.x, pos.y);
+        ctx.lineTo(pos.x + length * Math.cos(r), pos.y + length * Math.sin(r));
+    } else {
+        ctx.moveTo(pos.x-player.x+data.display.x/2, pos.y-player.y+data.display.y/2);
+        ctx.lineTo(pos.x-player.x+data.display.x/2 + length * Math.cos(r), pos.y-player.y+data.display.y/2 + length * Math.sin(r));
+    }
     ctx.stroke();
     ctx.restore();
 }
@@ -2181,7 +2192,8 @@ function aimTurrets(ship) {
             if (ship.weapons[i].ai) {
                 ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, {x: ship.target.x, y: ship.target.y}, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             } else {
-                ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, mousepos, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
+                var rMousePos = {x:mousepos.x+player.x-data.display.x/2,y:mousepos.y+player.y-data.display.y/2};
+                ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, rMousePos, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             }
         }
     }
@@ -2308,7 +2320,7 @@ function updateHitboxes(obj, show) {
     for (var i = 0; i < obj.hitbox.length; i+=1) {
         obj.hitbox[i] = hitboxPos(obj.type, obj.x, obj.y, data.hitbox[obj.type][i].x, data.hitbox[obj.type][i].y, obj.r, obj.hitbox[i].r);
         if (show) {
-            drawCircle(obj.hitbox[i].x, obj.hitbox[i].y, obj.hitbox[i].r, false, 'white', 2);
+            drawCircle(obj.hitbox[i].x-player.x+data.display.x/2, obj.hitbox[i].y-player.y+data.display.y/2, obj.hitbox[i].r, false, 'white', 2);
         }
     }
     return obj;
@@ -2749,9 +2761,10 @@ function handleDecoratives(decoratives) {
     return decoratives;
 }
 
+// TODO: This sometimes doesn't work?!
 function generatePos(ship) { // put the newly generated ship off screen somewhere. This makes the ship appear as if it has been there for the whole time and isn't recently generated
-    ship.x = Math.floor(Math.random() * (data.display.x + 251)) - 250;
-    ship.y = Math.floor(Math.random() * (data.display.y + 251)) - 250;
+    ship.x = Math.floor(Math.random() * (data.display.x + 500)) - 250 + player.x;
+    ship.y = Math.floor(Math.random() * (data.display.y + 500)) - 250 + player.y;
     var edge = null;
     if (Math.random() > 0.5) {
         edge = 'x';
@@ -2759,9 +2772,9 @@ function generatePos(ship) { // put the newly generated ship off screen somewher
         edge = 'y'
     }
     if (Math.random() > 0.5) {
-        ship[edge] = data.display[edge]+250;
+        ship[edge] = data.display[edge] + 250 + player[edge];
     } else {
-        ship[edge] = -250;
+        ship[edge] = -250 + player[edge];
     }
     return ship;
 }
@@ -2839,6 +2852,30 @@ function tick(objs) {
     return objs;
 }
 
+function gridAssist(start, end, spacing) {
+    const firstMultiple = Math.ceil(start / spacing) * spacing - spacing;
+    const lastMultiple = Math.floor(end / spacing) * spacing + spacing;
+    const multiples = [];
+    for (let i = firstMultiple; i <= lastMultiple; i += spacing) {
+      multiples.push(i);
+    }
+    return multiples;
+}
+
+function grid(spacing) {
+    var start = (player.y - data.display.y / 2) < 0 ? Math.ceil((player.y - data.display.y / 2) / spacing) * spacing : Math.floor((player.y - data.display.y / 2) / spacing) * spacing - spacing * 2;
+    var end = (player.y + data.display.y / 2) < 0 ? Math.ceil((player.y + data.display.y / 2) / spacing) * spacing : Math.floor((player.y + data.display.y / 2) / spacing) * spacing + spacing * 2;
+    for (let i = start; i <= end; i += spacing) {
+        drawLine({x:(player.x - data.display.x / 2) - spacing,y:i}, r=0, data.display.x+spacing*2, {colour:'#999999',width:10,opacity:0.1});
+    }
+    start = (player.x - data.display.x / 2) < 0 ? Math.ceil((player.x - data.display.x / 2) / spacing) * spacing : Math.floor((player.x - data.display.x / 2) / spacing) * spacing - spacing * 2;
+    end = (player.x + data.display.x / 2) < 0 ? Math.ceil((player.x + data.display.x / 2) / spacing) * spacing : Math.floor((player.x + data.display.x / 2) / spacing) * spacing + spacing * 2;
+    for (var i = start; i < end; i += spacing) {
+        console.log(i);
+        drawLine({x:i,y:(player.y - data.display.y / 2) -spacing}, r=Math.PI/2, data.display.y+spacing*2, {colour:'#999999',width:10,opacity:0.1});
+    }
+}
+
 var shouldAddShips = false;
 function test() {
     shouldAddShips = true;
@@ -2846,6 +2883,7 @@ function test() {
 
 function main() {
     clearCanvas();
+    grid(500);
     if (shouldAddShips) {
         shouldAddShips = false;
         ships = generateShips(ships, 1, 1);
