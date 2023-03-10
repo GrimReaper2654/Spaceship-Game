@@ -1,20 +1,19 @@
 # Spaceship-Game
 
 https://grimreaper2654.github.io/Spaceship-Game/game/main.html <br>
-Game currently under development. <br> Working on: Reworking Movement ▕░░░░░░░░░░░░░░░░░░░░▏<br><br>
+Game currently under development. <br> Working on: UI ▕░░░░░░░░░░░░░░░░░░░░▏<br><br>
 
-Currently, spaceship is fully controllable. Enemies will spawn naturally but more can be spawned using the 'Add Ship' button. Friendly ships will also spawn and help the player. The game is quite unbalanced at the moment but it should be fixed soon.<br><br>
+Game is fully playable! Enemies and teammates will spawn randomly on the map. THe current aim is to survive for as long as you can (health won't regenerate) but I will add score and win conditions later.<br><br>
 
-press 'initialise' then 'start game' to start the game. Don't press 'start game' more than once. <br>
+press 'initialise' then 'start game' to start the game. Don't press 'start game' more than once. Use the test button to spawn more ships.<br>
 W to accelerate<br>
 S to decelerate<br>
 A and D to rotate<br>
 Q to switch aiming mode<br>
 turrets follow mouse pointer <br>
 Left click to shoot turrets <br>
-E to shoot main cannon<br> <br>
+E to shoot main cannon<br>
+R to boost <br> <br>
 
 
-NOTE: the size of the game area is based on your screen resolution so if your screen is small, it will be hard (impossible) to manoeuver the spaceship. You can zoom out then reload the game to get a larger screen for the game. Zoom out to have large FOV and map. (soon this will be unnecessary) <br><br>
-
-BTW: If you have suggstions, put them under issues and I will eventually implement them if they are good.
+NOTE: Zoom out to see more of the map at once. Moving too far from the start messes up the ship spawning code so try to stay near the start area. If no ships spawn even if you click the 'test' button, something is probably broken. Reload the game to fix it (probably)
