@@ -1905,12 +1905,18 @@ function load() {
     replacehtml(`<canvas id="main" width="${data.display.x}" height="${data.display.y}"></canvas>`);
 };
 
-function addImage(img, x, y, cx, cy, scale, r) {
+function addImage(img, x, y, cx, cy, scale, r, absolute) {
     var c = document.getElementById("main");
     var ctx = c.getContext("2d");
-    ctx.setTransform(scale, 0, 0, scale, x, y); // sets scale and origin
-    ctx.rotate(r);
-    ctx.drawImage(img, -cx, -cy);
+    if (absolute) {
+        ctx.setTransform(scale, 0, 0, scale, x, y); // sets scale and origin
+        ctx.rotate(r);
+        ctx.drawImage(img, -cx, -cy);
+    } else {
+        ctx.setTransform(scale, 0, 0, scale, x-player.x+data.display.x/2, y-player.y+data.display.y/2); // position relative to player
+        ctx.rotate(r);
+        ctx.drawImage(img, -cx, -cy);
+    }
 }
 
 function clearCanvas() {
@@ -1933,8 +1939,8 @@ function drawLine(pos, r, length, style) {
         ctx.globalAlpha = style.opacity;
     }
     ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-    ctx.lineTo(pos.x + length * Math.cos(r), pos.y + length * Math.sin(r));
+    ctx.moveTo(pos.x-player.x+data.display.x/2, pos.y-player.y+data.display.y/2);
+    ctx.lineTo(pos.x-player.x+data.display.x/2 + length * Math.cos(r), pos.y-player.y+data.display.y/2 + length * Math.sin(r));
     ctx.stroke();
     ctx.restore();
 }
@@ -2181,7 +2187,8 @@ function aimTurrets(ship) {
             if (ship.weapons[i].ai) {
                 ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, {x: ship.target.x, y: ship.target.y}, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             } else {
-                ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, mousepos, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
+                var rMousePos = {x:mousepos.x+player.x-data.display.x/2,y:mousepos.y+player.y-data.display.y/2};
+                ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, rMousePos, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             }
         }
     }
@@ -2308,7 +2315,7 @@ function updateHitboxes(obj, show) {
     for (var i = 0; i < obj.hitbox.length; i+=1) {
         obj.hitbox[i] = hitboxPos(obj.type, obj.x, obj.y, data.hitbox[obj.type][i].x, data.hitbox[obj.type][i].y, obj.r, obj.hitbox[i].r);
         if (show) {
-            drawCircle(obj.hitbox[i].x, obj.hitbox[i].y, obj.hitbox[i].r, false, 'white', 2);
+            drawCircle(obj.hitbox[i].x-player.x+data.display.x/2, obj.hitbox[i].y-player.y+data.display.y/2, obj.hitbox[i].r, false, 'white', 2);
         }
     }
     return obj;
@@ -2750,8 +2757,8 @@ function handleDecoratives(decoratives) {
 }
 
 function generatePos(ship) { // put the newly generated ship off screen somewhere. This makes the ship appear as if it has been there for the whole time and isn't recently generated
-    ship.x = Math.floor(Math.random() * (data.display.x + 251)) - 250;
-    ship.y = Math.floor(Math.random() * (data.display.y + 251)) - 250;
+    ship.x = Math.floor(Math.random() * (data.display.x + 251)) - 250 + player.x;
+    ship.y = Math.floor(Math.random() * (data.display.y + 251)) - 250 + player.y;
     var edge = null;
     if (Math.random() > 0.5) {
         edge = 'x';
@@ -2759,10 +2766,12 @@ function generatePos(ship) { // put the newly generated ship off screen somewher
         edge = 'y'
     }
     if (Math.random() > 0.5) {
-        ship[edge] = data.display[edge]+250;
+        ship[edge] = data.display[edge]+250 + player[edge];
     } else {
-        ship[edge] = -250;
+        ship[edge] = -250 + player[edge];
     }
+    console.log(`player: ${player.x} ${player.y}`);
+    console.log(`new: ${ship.x} ${ship.y}`);
     return ship;
 }
 
