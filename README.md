@@ -16,4 +16,4 @@ E to shoot main cannon<br>
 R to boost <br> <br>
 
 
-NOTE: Zoom out to see more of the map at once. Moving too far from the start messes up the ship spawning code so try to stay near the start area. If no ships spawn even if you click the 'test' button, something is probably broken. Reload the game to fix it (probably)
+NOTE: Zoom out to see more of the map at once. 
