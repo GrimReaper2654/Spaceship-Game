@@ -1907,7 +1907,7 @@ function replaceControlPannel(text) {
 };
 
 function load() {
-    console.log('Started the game');
+    console.log('Startin the game...');
     replacehtml(`<canvas id="main" width="${data.display.x}" height="${data.display.y}"></canvas>`);
 };
 
@@ -2019,11 +2019,11 @@ function handleInputs(player) {
     for (var i = 0; i < player.weapons.length; i+=1) {
         if (player.weapons[i].keybind == CLICK) {
             if (player.hasClicked) {
-                player.weapons[i] = attemptShoot(player.weapons[i], player.team, player.r);
+                player.weapons[i] = attemptShoot(player.weapons[i], player.team, player.r, player);
             }
         } else {
             if (player.keyboard[player.weapons[i].keybind]) {
-                player.weapons[i] = attemptShoot(player.weapons[i], player.team, player.r);
+                player.weapons[i] = attemptShoot(player.weapons[i], player.team, player.r, player);
             }
         }
     }
@@ -2041,41 +2041,71 @@ function logObj(obj) {
 
 function handlemovement(obj) {
     //console.log('obj',obj);
-    obj.px = obj.x;
-    obj.py = obj.y;
-    if (obj.a > 0) {
-        obj.a -= obj.thrust;
-        if (obj.a < 0) {
-            obj.a = 0;
+    const accuratePhysics = true;
+    if (accuratePhysics == true) {
+        if (obj.v != 0 && obj.vx == 0 && obj.vy && 0) { // incase I forgot to set the velocity components
+            obj.vx = obj.v*Math.cos(obj.r);
+            obj.vy = obj.v*Math.sin(obj.r);
         }
-    }
-    if (obj.a == 0 && obj.v != 0) {
-        if (obj.v > 0) {
-            obj.v -= obj.drag;
-        } else {
-            obj.v += obj.drag;
+        obj.px = obj.x;
+        obj.py = obj.y;
+        if (obj.a > 0) {
+            obj.a -= obj.thrust;
+            if (obj.a < 0) {
+                obj.a = 0;
+            }
         }
-        if (Math.abs(obj.v) <= obj.drag) {
-            obj.v = 0;
+        if (Math.abs(obj.a) > obj.terminalAcceleration) {
+            obj.a = Math.max(obj.a-Math.max(0.5-obj.thrust, 0.1),obj.terminalAcceleration);
         }
+        obj.vx += obj.a*Math.cos(obj.r);
+        obj.vy += obj.a*Math.sin(obj.r);
+        obj.v = Math.sqrt(obj.vx*obj.vx+obj.vy*obj.vy);
+        if (obj.v > obj.terminalVelocity) {
+            var change = Math.max((obj.v-obj.terminalAcceleration), obj.terminalVelocity)/obj.v;
+            obj.vx *= change;
+            obj.vy *= change;
+        }
+        obj.x += obj.vx;
+        obj.y += obj.vy;
+        return obj;
+    } else {
+        obj.px = obj.x;
+        obj.py = obj.y;
+        if (obj.a > 0) {
+            obj.a -= obj.thrust;
+            if (obj.a < 0) {
+                obj.a = 0;
+            }
+        }
+        if (obj.a == 0 && obj.v != 0) {
+            if (obj.v > 0) {
+                obj.v -= obj.drag;
+            } else {
+                obj.v += obj.drag;
+            }
+            if (Math.abs(obj.v) <= obj.drag) {
+                obj.v = 0;
+            }
+        }
+        if (Math.abs(obj.a) > obj.terminalAcceleration) {
+            obj.a = Math.max(obj.a-Math.max(0.5-obj.thrust, 0.1),obj.terminalAcceleration);
+        }
+        if (obj.v > obj.terminalVelocity) {
+            obj.v = Math.max(obj.v-obj.terminalAcceleration,obj.terminalVelocity);
+        }
+        if (obj.v < -obj.terminalVelocity/16) {
+            obj.v = Math.min(obj.v+obj.terminalAcceleration,-obj.terminalVelocity/16);
+        }
+        obj.vx = obj.v*Math.cos(obj.r);
+        obj.vy = obj.v*Math.sin(obj.r);
+        obj.x += obj.vx;
+        obj.y += obj.vy;
+        obj.v += obj.a;
+        //console.log(`V: ${obj.v}`);
+        //console.log(`A: ${obj.a}`);
+        return obj;
     }
-    if (Math.abs(obj.a) > obj.terminalAcceleration) {
-        obj.a = Math.max(obj.a-Math.max(0.5-obj.thrust, 0.1),obj.terminalAcceleration);
-    }
-    if (obj.v > obj.terminalVelocity) {
-        obj.v = Math.max(obj.v-obj.terminalAcceleration,obj.terminalVelocity);
-    }
-    if (obj.v < -obj.terminalVelocity/16) {
-        obj.v = Math.min(obj.v+obj.terminalAcceleration,-obj.terminalVelocity/16);
-    }
-    obj.vx = obj.v*Math.cos(obj.r);
-    obj.vy = obj.v*Math.sin(obj.r);
-    obj.x += obj.vx;
-    obj.y += obj.vy;
-    obj.v += obj.a;
-    //console.log(`V: ${obj.v}`);
-    //console.log(`A: ${obj.a}`);
-    return obj
 }
 
 function turretPos(type, x, y, r, weapon) { // I spent two thirds of my life in school for this...
@@ -2276,16 +2306,16 @@ function handleMotion(objs) {
     return objs;
 }
 
-function attemptShoot(weapon, team, shipRot) {
+function attemptShoot(weapon, team, shipRot, ship) {
     if (weapon.reload == 0) {
-        shoot(weapon, team, shipRot);
+        shoot(weapon, team, shipRot, ship);
         weapon.reload = weapon.reloadTime;
         weapon.recoil = weapon.recoilAmount;
     }
     return weapon;
 }
 
-function shoot(weapon, team, shipRot) {
+function shoot(weapon, team, shipRot, ship) {
     var angle = weapon.aim + shipRot;
     var bullet = {...JSON.parse(JSON.stringify(data.construction.physics)), ...JSON.parse(JSON.stringify(data.construction[weapon.size+'BULLET']))};
     bullet.hitbox = JSON.parse(JSON.stringify(data.hitbox[weapon.size+'BULLET']));
@@ -2299,6 +2329,8 @@ function shoot(weapon, team, shipRot) {
     bullet.px = JSON.parse(JSON.stringify(weapon.ax));
     bullet.py = JSON.parse(JSON.stringify(weapon.ay));
     bullet.r = angle+(Math.random()-0.5)*weapon.spread;
+    bullet.vx = bullet.v*Math.cos(bullet.r) + ship.vx; // ship velocity is only added in accurate physics mode
+    bullet.vy = bullet.v*Math.sin(bullet.r) + ship.vy;
     projectiles.push(bullet);
 }
 
@@ -2470,7 +2502,7 @@ function chase(attacker, dist) { // follow a target while shooting them and run 
         for (var i = 0; i < attacker.weapons.length; i += 1) {
             if ((Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 10*Math.PI/180 || (attacker.weapons[i].reloadTime <= 45 && Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 90*Math.PI/180)) && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < attacker.weapons[i].engagementRange) {
                 //console.log('aligned');
-                attemptShoot(attacker.weapons[i], attacker.team, attacker.r);
+                attemptShoot(attacker.weapons[i], attacker.team, attacker.r, attacker);
             }
         }
     }
@@ -2925,7 +2957,6 @@ async function game() {
     while (1) {
         t += 1;
         main();
-        console.log(player.x, player.y, player.v, player.a)
         //await sleep(500);  // Debug Mode
         await sleep(1000/60);  // 60 FPS
     }
