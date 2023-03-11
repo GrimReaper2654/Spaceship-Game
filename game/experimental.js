@@ -2785,20 +2785,13 @@ function handleDecoratives(decoratives) {
     return decoratives;
 }
 
-// TODO: This sometimes doesn't work?!
 function generatePos(ship) { // put the newly generated ship off screen somewhere. This makes the ship appear as if it has been there for the whole time and isn't recently generated
-    ship.x = Math.floor(Math.random() * (data.display.x + 500)) - 250 + player.x;
-    ship.y = Math.floor(Math.random() * (data.display.y + 500)) - 250 + player.y;
-    var edge = null;
     if (Math.random() > 0.5) {
-        edge = 'x';
+        ship.x = (Math.random() > 0.5) ? player.x-data.display.x/2-100-500*Math.random() : player.x+data.display.x/2+100+500*Math.random();
+        ship.y = Math.floor(Math.random() * (data.display.y + 500)) - 250 + player.y;
     } else {
-        edge = 'y'
-    }
-    if (Math.random() > 0.5) {
-        ship[edge] = data.display[edge] + 250 + player[edge];
-    } else {
-        ship[edge] = -250 + player[edge];
+        ship.x = Math.floor(Math.random() * (data.display.x + 500)) - 250 + player.x;
+        ship.y = (Math.random() > 0.5) ? player.y-data.display.y/2-100-500*Math.random() : player.y+data.display.y/2+100+500*Math.random();
     }
     return ship;
 }
