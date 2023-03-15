@@ -523,7 +523,7 @@ var player = { // Play as interceptor
     hasClicked: 0,
     keyboard: {},
 }*/
-
+/*
 var player = { // Play as Battleship
     // Physics
     x: data.display.x/2,
@@ -703,7 +703,7 @@ var player = { // Play as Battleship
     // Input
     hasClicked: 0,
     keyboard: {},
-}
+}*/
 
 /*
 var player = { // Play as Cruiser
@@ -852,7 +852,6 @@ var player = { // Play as Cruiser
     keyboard: {},
 };*/
 
-/*
 var player = { // Play as Destroyer
     // Physics
     x: data.display.x/2,
@@ -866,8 +865,8 @@ var player = { // Play as Destroyer
     a: 0,
     thrust: 0.1,
     agi: 0.025,
-    terminalAcceleration:0.5,
-    terminalVelocity:6,
+    terminalAcceleration:0.4,
+    terminalVelocity:10,
     drag: 0.01,
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.DESTROYER)),
@@ -905,19 +904,25 @@ var player = { // Play as Destroyer
             // STATS
             engagementRange: 5200,
             spread: 0,
-            reloadTime: 150,
+            reloadTime: 30,
             reload: 0,
             bullet: {
-                dmgMultiplier: 1.5,
+                dmgMultiplier: 2,
                 speedMultiplier: 1
             }
         }
     ],
     aiming: true,
+    boost: {
+        keybind: 'r',
+        a: 5,
+        reloadTime: 300,
+        reload: 0,
+    },
     // Input
     hasClicked: 0,
     keyboard: {},
-};*/
+};
 
 var sampleEnemy = {
     // Physics
@@ -1871,17 +1876,6 @@ const enemies = [ // list of enemies to choose from
     JSON.parse(JSON.stringify(sampleEnemy4)),     // Green Cruiser
     JSON.parse(JSON.stringify(sampleEnemy4)),
     JSON.parse(JSON.stringify(sampleEnemy5)),     // Green Battleship
-    JSON.parse(JSON.stringify(sampleEnemy2)),     // Red Destroyer
-    JSON.parse(JSON.stringify(sampleTeammate)),   // Red Interceptor
-    JSON.parse(JSON.stringify(sampleTeammate)),
-    JSON.parse(JSON.stringify(sampleTeammate)),
-    JSON.parse(JSON.stringify(sampleTeammate)),
-    JSON.parse(JSON.stringify(sampleTeammate)),
-    JSON.parse(JSON.stringify(sampleTeammate)),
-    JSON.parse(JSON.stringify(sampleTeammate2)),  // Red Cruiser
-    JSON.parse(JSON.stringify(sampleTeammate2)),
-    JSON.parse(JSON.stringify(sampleTeammate3)),  // Red Battleship
-    JSON.parse(JSON.stringify(sampleTeammate4)),  // Red Destroyer
 ];
 var ships = [player];
 console.log(ships);
@@ -2929,7 +2923,7 @@ function main() {
         ships = generateShips(ships, 1, 1);
         ships = generateShips(ships, 1, 1);
     }
-    ships = generateShips(ships, 120, 0.25);
+    ships = generateShips(ships, 120, 0.5);
     decoratives = tick(decoratives);
     projectiles = tick(projectiles);
     ships = tick(ships);
