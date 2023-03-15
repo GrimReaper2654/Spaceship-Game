@@ -2946,6 +2946,77 @@ function main() {
 
 var t = 0
 async function game() {
+    player = { // Play as Destroyer
+        // Physics
+        x: data.display.x/2,
+        y: data.display.y/2,
+        px: data.display.x/2,
+        py: data.display.y/2,
+        v: 0,
+        vx: 0,
+        vy: 0,
+        r: 0,
+        a: 0,
+        thrust: 0.1,
+        agi: 0.025,
+        terminalAcceleration:0.4,
+        terminalVelocity:10,
+        drag: 0.01,
+        scale: 1,
+        hitbox: JSON.parse(JSON.stringify(data.hitbox.DESTROYER)),
+        // Stats
+        hp: 200000,
+        shield: {
+            shieldCap: 10000,
+            shield: 10000,
+            shieldRegen: 5,
+            cooldown: 0,
+        },
+        team: RED,
+        type: DESTROYER,
+        aiControl: false,
+        id: 69420,
+        // Weapons
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: RAIL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: data.DESTROYERMOUNT.RAIL[0].x,
+                y: data.DESTROYERMOUNT.RAIL[0].y,
+                ax: data.DESTROYERMOUNT.RAIL[0].x,
+                ay: data.DESTROYERMOUNT.RAIL[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 5200,
+                spread: 0,
+                reloadTime: 30,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2,
+                    speedMultiplier: 1
+                }
+            }
+        ],
+        aiming: true,
+        boost: {
+            keybind: 'r',
+            a: 5,
+            reloadTime: 300,
+            reload: 0,
+        },
+        // Input
+        hasClicked: 0,
+        keyboard: {},
+    };
     ships = generateShips(ships, 0, 1);
     while (1) {
         t += 1;
