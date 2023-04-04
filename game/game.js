@@ -33,6 +33,11 @@
  • buffed Destroyer damage 100% --> 150%
  • nerfed Destroyer reload 120 --> 150
  • added laser sights to destroyer
+
+3/4/2023
+ • buffed Battleship shield 25000 --> 100000
+ • buffed Battleship shield regen 10 --> 50
+ • nerfed Battleship health 2.5M --> 2M
  
 -------------------------------------------------------------------------------------------
 */
@@ -75,6 +80,12 @@ const FIGHTER = ['INTERCEPTOR','BOMBER'];
 const NOTCAPITAL = ['DESTROYER','FRIGATE','INTERCEPTOR','BOMBER'];
 const NOTFIGHTER = ['BATTLESHIP','CRUISER','DESTROYER','FRIGATE'];
 
+// Resources
+const METAL = 'METAL';
+const CIRCUITS = 'CIRCUITS';
+const FUELCELLS = 'FUELCELLS';
+const RESOURCES = [METAL, CIRCUITS, FUELCELLS];
+
 const data = {
     display: {x:window.innerWidth,y:window.innerHeight},
     dim: {
@@ -102,6 +113,9 @@ const data = {
         SEXPLOSION:{x:73,y:45}, // SMALL EXPLOSION! not anything else your dirty mind thought up of
         MEXPLOSION:{x:0,y:0},
         LEXPLOSION:{x:0,y:0},
+        METAL:{x:25,y:25},
+        CIRCUITS:{x:25,y:14},
+        FUELCELLS:{x:14,y:21},
     },
     center: {
         BATTLESHIP:{x:240,y:76}, 
@@ -128,6 +142,9 @@ const data = {
         SEXPLOSION:{x:36.5,y:22.5}, // SMALL EXPLOSION! not anything else your dirty mind thought up of
         MEXPLOSION:{x:0,y:0},
         LEXPLOSION:{x:0,y:0},
+        METAL:{x:12.5,y:15.5},
+        CIRCUITS:{x:12.5,y:7},
+        FUELCELLS:{x:7,y:10.5},
     },
     hitbox: { // all sprites will use circular hitboxes (ez to code) Note: 'r' is radius not rotation
         BATTLESHIP: [ // so many hitboxes... so much lag... 
@@ -175,6 +192,15 @@ const data = {
         ],
         SMALLBULLET: [ // large-ish hitbox so you can actually hit something
             {x:5.5, y:2.5, r:5}, 
+        ],
+        METAL: [
+            {x:12.5, y:12.5, r:15}, 
+        ],
+        CIRCUITS: [
+            {x:12.5, y:7, r:15}, 
+        ],
+        FUELCELLS: [
+            {x:7, y:10.5, r:15}, 
         ],
     },
     img: {
@@ -236,6 +262,13 @@ const data = {
         DESTROYERPLUMEOVERLAY: document.getElementById("DestroyerPlumeOverlay"),
         INTERCEPTORPLUME: document.getElementById("InterceptorPlume"),
         INTERCEPTORPLUMEOVERLAY: document.getElementById("InterceptorPlumeOverlay"),
+
+        // Resources
+        RES: [
+            document.getElementById("Metal"),
+            document.getElementById("Circuits"),
+            document.getElementById("FuelCell"),
+        ],
     },
     BATTLESHIPMOUNT: {
         LARGETURRET: [{x:272,y:76}, {x:177,y:76}],
@@ -286,7 +319,7 @@ const data = {
             agi: 0,
             terminalAcceleration:250,
             terminalVelocity:250,
-            drag: 0,
+            drag: 1,
         },
         AI: {
             target: '',
@@ -303,7 +336,7 @@ const data = {
             drag: 0.001,
             scale: 1,
             // Stats
-            hp: 2500000,
+            hp: 2000000,
             shield: {
                 shieldCap: 25000,
                 shield: 25000,
@@ -453,7 +486,6 @@ const data = {
 };
 var mousepos = {x:0,y:0};
 
-
 var player = { // Play as Battleship
     // Physics
     x: data.display.x/2,
@@ -469,15 +501,15 @@ var player = { // Play as Battleship
     agi: 0.01,
     terminalAcceleration:0.15,
     terminalVelocity:5,
-    drag: 0.001,
+    drag: 0.999,
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
     // Stats
-    hp: 2500000,
+    hp: 2000000,
     shield: {
-        shieldCap: 25000,
-        shield: 25000,
-        shieldRegen: 10,
+        shieldCap: 100000,
+        shield: 100000,
+        shieldRegen: 50,
         cooldown: 0,
     },
     team: RED,
@@ -486,6 +518,34 @@ var player = { // Play as Battleship
     id: 69420,
     // Weapons
     weapons: [
+        {
+            // CONTROL
+            type: FIXED,
+            size: RAIL,
+            ai: false,
+            keybind: 'f',
+            // PHYSICS
+            x: data.dim.BATTLESHIP.x,
+            y: data.center.BATTLESHIP.y,
+            ax: data.dim.BATTLESHIP.x,
+            ay: data.center.BATTLESHIP.y,
+            facing: 0,
+            aim: 0,
+            agi: 0,
+            arc: 0,
+            recoilAmount: 0,
+            recoil: 0,
+            // STATS
+            cost: {METAL: 5, FUELCELLS: 1},
+            engagementRange: 5400,
+            spread: 0,
+            reloadTime: 150,
+            reload: 0,
+            bullet: {
+                dmgMultiplier: 1,
+                speedMultiplier: 1
+            }
+        },
         {
             // CONTROL
             type: FIXED,
@@ -504,9 +564,10 @@ var player = { // Play as Battleship
             recoilAmount: 0,
             recoil: 0,
             // STATS
+            cost: {METAL: 0.5},
             engagementRange: 3600,
             spread: 5*Math.PI/180,
-            reloadTime: 180,
+            reloadTime: 120,
             reload: 0,
             bullet: {
                 dmgMultiplier: 1,
@@ -531,6 +592,7 @@ var player = { // Play as Battleship
             recoilAmount: 5,
             recoil: 0,
             // STATS
+            cost: {FUELCELLS: 0.001},
             engagementRange: 1800,
             spread: 1*Math.PI/180,
             reloadTime: 15,
@@ -558,6 +620,7 @@ var player = { // Play as Battleship
             recoilAmount: 5,
             recoil: 0,
             // STATS
+            cost: {FUELCELLS: 0.001},
             engagementRange: 1800,
             spread: 1*Math.PI/180,
             reloadTime: 15,
@@ -585,6 +648,7 @@ var player = { // Play as Battleship
             recoilAmount: 10,
             recoil: 0,
             // STATS
+            cost: {METAL: 0.1},
             engagementRange: 3600,
             spread: 0,
             reloadTime: 75,
@@ -612,6 +676,7 @@ var player = { // Play as Battleship
             recoilAmount: 10,
             recoil: 0,
             // STATS
+            cost: {METAL: 0.1},
             engagementRange: 3600,
             spread: 0,
             reloadTime: 75,
@@ -627,12 +692,19 @@ var player = { // Play as Battleship
     boost: {
         keybind: 'r',
         a: 3,
-        reloadTime: 600,
+        reloadTime: 60,
         reload: 0,
+        cost: {FUELCELLS: 2},
     },
     // Input
     hasClicked: 0,
     keyboard: {},
+    // Inventory
+    cargo: {
+        METAL: 25,
+        CIRCUITS: 10,
+        FUELCELLS: 5,
+    },
 }
 /*
 var player = { // Play as God
@@ -740,7 +812,7 @@ var sampleEnemy = {
     agi: 0.1,
     terminalAcceleration:1,
     terminalVelocity:15,
-    drag: 0.0001,
+    drag: 0.99,
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
     // Stats
@@ -832,7 +904,7 @@ var sampleEnemy2 = {
     agi: 0.025,
     terminalAcceleration:0.5,
     terminalVelocity:6,
-    drag: 0.01,
+    drag: 0.99,
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.DESTROYER)),
     // Stats
@@ -898,7 +970,7 @@ var sampleTeammate = {
     agi: 0.1,
     terminalAcceleration:1,
     terminalVelocity:15,
-    drag: 0.0001,
+    drag: 0.99,
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
     // Stats
@@ -990,7 +1062,7 @@ var sampleEnemy4 = {
     agi: 0.025,
     terminalAcceleration:0.5,
     terminalVelocity:7.5,
-    drag: 0.001,
+    drag: 0.99,
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.CRUISER)),
     // Stats
@@ -1132,11 +1204,11 @@ var sampleEnemy5 = {
     agi: 0.01,
     terminalAcceleration:0.15,
     terminalVelocity:5,
-    drag: 0.001,
+    drag: 0.99,
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
     // Stats
-    hp: 2500000,
+    hp: 2000000,
     shield: {
         shieldCap: 25000,
         shield: 25000,
@@ -1302,7 +1374,7 @@ var sampleTeammate2 = {
     agi: 0.025,
     terminalAcceleration:0.5,
     terminalVelocity:7.5,
-    drag: 0.001,
+    drag: 0.99,
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.CRUISER)),
     // Stats
@@ -1444,11 +1516,11 @@ var sampleTeammate3 = {
     agi: 0.01,
     terminalAcceleration:0.15,
     terminalVelocity:5,
-    drag: 0.001,
+    drag: 0.99,
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
     // Stats
-    hp: 2500000,
+    hp: 2000000,
     shield: {
         shieldCap: 25000,
         shield: 25000,
@@ -1614,7 +1686,7 @@ var sampleTeammate4 = {
     agi: 0.025,
     terminalAcceleration:0.5,
     terminalVelocity:6,
-    drag: 0.01,
+    drag: 0.99,
     scale: 1,
     hitbox: JSON.parse(JSON.stringify(data.hitbox.DESTROYER)),
     // Stats
@@ -1692,6 +1764,7 @@ const enemies = [ // list of enemies to choose from
 var ships = [player];
 console.log(ships);
 var projectiles = [];
+var resources = [];
 var decoratives = [];
 var overlays = [];
 
@@ -1818,18 +1891,29 @@ function handleInputs(player) {
     }
     if (player.boost) {
         if (player.keyboard[player.boost.keybind] && player.boost.reload == 0) {
-            player.boost.reload = player.boost.reloadTime;
-            player.a += player.boost.a;
+            var sufficient = true
+            for (var i=0; i < Object.keys(player.boost.cost).length; i += 1) {
+                if (player.cargo[Object.keys(player.boost.cost)[i]] < player.boost.cost[Object.keys(player.boost.cost)[i]]) {
+                    sufficient = false;
+                }
+            }
+            if (sufficient) {
+                player.boost.reload = player.boost.reloadTime;
+                player.a += player.boost.a;
+                for (var i=0; i < Object.keys(player.boost.cost).length; i += 1) {
+                    player.cargo[Object.keys(player.boost.cost)[i]] -= player.boost.cost[Object.keys(player.boost.cost)[i]];
+                }
+            }
         }
     }
     for (var i = 0; i < player.weapons.length; i+=1) {
         if (player.weapons[i].keybind == CLICK) {
             if (player.hasClicked) {
-                player.weapons[i] = attemptShoot(player.weapons[i], player.team, player.r, player);
+                player = attemptShoot(i, player);
             }
         } else {
             if (player.keyboard[player.weapons[i].keybind]) {
-                player.weapons[i] = attemptShoot(player.weapons[i], player.team, player.r, player);
+                player = attemptShoot(i, player);
             }
         }
     }
@@ -1855,6 +1939,9 @@ function handlemovement(obj) {
         }
         obj.px = obj.x;
         obj.py = obj.y;
+        obj.v *= obj.drag;
+        obj.vx *= obj.drag;
+        obj.vy *= obj.drag;
         if (obj.a > 0) {
             obj.a -= obj.thrust;
             if (obj.a < 0) {
@@ -1874,8 +1961,16 @@ function handlemovement(obj) {
         }
         obj.x += obj.vx;
         obj.y += obj.vy;
+        if (obj.av) {
+            obj.r += obj.av;
+            obj.av *= obj.ad;
+            if (Math.abs(obj.av) < Math.PI/69) {
+                obj.av = 0;
+            }
+            
+        }
         return obj;
-    } else {
+    } else { // old phyiscs
         obj.px = obj.x;
         obj.py = obj.y;
         if (obj.a > 0) {
@@ -2112,30 +2207,44 @@ function handleMotion(objs) {
     return objs;
 };
 
-function attemptShoot(weapon, team, shipRot, ship) {
-    if (weapon.reload == 0) {
-        shoot(weapon, team, shipRot, ship);
-        weapon.reload = weapon.reloadTime;
-        weapon.recoil = weapon.recoilAmount;
+function attemptShoot(weapon, ship) {
+    var sufficient = true;
+    if (ship.weapons[weapon].cost && ship.weapons[weapon].reload == 0) {
+        for (var i=0; i < Object.keys(ship.weapons[weapon].cost).length; i += 1) {
+            if (ship.cargo[Object.keys(ship.weapons[weapon].cost)[i]] < ship.weapons[weapon].cost[Object.keys(ship.weapons[weapon].cost)[i]]) {
+                sufficient = false;
+        }
+        if (sufficient) {
+            for (var i=0; i < Object.keys(ship.weapons[weapon].cost).length; i += 1) {
+                    ship.cargo[Object.keys(ship.weapons[weapon].cost)[i]] -= ship.weapons[weapon].cost[Object.keys(ship.weapons[weapon].cost)[i]];
+                }
+            }
+        }
     }
-    return weapon;
+    if (ship.weapons[weapon].reload == 0 && sufficient) {
+        shoot(ship.weapons[weapon], ship);
+        ship.weapons[weapon].reload = ship.weapons[weapon].reloadTime;
+        ship.weapons[weapon].recoil = ship.weapons[weapon].recoilAmount;
+    }
+    return ship;
 };
 
-function shoot(weapon, team, shipRot, ship) {
-    var angle = weapon.aim + shipRot;
+function shoot(weapon, ship) {
+    // no need to deep copy everything but anyways...
+    var angle = weapon.aim + ship.r;
     var bullet = {...JSON.parse(JSON.stringify(data.construction.physics)), ...JSON.parse(JSON.stringify(data.construction[weapon.size+'BULLET']))};
     bullet.hitbox = JSON.parse(JSON.stringify(data.hitbox[weapon.size+'BULLET']));
     bullet.v *= JSON.parse(JSON.stringify(weapon.bullet.speedMultiplier));
     bullet.dmg *= JSON.parse(JSON.stringify(weapon.bullet.dmgMultiplier));
     bullet.dmgvb *= JSON.parse(JSON.stringify(weapon.bullet.dmgMultiplier));
     bullet.type = JSON.parse(JSON.stringify(weapon.size+'BULLET'));
-    bullet.team = JSON.parse(JSON.stringify(team));
+    bullet.team = JSON.parse(JSON.stringify(ship.team));
     bullet.x = JSON.parse(JSON.stringify(weapon.ax));
     bullet.y = JSON.parse(JSON.stringify(weapon.ay));
     bullet.px = JSON.parse(JSON.stringify(weapon.ax));
     bullet.py = JSON.parse(JSON.stringify(weapon.ay));
     bullet.r = angle+(Math.random()-0.5)*weapon.spread;
-    bullet.vx = bullet.v*Math.cos(bullet.r) + ship.vx; // ship velocity is only added in accurate physics mode
+    bullet.vx = bullet.v*Math.cos(bullet.r) + ship.vx;
     bullet.vy = bullet.v*Math.sin(bullet.r) + ship.vy;
     projectiles.push(bullet);
 };
@@ -2163,7 +2272,7 @@ function sleep(ms) {
 
 function drawCircle(x, y, radius, fill, stroke, strokeWidth) { // draw a circle (I coppied most of this from stack overflow) also does not work
     var canvas = document.getElementById("main");
-    ctx = canvas.getContext("2d");
+    var ctx = canvas.getContext("2d");
     ctx.resetTransform();
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
@@ -2188,9 +2297,20 @@ function updateHitboxes(obj, show) {
     return obj;
 };
 
-function handlePlayer(player) {
+function handlePlayer(player, resources) {
     player = handleInputs(player);
-    return player;
+    for (var i = 0; i < resources.length; i +=1) {
+        if (detectCollision(player, resources[i])) {
+            if (player.cargo[resources[i].type]) {
+                player.cargo[resources[i].type] += resources[i].n;
+            } else {
+                player.cargo[resources[i].type] = resources[i].n;
+            }
+            resources[i].life = 1;
+            resources[i].n = 0;
+        }
+    }
+    return [player,resources];
 };
 
 function handleShips(ships) { // handles all ships
@@ -2310,7 +2430,7 @@ function chase(attacker, dist) { // follow a target while shooting them and run 
         for (var i = 0; i < attacker.weapons.length; i += 1) {
             if (((Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 1*Math.PI/180) || (Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 10*Math.PI/180 && attacker.weapons[i].reloadTime <= 120) || (attacker.weapons[i].reloadTime <= 45 && Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 90*Math.PI/180)) && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < attacker.weapons[i].engagementRange) {
                 //console.log('aligned');
-                attemptShoot(attacker.weapons[i], attacker.team, attacker.r, attacker);
+                attemptShoot(i, attacker);
             }
         }
     }
@@ -2776,16 +2896,37 @@ function grid(spacing) {
     }
 };
 
+function displaytxt(txt, pos, font, fill) {
+    var canvas = document.getElementById("main");
+    var ctx = canvas.getContext("2d");
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // Set the font and text color
+    ctx.font = font;
+    ctx.fillStyle = fill;
+  
+    // Display the points on the canvas
+    ctx.fillText(txt, pos.x, pos.y);
+
+    ctx.stroke();
+    ctx.restore();
+}
+
 function handlePlayerUI() {
     PlayerUiBar(player.shield.shield, player.shield.shieldCap, {x:100,y:50}, {x:500,y:50}, "rgb(116, 251, 253)",5);
     PlayerUiBar(player.shield.cooldown, 300, {x:105,y:85}, {x:490,y:10}, "#FFFFFF",-1);
     PlayerUiBar(player.hp, data.construction[player.type].hp, {x:100,y:125}, {x:500,y:50}, "rgb(200, 200, 200)",5);
+    for (var i = 0; i < Object.keys(player.cargo).length; i += 1) {
+        displaytxt(`${Object.keys(player.cargo)[i]}: ${Math.round(player.cargo[Object.keys(player.cargo)[i]])}`, {x:110, y:250+50*i}, "bold 50px Arial", "rgb(200, 200, 200)");
+    }
+    
 };
 
-function handleDeathEffects(overlays, ships, decoratives) {
+function handleDeathEffects(overlays, ships, decoratives, resources) {
     var nships = []
     for (var i = 0; i < ships.length; i++) {
-        if (ships[i].hp <= 0) {
+        if (ships[i].hp <= 0) { // Ship is dead
+            // Effects
             ships[i].cx = data.center[ships[i].type].x;
             ships[i].cy = data.center[ships[i].type].y;
             ships[i].hp = 1; // so the dead ship decorative is not deleted
@@ -2797,7 +2938,7 @@ function handleDeathEffects(overlays, ships, decoratives) {
                 var area = Math.PI * (ships[i].hitbox[j].r)**2; // area of circle
                 var numExplosions = area / (225*Math.PI);
                 for (var k=0; k < numExplosions; k++) {
-                    var explode = JSON.parse(JSON.stringify(data.construction.physics))
+                    var explode = JSON.parse(JSON.stringify(data.construction.physics));
                     var rd = Math.random()*ships[i].hitbox[j].r;
                     var rr = Math.random()*2*Math.PI;
                     explode.x = ships[i].hitbox[j].x + rd*Math.cos(rr);
@@ -2805,7 +2946,7 @@ function handleDeathEffects(overlays, ships, decoratives) {
                     explode.vx = ships[i].vx;
                     explode.vy = ships[i].vy;
                     explode.cx = data.center.SEXPLOSION.x;
-                    explode.cx = data.center.SEXPLOSION.y;
+                    explode.cy = data.center.SEXPLOSION.y;
                     explode.r = 2*Math.PI*Math.random();
                     explode.img = data.img.sExplosion[69];
                     var delay = Math.round(Math.random()*30)
@@ -2815,11 +2956,75 @@ function handleDeathEffects(overlays, ships, decoratives) {
                     overlays.push(explode);
                 }
             }
-        } else {
+            // Drop resources upon death
+            var res = [0,0]; // Metal, Circuits
+            switch (ships[i].type) {
+                case BATTLESHIP:
+                    res = [150,40,5];
+                    break;
+                case CRUISER:
+                    res = [70,45,3];
+                    break;
+                case DESTROYER:
+                    res = [40,30,3];
+                    break;
+                case FRIGATE:
+                    res = [30,10,1];
+                    break;
+                case BOMBER:
+                    res = [12,5,0];
+                    break;
+                case INTERCEPTOR:
+                    res = [8,3,0];
+                    break;
+            }
+            const stackSize = [70,25,10,8,5,3,2,1]; // why not?
+            for (var j=0; j < res.length; j+=1) {
+                while (res[j] > 0) {
+                    for (var k = 0; k < stackSize.length; k++) {
+                        if (res[j] >= stackSize[k]) {
+                            res[j] -= stackSize[k];
+                            var droppedRes = JSON.parse(JSON.stringify(data.construction.physics));
+                            droppedRes.drag = 0.99;
+                            droppedRes.cx = data.center[RESOURCES[j]].x;
+                            droppedRes.cy = data.center[RESOURCES[j]].y;
+                            droppedRes.x = ships[i].x;
+                            droppedRes.y = ships[i].y;
+                            droppedRes.vx = ships[i].vx + Math.random()*6-3;
+                            droppedRes.vy = ships[i].vy + Math.random()*6-3;
+                            droppedRes.r = Math.random()*Math.PI*2;
+                            droppedRes.av = (Math.random()*Math.PI-Math.PI/2)/4;
+                            droppedRes.ad = 0.98;
+                            droppedRes.life = 3600;
+                            droppedRes.img = data.img.RES[j];
+                            droppedRes.n = stackSize[k];
+                            droppedRes.type = RESOURCES[j];
+                            droppedRes.hitbox = [{x:data.center[RESOURCES[j]].x, y:data.center[RESOURCES[j]].y, r: 15}];
+                            resources.push(droppedRes);
+                        }
+                    }
+                }
+            }
+        } else { // ship not dead
             nships.push(ships[i]);
         }
     }
-    return [nships,overlays,decoratives];
+    return [nships,overlays,decoratives,resources];
+}
+
+function handlePickup(resources) {
+    var nRes = []
+    for (var i=0; i < resources.length; i+=1) {
+        if (getDist(player, resources[i]) < Math.max(data.display.x,data.display.y)*1.5) {
+            if (getDist(player, resources[i]) < 500) {
+                var r = target(resources[i], player);
+                resources[i].vx += Math.cos(r)*2;
+                resources[i].vy += Math.sin(r)*2;
+            }
+            nRes.push(resources[i]);
+        }
+    }
+    return nRes;
 }
 
 var shouldAddShips = false;
@@ -2842,6 +3047,7 @@ function main() {
     decoratives = tick(decoratives);
     projectiles = tick(projectiles);
     overlays = tick(overlays);
+    resources = tick(resources);
     ships = tick(ships);
     for (var i = 0; i < ships.length; i += 1) {
         ships[i].weapons = tick(ships[i].weapons);
@@ -2851,19 +3057,27 @@ function main() {
             }
         }
     }
+    for (var i = 0; i < resources.length; i += 1) {
+        resources[i] = updateHitboxes(resources[i], false);
+    }
     ships = handleAi(ships);
     decoratives = handleDecoratives(decoratives);
     ships = handleShips(ships);
-    player = handlePlayer(player);
-    var res = handleProjectiles(projectiles, ships, overlays);
-    projectiles = res[0];
-    ships = res[1];
-    overlays = res[2];
-    res = handleDeathEffects(overlays, ships, decoratives);
-    ships = res[0];
-    overlays = res[1];
-    decoratives = res[2];
+    var result = handlePlayer(player,resources);
+    player = result[0];
+    resources = result[1];
+    resources = handleDecoratives(resources);
+    result = handleProjectiles(projectiles, ships, overlays);
+    projectiles = result[0];
+    ships = result[1];
+    overlays = result[2];
+    result = handleDeathEffects(overlays, ships, decoratives, resources);
+    ships = result[0];
+    overlays = result[1];
+    decoratives = result[2];
+    resources = result[3];
     overlays = handleDecoratives(overlays);
+    resources = handlePickup(resources);
     handlePlayerUI();
 };
 
