@@ -45,6 +45,7 @@
 // Teams
 const RED = 'RED';
 const GREEN = 'GREEN';
+const TEAMS = [RED, GREEN];
 const FRIENDLY = 'FRIENDLY';
 const HOSTILE = 'HOSTILE';
 
@@ -79,6 +80,7 @@ const CAPITAL = ['BATTLESHIP','CRUISER'];
 const FIGHTER = ['INTERCEPTOR','BOMBER'];
 const NOTCAPITAL = ['DESTROYER','FRIGATE','INTERCEPTOR','BOMBER'];
 const NOTFIGHTER = ['BATTLESHIP','CRUISER','DESTROYER','FRIGATE'];
+const ALLSHIPS = ['BATTLESHIP','CRUISER','DESTROYER','FRIGATE','INTERCEPTOR','BOMBER']
 
 // Resources
 const METAL = 'METAL';
@@ -86,7 +88,27 @@ const CIRCUITS = 'CIRCUITS';
 const FUELCELLS = 'FUELCELLS';
 const RESOURCES = [METAL, CIRCUITS, FUELCELLS];
 
-const data = {
+// Support functions
+function isin(a, b) { // check is a in b
+    for (var i = 0; i < b.length; i += 1) {
+        if (a == b[i]) {
+            return true;
+        }
+    }
+    return false;
+};
+
+function randchoice(list, remove = false) { // chose 1 from a list and update list
+    let length = list.length;
+    let choice = randint(0, length - 1);
+    if (remove) {
+        let chosen = list.splice(choice, 1);
+        return [chosen, list];
+    }
+    return list[choice];
+}
+
+var prototypedata = {
     display: {x:window.innerWidth,y:window.innerHeight},
     dim: {
         BATTLESHIP:{x:497,y:152}, 
@@ -304,186 +326,532 @@ const data = {
     INTERCEPTORENGINES: [
         {x: -35, y: -10, r: 10},
     ],
-    construction: {
-        physics: {
-            x: 0,
-            y: 0,
-            px: 0,
-            py: 0,
-            v: 0,
-            vx: 0,
-            vy: 0,
-            r: 0,
-            a: 0,
-            thrust: 0,
-            agi: 0,
-            terminalAcceleration:250,
-            terminalVelocity:250,
-            drag: 1,
-        },
-        AI: {
-            target: '',
-            task: '',
-            method: '',
-            int: 1, // Lower is further sensor range
-        },
-        
-        BATTLESHIP: {
-            thrust: 0.0014,
-            agi: 0.005,
-            terminalAcceleration:0.15,
-            terminalVelocity:3,
-            drag: 0.001,
-            scale: 1,
-            // Stats
-            hp: 2000000,
-            shield: {
-                shieldCap: 25000,
-                shield: 25000,
-                shieldRegen: 10,
-                cooldown: 0,
-            },
-        },
-        CRUISER: {
-            thrust: 0.075,
-            agi: 0.025,
-            terminalAcceleration:0.5,
-            terminalVelocity:7.5,
-            drag: 0.001,
-            scale: 1,
-            // Stats
-            hp: 250000,
-            shield: {
-                shieldCap: 80000,
-                shield: 80000,
-                shieldRegen: 15,
-                cooldown: 0,
-            },
-        },
-        DESTROYER: {
-            thrust: 0.1,
-            agi: 0.05,
-            terminalAcceleration:0.5,
-            terminalVelocity:6,
-            drag: 0.01,
-            scale: 1,
-            // Stats
-            hp: 200000,
-            shield: {
-                shieldCap: 10000,
-                shield: 10000,
-                shieldRegen: 5,
-                cooldown: 0,
-            },
-        },
-        INTERCEPTOR: {
-            thrust: 0.1,
-            agi: 0.1,
-            terminalAcceleration:1,
-            terminalVelocity:15,
-            drag: 0.0001,
-            scale: 1,
-            // Stats
-            hp: 15000,
-            shield: {
-                shieldCap: 600,
-                shield: 600,
-                shieldRegen: 0.1,
-                cooldown: 0,
-            },
-        },
-        MISSILEBULLET: { // a missile that explodes on impact
-            v: 5,
-            dmg: 1500, // this acts more as health than damage
-            dmgvb: 0,
-            life: 216000, // basically lives forever (1 hour of life)
-            physical: true,
-            effect: true,
-            explosion: {r: 50, dmg: 6000, dropoff: 0.1},
-        },
-        MEGABULLET: { // giant ball of plasma
-            v: 5,
-            dmg: 150000, // instakills almost everything but is very slow
-            dmgvb: 0,
-            life: 720,
-            physical: false,
-            effect: true,
-            explosion: {r: 200, dmg: 100000, dropoff: 0.9},
-        },
-        RAILBULLET: { // railgun round
-            v: 100,
-            dmg: 100000, // instakills smaller ships and pierces through them
-            dmgvb: 0,
-            life: 50,
-            physical: true,
-            effect: true,
-            explosion: {r: 0, dmg: 0, dropoff: 0},
-        },
-        HUGEBULLET: { // cannon shell
-            v: 20,
-            dmg: 24000, // 16k dps per turret
-            dmgvb: 0,
-            life: 240,
-            physical: true,
-            effect: false,
-            explosion: {r: 0, dmg: 0, dropoff: 0},
-        },
-        LARGEBULLET: { // cannon shell
-            v: 25,
-            dmg: 18000, // 14.4k DPS per turret
-            dmgvb: 0,
-            life: 120,
-            physical: true,
-            effect: false,
-            explosion: {r: 0, dmg: 0, dropoff: 0},
-        },
-        MEDIUMBULLET: { // laser
-            v: 30,
-            dmg: 2000, // 8k dps per turret
-            dmgvb: 0,
-            life: 45,
-            physical: false,
-            effect: false,
-            explosion: false,
-        },
-        DUBULLET: { // depleted uranium cannon shell
-            v: 35,
-            dmg: 25, // shreds almost anything instantly in massive quantities
-            dmgvb: 0,
-            life: 20,
-            physical: true,
-            effect: false,
-            explosion: false,
-        },
-        SMALLBULLET: { // laser
-            v: 45,
-            dmg: 100, // weak individually but dangerous in large quantities
-            dmgvb: 0,
-            life: 15,
-            physical: false,
-            effect: false,
-            explosion: false,
-        },
-        BOMBBULLET: { // laser
-            v: 0,
-            dmg: 0, // it explodes
-            dmgvb: 0,
-            life: 1,
-            physical: false,
-            effect: false,
-            explosion: {r: 20, dmg: 20000, dropoff: 0.6},
-        },
-        PDBULLET: { // point defence (∞ ms^-1)
-            v: 250,
-            dmg: 20, // basiclly nothing against larger ships but effective against fighters (1.2k dps)
-            dmgvb: 100, // 2000 against large bullet, 3100 against huge bullet in total
-            life: 1,
-            physical: false,
-            effect: false,
-            explosion: false,
-        },
-    }
+    shipSpawnProbability: { // percentage
+        BATTLESHIP: 5,
+        CRUISER: 15,
+        DESTROYER: 5,
+        FRIGATE: 20,
+        INTERCEPTOR: 35,
+        BOMBER: 20
+    },
 };
+prototypedata.construction =  {
+    physics: {
+        x: 0,
+        y: 0,
+        px: 0,
+        py: 0,
+        v: 0,
+        vx: 0,
+        vy: 0,
+        r: 0,
+        a: 0,
+        thrust: 0,
+        agi: 0,
+        terminalAcceleration:250,
+        terminalVelocity:250,
+        drag: 1,
+    },
+    AI: {
+        target: '',
+        task: '',
+        method: '',
+        int: 1, // Lower is further sensor range
+    },
+    
+    BATTLESHIP: {
+        thrust: 0.0014,
+        agi: 0.005,
+        terminalAcceleration:0.15,
+        terminalVelocity:3,
+        drag: 0.001,
+        scale: 1,
+        type: BATTLESHIP,
+        // Stats
+        hp: 2000000,
+        shield: {
+            shieldCap: 25000,
+            shield: 25000,
+            shieldRegen: 10,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: HUGE,
+                ai: false,
+                keybind: 'e',
+                // PHYSICS
+                x: prototypedata.dim.BATTLESHIP.x,
+                y: prototypedata.center.BATTLESHIP.y,
+                ax: prototypedata.dim.BATTLESHIP.x,
+                ay: prototypedata.center.BATTLESHIP.y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 5*Math.PI/180,
+                reloadTime: 180,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+                y: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+                ax: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+                ay: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 15,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+                y: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+                ax: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+                ay: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 15,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: LARGE,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].x,
+                y: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].y,
+                ax: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].x,
+                ay: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.015,
+                arc: 270*Math.PI/180,
+                recoilAmount: 10,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 0,
+                reloadTime: 75,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: LARGE,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].x,
+                y: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].y,
+                ax: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].x,
+                ay: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.015,
+                arc: 270*Math.PI/180,
+                recoilAmount: 10,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 0,
+                reloadTime: 75,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1,
+                    speedMultiplier: 1
+                }
+            },
+        ],
+    },
+    CRUISER: {
+        thrust: 0.075,
+        agi: 0.025,
+        terminalAcceleration:0.5,
+        terminalVelocity:7.5,
+        drag: 0.001,
+        scale: 1,
+        type: CRUISER,
+        // Stats
+        hp: 250000,
+        shield: {
+            shieldCap: 80000,
+            shield: 80000,
+            shieldRegen: 15,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: TURRET,
+                size: SMALL,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.SMALLTURRET[0].x,
+                y: prototypedata.CRUISERMOUNT.SMALLTURRET[0].y,
+                ax: prototypedata.CRUISERMOUNT.SMALLTURRET[0].x,
+                ay: prototypedata.CRUISERMOUNT.SMALLTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.075,
+                arc: 210*Math.PI/180,
+                recoilAmount: 1,
+                recoil: 0,
+                // STATS
+                engagementRange: 1400,
+                spread: 5*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1,
+                    speedMultiplier: 2
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].x,
+                y: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].y,
+                ax: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].x,
+                ay: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 20,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].x,
+                y: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].y,
+                ax: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].x,
+                ay: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 20,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].x,
+                y: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].y,
+                ax: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].x,
+                ay: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 20,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            },
+        ],
+    },
+    DESTROYER: {
+        thrust: 0.1,
+        agi: 0.05,
+        terminalAcceleration:0.5,
+        terminalVelocity:6,
+        drag: 0.01,
+        scale: 1,
+        type: DESTROYER,
+        // Stats
+        hp: 200000,
+        shield: {
+            shieldCap: 10000,
+            shield: 10000,
+            shieldRegen: 5,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: RAIL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.DESTROYERMOUNT.RAIL[0].x,
+                y: prototypedata.DESTROYERMOUNT.RAIL[0].y,
+                ax: prototypedata.DESTROYERMOUNT.RAIL[0].x,
+                ay: prototypedata.DESTROYERMOUNT.RAIL[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 5200,
+                spread: 0,
+                reloadTime: 150,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            }
+        ],
+    },
+    INTERCEPTOR: {
+        thrust: 0.1,
+        agi: 0.1,
+        terminalAcceleration:1,
+        terminalVelocity:15,
+        drag: 0.0001,
+        scale: 1,
+        type: INTERCEPTOR,
+        // Stats
+        hp: 15000,
+        shield: {
+            shieldCap: 600,
+            shield: 600,
+            shieldRegen: 0.1,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: SMALL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+                y: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+                ax: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+                ay: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 700,
+                spread: 2*Math.PI/180,
+                reloadTime: 4,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 0.5,
+                    speedMultiplier: 1.25,
+                }
+            },
+            {
+                // CONTROL
+                type: FIXED,
+                size: SMALL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+                y: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+                ax: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+                ay: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 700,
+                spread: 2*Math.PI/180,
+                reloadTime: 4,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 0.5,
+                    speedMultiplier: 1.25,
+                }
+            },
+        ],
+    },
+    MISSILEBULLET: { // a missile that explodes on impact
+        v: 5,
+        dmg: 1500, // this acts more as health than damage
+        dmgvb: 0,
+        life: 216000, // basically lives forever (1 hour of life)
+        physical: true,
+        effect: true,
+        explosion: {r: 50, dmg: 6000, dropoff: 0.1},
+    },
+    MEGABULLET: { // giant ball of plasma
+        v: 5,
+        dmg: 150000, // instakills almost everything but is very slow
+        dmgvb: 0,
+        life: 720,
+        physical: false,
+        effect: true,
+        explosion: {r: 200, dmg: 100000, dropoff: 0.9},
+    },
+    RAILBULLET: { // railgun round
+        v: 100,
+        dmg: 100000, // instakills smaller ships and pierces through them
+        dmgvb: 0,
+        life: 50,
+        physical: true,
+        effect: true,
+        explosion: {r: 0, dmg: 0, dropoff: 0},
+    },
+    HUGEBULLET: { // cannon shell
+        v: 20,
+        dmg: 24000, // 16k dps per turret
+        dmgvb: 0,
+        life: 240,
+        physical: true,
+        effect: false,
+        explosion: {r: 0, dmg: 0, dropoff: 0},
+    },
+    LARGEBULLET: { // cannon shell
+        v: 25,
+        dmg: 18000, // 14.4k DPS per turret
+        dmgvb: 0,
+        life: 120,
+        physical: true,
+        effect: false,
+        explosion: {r: 0, dmg: 0, dropoff: 0},
+    },
+    MEDIUMBULLET: { // laser
+        v: 30,
+        dmg: 2000, // 8k dps per turret
+        dmgvb: 0,
+        life: 45,
+        physical: false,
+        effect: false,
+        explosion: false,
+    },
+    DUBULLET: { // depleted uranium cannon shell
+        v: 35,
+        dmg: 25, // shreds almost anything instantly in massive quantities
+        dmgvb: 0,
+        life: 20,
+        physical: true,
+        effect: false,
+        explosion: false,
+    },
+    SMALLBULLET: { // laser
+        v: 45,
+        dmg: 100, // weak individually but dangerous in large quantities
+        dmgvb: 0,
+        life: 15,
+        physical: false,
+        effect: false,
+        explosion: false,
+    },
+    BOMBBULLET: { // laser
+        v: 0,
+        dmg: 0, // it explodes
+        dmgvb: 0,
+        life: 1,
+        physical: false,
+        effect: false,
+        explosion: {r: 20, dmg: 20000, dropoff: 0.6},
+    },
+    PDBULLET: { // point defence (∞ ms^-1)
+        v: 250,
+        dmg: 20, // basiclly nothing against larger ships but effective against fighters (1.2k dps)
+        dmgvb: 100, // 2000 against large bullet, 3100 against huge bullet in total
+        life: 1,
+        physical: false,
+        effect: false,
+        explosion: false,
+    },
+};
+
+const data = JSON.parse(JSON.stringify(prototypedata));
 var mousepos = {x:0,y:0};
 
 var player = { // Play as Battleship
@@ -796,7 +1164,7 @@ var player = { // Play as God
     hasClicked: 0,
     keyboard: {},
 }*/
-
+/*
 var sampleEnemy = {
     // Physics
     x: data.display.x/2,
@@ -1736,9 +2104,10 @@ var sampleTeammate4 = {
     task: '',
     method: '',
     int: 1, // Lower is further sensor range
-};
+};*/
 
 // I really should make this better
+/*
 const enemies = [ // list of enemies to choose from
     JSON.parse(JSON.stringify(sampleEnemy)),      // Green Interceptor
     JSON.parse(JSON.stringify(sampleEnemy)),
@@ -1760,22 +2129,25 @@ const enemies = [ // list of enemies to choose from
     JSON.parse(JSON.stringify(sampleTeammate2)),
     JSON.parse(JSON.stringify(sampleTeammate3)),  // Red Battleship
     JSON.parse(JSON.stringify(sampleTeammate4)),  // Red Destroyer
-];
+];*/
+
+var npcs = {};
+for (var i=0; i<ALLSHIPS.length; i+=1) {
+    var ship = {...data.construction[ALLSHIPS[i]], ...data.construction.physics};
+    for (var j=0; j <TEAMS.length; j+=1) {
+        console.log(TEAMS[j],ship.type);
+        ship.team = TEAMS[j];
+        npcs[TEAMS[j]+ship.type] = JSON.parse(JSON.stringify(ship));
+    }
+}
+console.log(npcs);
+
 var ships = [player];
 console.log(ships);
 var projectiles = [];
 var resources = [];
 var decoratives = [];
 var overlays = [];
-
-function isin(a, b) { // check is a in b
-    for (var i = 0; i < b.length; i += 1) {
-        if (a == b[i]) {
-            return true;
-        }
-    }
-    return false;
-};
 
 function replacehtml(text) {
     document.getElementById("game").innerHTML = text;
