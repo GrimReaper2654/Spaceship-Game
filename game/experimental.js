@@ -39,6 +39,10 @@
  • buffed Battleship shield regen 10 --> 50
  • nerfed Battleship health 2.5M --> 2M
  
+
+
+
+ 
 -------------------------------------------------------------------------------------------
 */
 
@@ -108,6 +112,19 @@ function randchoice(list, remove = false) { // chose 1 from a list and update li
     return list[choice];
 }
 
+function randint(min, max, notequalto=false) { // Randint returns random interger between min and max (both included)
+    if (max - min <= 1) {
+        return min;
+    }
+    var gen = Math.floor(Math.random() * (max - min + 1)) + min;
+    while (gen == notequalto) {
+        gen = Math.floor(Math.random() * (max - min + 1)) + min;
+        console.log('calculating...');
+    }
+    return gen;
+}
+
+// Excessively overcomplicated data storage system
 var prototypedata = {
     display: {x:window.innerWidth,y:window.innerHeight},
     dim: {
@@ -225,73 +242,6 @@ var prototypedata = {
             {x:7, y:10.5, r:15}, 
         ],
     },
-    img: {
-        // Dead ships
-        BATTLESHIP: document.getElementById("Battleship"),
-        CRUISER: document.getElementById("Cruiser"),
-        DESTROYER: document.getElementById("Destroyer"),
-        INTERCEPTOR: document.getElementById("Interceptor"),
-
-        // Red Ships
-        REDBATTLESHIP: document.getElementById("BattleshipRed"),
-        REDCRUISER: document.getElementById("CruiserRed"),
-        REDDESTROYER: document.getElementById("DestroyerRed"),
-        REDINTERCEPTOR: document.getElementById("InterceptorRed"),
-
-        // Red Turrets
-        REDLARGETURRET: document.getElementById("MainCannonRed"),
-        REDMEDIUMTURRET: document.getElementById("SmallCannonRed"),
-        REDSMALLTURRET: document.getElementById("TinyCannonRed"),
-        REDPDTURRET: document.getElementById("PDCannon"),
-
-        // Green Ships
-        GREENBATTLESHIP: document.getElementById("BattleshipGreen"),
-        GREENCRUISER: document.getElementById("CruiserGreen"),
-        GREENDESTROYER: document.getElementById("DestroyerGreen"),
-        GREENINTERCEPTOR: document.getElementById("InterceptorGreen"),
-
-        // Green Turrets
-        GREENLARGETURRET: document.getElementById("MainCannonGreen"),
-        GREENMEDIUMTURRET: document.getElementById("SmallCannonGreen"),
-        GREENSMALLTURRET: document.getElementById("TinyCannonGreen"),
-        GREENPDTURRET: document.getElementById("PDCannon"),
-
-        // Bullets
-        RAILBULLET: document.getElementById("BulletRail"),
-        HUGEBULLET: document.getElementById("BulletHuge"),
-        LARGEBULLET: document.getElementById("BulletLarge"),
-        MEDIUMBULLET: document.getElementById("BulletSmall"),
-        SMALLBULLET: document.getElementById("BulletTiny"),
-        PDBULLET: document.getElementById("BulletPD"),
-
-        // Health Bar Parts
-        GREYCIRCLE: document.getElementById("greyCircle"),
-        BLUECIRCLE: document.getElementById("blueCircle"),
-        SILVERCIRCLE: document.getElementById("silverCircle"),
-
-        // The particle image that is reused for almost every particle effect
-        particle: document.getElementById("particle"),
-
-        // Explosions
-        sExplosion: [].concat(Array(5).fill(document.getElementById("s0")), Array(5).fill(document.getElementById("s1")), Array(5).fill(document.getElementById("s2")), Array(5).fill(document.getElementById("s3")), Array(5).fill(document.getElementById("s4")), Array(5).fill(document.getElementById("s5")), Array(120).fill(document.getElementById("None"))),
-
-        // Engine plumes
-        BATTLESHIPPLUME: document.getElementById("BattleshipPlume"),
-        BATTLESHIPPLUMEOVERLAY: document.getElementById("BattleshipPlumeOverlay"),
-        CRUISERPLUME: document.getElementById("CruiserPlume"),
-        CRUISERPLUMEOVERLAY: document.getElementById("CruiserPlumeOverlay"),
-        DESTROYERPLUME: document.getElementById("DestroyerPlume"),
-        DESTROYERPLUMEOVERLAY: document.getElementById("DestroyerPlumeOverlay"),
-        INTERCEPTORPLUME: document.getElementById("InterceptorPlume"),
-        INTERCEPTORPLUMEOVERLAY: document.getElementById("InterceptorPlumeOverlay"),
-
-        // Resources
-        RES: [
-            document.getElementById("Metal"),
-            document.getElementById("Circuits"),
-            document.getElementById("FuelCell"),
-        ],
-    },
     BATTLESHIPMOUNT: {
         LARGETURRET: [{x:272,y:76}, {x:177,y:76}],
         MEDIUMTURRET: [{x:329,y:76}, {x:406,y:76}],
@@ -353,6 +303,7 @@ prototypedata.construction =  {
         drag: 1,
     },
     AI: {
+        aiControl: true,
         target: '',
         task: '',
         method: '',
@@ -850,8 +801,78 @@ prototypedata.construction =  {
         explosion: false,
     },
 };
+const img = {
+    img: {
+        // Dead ships
+        BATTLESHIP: document.getElementById("Battleship"),
+        CRUISER: document.getElementById("Cruiser"),
+        DESTROYER: document.getElementById("Destroyer"),
+        INTERCEPTOR: document.getElementById("Interceptor"),
 
-const data = JSON.parse(JSON.stringify(prototypedata));
+        // Red Ships
+        REDBATTLESHIP: document.getElementById("BattleshipRed"),
+        REDCRUISER: document.getElementById("CruiserRed"),
+        REDDESTROYER: document.getElementById("DestroyerRed"),
+        REDINTERCEPTOR: document.getElementById("InterceptorRed"),
+
+        // Red Turrets
+        REDLARGETURRET: document.getElementById("MainCannonRed"),
+        REDMEDIUMTURRET: document.getElementById("SmallCannonRed"),
+        REDSMALLTURRET: document.getElementById("TinyCannonRed"),
+        REDPDTURRET: document.getElementById("PDCannon"),
+
+        // Green Ships
+        GREENBATTLESHIP: document.getElementById("BattleshipGreen"),
+        GREENCRUISER: document.getElementById("CruiserGreen"),
+        GREENDESTROYER: document.getElementById("DestroyerGreen"),
+        GREENINTERCEPTOR: document.getElementById("InterceptorGreen"),
+
+        // Green Turrets
+        GREENLARGETURRET: document.getElementById("MainCannonGreen"),
+        GREENMEDIUMTURRET: document.getElementById("SmallCannonGreen"),
+        GREENSMALLTURRET: document.getElementById("TinyCannonGreen"),
+        GREENPDTURRET: document.getElementById("PDCannon"),
+
+        // Bullets
+        RAILBULLET: document.getElementById("BulletRail"),
+        HUGEBULLET: document.getElementById("BulletHuge"),
+        LARGEBULLET: document.getElementById("BulletLarge"),
+        MEDIUMBULLET: document.getElementById("BulletSmall"),
+        SMALLBULLET: document.getElementById("BulletTiny"),
+        PDBULLET: document.getElementById("BulletPD"),
+
+        // Health Bar Parts
+        GREYCIRCLE: document.getElementById("greyCircle"),
+        BLUECIRCLE: document.getElementById("blueCircle"),
+        SILVERCIRCLE: document.getElementById("silverCircle"),
+
+        // The particle image that is reused for almost every particle effect
+        particle: document.getElementById("particle"),
+
+        // Explosions
+        sExplosion: [].concat(Array(5).fill(document.getElementById("s0")), Array(5).fill(document.getElementById("s1")), Array(5).fill(document.getElementById("s2")), Array(5).fill(document.getElementById("s3")), Array(5).fill(document.getElementById("s4")), Array(5).fill(document.getElementById("s5")), Array(120).fill(document.getElementById("None"))),
+
+        // Engine plumes
+        BATTLESHIPPLUME: document.getElementById("BattleshipPlume"),
+        BATTLESHIPPLUMEOVERLAY: document.getElementById("BattleshipPlumeOverlay"),
+        CRUISERPLUME: document.getElementById("CruiserPlume"),
+        CRUISERPLUMEOVERLAY: document.getElementById("CruiserPlumeOverlay"),
+        DESTROYERPLUME: document.getElementById("DestroyerPlume"),
+        DESTROYERPLUMEOVERLAY: document.getElementById("DestroyerPlumeOverlay"),
+        INTERCEPTORPLUME: document.getElementById("InterceptorPlume"),
+        INTERCEPTORPLUMEOVERLAY: document.getElementById("InterceptorPlumeOverlay"),
+
+        // Resources
+        RES: [
+            document.getElementById("Metal"),
+            document.getElementById("Circuits"),
+            document.getElementById("FuelCell"),
+        ],
+    }
+};
+
+const data = Object.assign(img, JSON.parse(JSON.stringify(prototypedata)));
+console.log(data);
 var mousepos = {x:0,y:0};
 
 var player = { // Play as Battleship
@@ -904,7 +925,7 @@ var player = { // Play as Battleship
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            cost: {METAL: 5, FUELCELLS: 1},
+            cost: {METAL: 25, FUELCELLS: 1},
             engagementRange: 5400,
             spread: 0,
             reloadTime: 150,
@@ -932,7 +953,7 @@ var player = { // Play as Battleship
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            cost: {METAL: 0.5},
+            cost: {METAL: 3},
             engagementRange: 3600,
             spread: 5*Math.PI/180,
             reloadTime: 120,
@@ -960,7 +981,7 @@ var player = { // Play as Battleship
             recoilAmount: 5,
             recoil: 0,
             // STATS
-            cost: {FUELCELLS: 0.001},
+            cost: {FUELCELLS: 0.01},
             engagementRange: 1800,
             spread: 1*Math.PI/180,
             reloadTime: 15,
@@ -988,7 +1009,7 @@ var player = { // Play as Battleship
             recoilAmount: 5,
             recoil: 0,
             // STATS
-            cost: {FUELCELLS: 0.001},
+            cost: {FUELCELLS: 0.01},
             engagementRange: 1800,
             spread: 1*Math.PI/180,
             reloadTime: 15,
@@ -1016,7 +1037,7 @@ var player = { // Play as Battleship
             recoilAmount: 10,
             recoil: 0,
             // STATS
-            cost: {METAL: 0.1},
+            cost: {METAL: 1},
             engagementRange: 3600,
             spread: 0,
             reloadTime: 75,
@@ -1044,7 +1065,7 @@ var player = { // Play as Battleship
             recoilAmount: 10,
             recoil: 0,
             // STATS
-            cost: {METAL: 0.1},
+            cost: {METAL: 1},
             engagementRange: 3600,
             spread: 0,
             reloadTime: 75,
@@ -2133,7 +2154,8 @@ const enemies = [ // list of enemies to choose from
 
 var npcs = {};
 for (var i=0; i<ALLSHIPS.length; i+=1) {
-    var ship = {...data.construction[ALLSHIPS[i]], ...data.construction.physics};
+    var ship = {...data.construction[ALLSHIPS[i]], ...data.construction.physics, ...data.construction.AI, ...{hitbox: data.hitbox[ALLSHIPS[i]]}};
+    console.log(ship);
     for (var j=0; j <TEAMS.length; j+=1) {
         console.log(TEAMS[j],ship.type);
         ship.team = TEAMS[j];
@@ -3181,22 +3203,44 @@ function generatePos(ship) { // put the newly generated ship off screen somewher
 function generateShips(ships, step, rate) {
     if (true) { // use to turn off enemies for debug purposes
         if (t === 0) {
-            for (var i = 0; i < 5; i += 1) {
-                var chosen = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
-                if (isin(chosen.type, FIGHTER)) {
-                    var gen = true;
-                    while (gen) {
-                        chosen = generatePos(chosen);
-                        ships.push(JSON.parse(JSON.stringify(chosen)));
-                        if (Math.random() < Math.min(rate*2,0.75)) {
-                            gen = false;
-                        }
+            console.log(rate);
+            for (var i=0; i < rate; i += 1) {
+                console.log('adding ships');
+                var shipType = randchoice(ALLSHIPS);
+                var num = 0;
+                switch (shipType) {
+                    case BATTLESHIP:
+                        num = 1;
+                        break;
+                    case CRUISER:
+                        num = randint(1,3);
+                        break;
+                    case DESTROYER:
+                        num = randint(1,2);
+                        break;
+                    case FRIGATE:
+                        //num = randint(2,5);
+                        break;
+                    case BOMBER:
+                        //num = randint(2,5);
+                        break;
+                    case INTERCEPTOR:
+                        num = randint(3,8);
+                        break;
+                    default:
+                        console.log('WARNING: unrecognised ship type');
+                        break;
+                }
+                console.log(num);
+                for (var j=0; j < num; j += 1) {
+                    for (var k=0; k < TEAMS.length; k += 1) {
+                        console.log('added',TEAMS[k]+shipType);
+                        chosen = generatePos(npcs[TEAMS[k]+shipType]);
+                        ships.push(chosen);
                     }
                 }
-                chosen = generatePos(chosen);
-                ships.push(chosen);
             }
-        } else if (t % step === 0) {
+        } else if (t % step === 0 && false) {
             if (Math.random() < rate) {
                 var chosen = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
                 if (isin(chosen.type, FIGHTER)) {
@@ -3399,7 +3443,6 @@ function handlePickup(resources) {
     return nRes;
 }
 
-var shouldAddShips = false;
 function test() {
     shouldAddShips = true;
 };
@@ -3407,15 +3450,7 @@ function test() {
 function main() {
     clearCanvas();
     grid(500);
-    if (shouldAddShips) {
-        shouldAddShips = false;
-        ships = generateShips(ships, 1, 1);
-        ships = generateShips(ships, 1, 1);
-        ships = generateShips(ships, 1, 1);
-        ships = generateShips(ships, 1, 1);
-        ships = generateShips(ships, 1, 1);
-    }
-    ships = generateShips(ships, 120, 0.25);
+    //ships = generateShips(ships, 120, 0.25);
     decoratives = tick(decoratives);
     projectiles = tick(projectiles);
     overlays = tick(overlays);
@@ -3432,7 +3467,8 @@ function main() {
     for (var i = 0; i < resources.length; i += 1) {
         resources[i] = updateHitboxes(resources[i], true);
     }
-    ships = handleAi(ships);
+    //ships = handleAi(ships);
+    ships = runAi(ships)
     decoratives = handleDecoratives(decoratives);
     ships = handleShips(ships);
     var result = handlePlayer(player,resources);
@@ -3455,7 +3491,7 @@ function main() {
 
 var t = 0
 async function game() {
-    ships = generateShips(ships, 0, 1);
+    ships = generateShips(ships, 0, 30);
     while (1) {
         t += 1;
         main();
