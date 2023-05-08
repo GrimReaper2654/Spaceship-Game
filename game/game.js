@@ -1788,6 +1788,7 @@ function replaceControlPannel(text) {
 function load() {
     console.log('Startin the game...');
     replacehtml(`<canvas id="main" width="${data.display.x}" height="${data.display.y}"></canvas>`);
+    game();
 };
 
 function addImage(img, x, y, cx, cy, scale, r, absolute) {
