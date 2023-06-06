@@ -888,8 +888,8 @@ var player = { // Play as Battleship
     vy: 0,
     r: 0,
     a: 0,
-    thrust: 0.0005,
-    agi: 0.01,
+    thrust: 0.005,
+    agi: 0.015,
     terminalAcceleration:0.15,
     terminalVelocity:5,
     drag: 0.999,
@@ -1097,6 +1097,7 @@ var player = { // Play as Battleship
         FUELCELLS: 5,
     },
 }
+// Testing enemy
 var enemy = {
     // Physics
     x: 0,
@@ -2362,7 +2363,7 @@ for (var i=0; i<ALLSHIPS.length; i+=1) {
 }
 console.log(npcs);
 console.log(enemy);
-var ships = [player, enemy];
+var ships = [player];
 var projectiles = [];
 var resources = [];
 var decoratives = [];
