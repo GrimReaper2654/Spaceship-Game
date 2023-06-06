@@ -317,7 +317,7 @@ prototypedata.construction =  {
         agi: 0.005,
         terminalAcceleration:0.15,
         terminalVelocity:3,
-        drag: 0.999,
+        drag: 0.95,
         scale: 1,
         type: BATTLESHIP,
         // Stats
@@ -471,7 +471,7 @@ prototypedata.construction =  {
         agi: 0.025,
         terminalAcceleration:0.5,
         terminalVelocity:7.5,
-        drag: 0.999,
+        drag: 0.925,
         scale: 1,
         type: CRUISER,
         // Stats
@@ -598,7 +598,7 @@ prototypedata.construction =  {
         agi: 0.05,
         terminalAcceleration:0.5,
         terminalVelocity:6,
-        drag: 0.99,
+        drag: 0.975,
         scale: 1,
         type: DESTROYER,
         // Stats
@@ -644,7 +644,7 @@ prototypedata.construction =  {
         agi: 0.1,
         terminalAcceleration:1,
         terminalVelocity:15,
-        drag: 0.9999,
+        drag: 0.9,
         scale: 1,
         type: INTERCEPTOR,
         // Stats
@@ -2685,7 +2685,11 @@ function aimTurrets(ship) {
         ship.weapons[i].ay = pos.y;
         if (ship.weapons[i].type == TURRET) {
             if (ship.weapons[i].ai) {
-                ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, {x: ship.target.x, y: ship.target.y}, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
+                if (ship.target) {
+                    ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, {x: ship.target.x, y: ship.target.y}, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
+                } else {
+                    ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, {x: ship.x+500*Math.cos(ship.r), y: ship.y+500*Math.sin(ship.r)}, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
+                }
             } else {
                 var rMousePos = {x:mousepos.x+player.x-display.x/2,y:mousepos.y+player.y-display.y/2};
                 ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, rMousePos, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
@@ -3367,63 +3371,42 @@ function generatePos(ship) { // put the newly generated ship off screen somewher
     return ship;
 };
 
-function generateShips(ships, step, rate) {
+function generateShips(ships, rate) {
     if (true) { // use to turn off enemies for debug purposes
-        if (t === 0) {
-            console.log(rate);
-            for (var i=0; i < rate; i += 1) {
-                console.log('adding ships');
-                var shipType = randchoice(ALLSHIPS);
-                var num = 0;
-                switch (shipType) {
-                    case BATTLESHIP:
-                        num = 1;
-                        break;
-                    case CRUISER:
-                        num = randint(1,3);
-                        break;
-                    case DESTROYER:
-                        num = randint(1,2);
-                        break;
-                    case FRIGATE:
-                        //num = randint(2,5);
-                        break;
-                    case BOMBER:
-                        //num = randint(2,5);
-                        break;
-                    case INTERCEPTOR:
-                        num = randint(3,8);
-                        break;
-                    default:
-                        console.log('WARNING: unrecognised ship type');
-                        break;
-                }
-                console.log(`added ${num} ${TEAMS[k]+shipType}`);
-                for (var j=0; j < num; j += 1) {
-                    for (var k=0; k < TEAMS.length; k += 1) {
-                        var chosen = npcs[TEAMS[k]+shipType];
-                        chosen = generatePos(chosen);
-                        ships.push(chosen);
-                    }
+        for (var i=0; i < rate; i += 1) {
+            var shipType = randchoice(ALLSHIPS);
+            var num = 0;
+            switch (shipType) {
+                case BATTLESHIP:
+                    num = 1;
+                    break;
+                case CRUISER:
+                    num = randint(1,3);
+                    break;
+                case DESTROYER:
+                    num = randint(1,2);
+                    break;
+                case FRIGATE:
+                    //num = randint(2,5);
+                    break;
+                case BOMBER:
+                    //num = randint(2,5);
+                    break;
+                case INTERCEPTOR:
+                    num = randint(5,12);
+                    break;
+                default:
+                    console.log('WARNING: unrecognised ship type');
+                    break;
+            }
+            console.log(`added ${num} ${TEAMS[k]+shipType}`);
+            for (var j=0; j < num; j += 1) {
+                for (var k=0; k < TEAMS.length; k += 1) {
+                    var chosen = npcs[TEAMS[k]+shipType];
+                    chosen = generatePos(chosen);
+                    ships.push(JSON.parse(JSON.stringify(chosen)));
                 }
             }
-        } else if (t % step === 0 && false) {
-            if (Math.random() < rate) {
-                var chosen = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
-                if (isin(chosen.type, FIGHTER)) {
-                    var gen = true;
-                    while (gen) {
-                        chosen = generatePos(chosen);
-                        ships.push(JSON.parse(JSON.stringify(chosen)));
-                        if (Math.random() < Math.min(rate*2,0.75)) {
-                            gen = false;
-                        }
-                    }
-                }
-                chosen = generatePos(chosen);
-                ships.push(chosen);
-            }
-        } else {
         }
     }
     return ships;
@@ -3611,20 +3594,22 @@ function handlePickup(resources) {
 }
 
 function test() {
-    shouldAddShips = true;
+    ships = generateShips(ships, 3);
 };
 
-async function main() {
+function main() {
     clearCanvas();
     grid(400);
-    ships = generateShips(ships, 120, 0.25);
-    decoratives = await tick(decoratives);
-    projectiles = await tick(projectiles);
-    overlays = await tick(overlays);
-    resources = await tick(resources);
-    ships = await tick(ships);
+    if (t % 300 == 0 && ships.length < 75) {
+        ships = generateShips(ships, 1);
+    }
+    decoratives = tick(decoratives);
+    projectiles = tick(projectiles);
+    overlays = tick(overlays);
+    resources = tick(resources);
+    ships = tick(ships);
     for (var i = 0; i < ships.length; i += 1) {
-        ships[i].weapons = await tick(ships[i].weapons);
+        ships[i].weapons = tick(ships[i].weapons);
         if (ships[i].boost) {
             if (ships[i].boost.reload > 0) {
                 ships[i].boost.reload -= 1;
@@ -3632,16 +3617,16 @@ async function main() {
         }
     }
     for (var i = 0; i < resources.length; i += 1) {
-        resources[i] = await updateHitboxes(resources[i], true);
+        resources[i] = updateHitboxes(resources[i], true);
     }
-    ships = await handleAi(ships);
-    ships = await runAi(ships);
-    decoratives = await handleDecoratives(decoratives);
-    ships = await handleShips(ships);
+    ships = handleAi(ships);
+    ships = runAi(ships);
+    decoratives = handleDecoratives(decoratives);
+    ships = handleShips(ships);
     var result = handlePlayer(player,resources);
     player = result[0];
     resources = result[1];
-    resources = await handleDecoratives(resources);
+    resources = handleDecoratives(resources);
     result = handleProjectiles(projectiles, ships, overlays);
     projectiles = result[0];
     ships = result[1];
@@ -3651,21 +3636,20 @@ async function main() {
     overlays = result[1];
     decoratives = result[2];
     resources = result[3];
-    overlays = await handleDecoratives(overlays);
+    overlays = handleDecoratives(overlays);
     resources = handlePickup(resources);
     handlePlayerUI();
-    console.log('aaaaaaaaaaaaa');
 };
 
 var t = 0
 async function game() {
     document.getElementById('controlPannel').innerHTML = "<button onclick=\"test()\"><h3>Test</h3></button>";
-    ships = generateShips(ships, 0, 5);
+    ships = generateShips(ships, 3);
     while (1) {
         t += 1;
-        await main();
+        main();
         //await sleep(500);  // Debug Mode
-        await sleep(1000/60);  // 60 FPS
+        await sleep(1000/120);  // 60 FPS
     }
     console.log('gg');
 };
