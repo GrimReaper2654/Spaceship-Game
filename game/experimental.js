@@ -130,7 +130,6 @@ function randint(min, max, notequalto=false) { // Randint returns random interge
 
 // Excessively overcomplicated data storage system
 var prototypedata = {
-    display: {x:window.innerWidth,y:window.innerHeight},
     dim: {
         BATTLESHIP:{x:497,y:152}, 
         CRUISER:{x:465,y:122}, 
@@ -876,13 +875,14 @@ const img = {
 
 const data = Object.assign(img, JSON.parse(JSON.stringify(prototypedata)));
 var mousepos = {x:0,y:0};
+var display = {x:window.innerWidth, y:window.innerHeight};
 
 var player = { // Play as Battleship
     // Physics
-    x: data.display.x/2,
-    y: data.display.y/2,
-    px: data.display.x/2,
-    py: data.display.y/2,
+    x: display.x/2,
+    y: display.y/2,
+    px: display.x/2,
+    py: display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
@@ -1320,10 +1320,10 @@ var enemy = {
 /*
 var player = { // Play as God
     // Physics
-    x: data.display.x/2,
-    y: data.display.y/2,
-    px: data.display.x/2,
-    py: data.display.y/2,
+    x: display.x/2,
+    y: display.y/2,
+    px: display.x/2,
+    py: display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
@@ -1410,10 +1410,10 @@ var player = { // Play as God
 /*
 var sampleEnemy = {
     // Physics
-    x: data.display.x/2,
-    y: data.display.y/2,
-    px: data.display.x/2,
-    py: data.display.y/2,
+    x: display.x/2,
+    y: display.y/2,
+    px: display.x/2,
+    py: display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
@@ -1502,10 +1502,10 @@ var sampleEnemy = {
 };
 var sampleEnemy2 = {
     // Physics
-    x: data.display.x/2,
-    y: data.display.y/2,
-    px: data.display.x/2,
-    py: data.display.y/2,
+    x: display.x/2,
+    y: display.y/2,
+    px: display.x/2,
+    py: display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
@@ -1568,10 +1568,10 @@ var sampleEnemy2 = {
 };
 var sampleTeammate = {
     // Physics
-    x: data.display.x/2,
-    y: data.display.y/2,
-    px: data.display.x/2,
-    py: data.display.y/2,
+    x: display.x/2,
+    y: display.y/2,
+    px: display.x/2,
+    py: display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
@@ -1660,10 +1660,10 @@ var sampleTeammate = {
 };
 var sampleEnemy4 = {
     // Physics
-    x: data.display.x/2,
-    y: data.display.y/2,
-    px: data.display.x/2,
-    py: data.display.y/2,
+    x: display.x/2,
+    y: display.y/2,
+    px: display.x/2,
+    py: display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
@@ -1802,10 +1802,10 @@ var sampleEnemy4 = {
 };
 var sampleEnemy5 = {
     // Physics
-    x: data.display.x/2,
-    y: data.display.y/2,
-    px: data.display.x/2,
-    py: data.display.y/2,
+    x: display.x/2,
+    y: display.y/2,
+    px: display.x/2,
+    py: display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
@@ -1972,10 +1972,10 @@ var sampleEnemy5 = {
 };
 var sampleTeammate2 = {
     // Physics
-    x: data.display.x/2,
-    y: data.display.y/2,
-    px: data.display.x/2,
-    py: data.display.y/2,
+    x: display.x/2,
+    y: display.y/2,
+    px: display.x/2,
+    py: display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
@@ -2114,10 +2114,10 @@ var sampleTeammate2 = {
 };
 var sampleTeammate3 = {
     // Physics
-    x: data.display.x/2,
-    y: data.display.y/2,
-    px: data.display.x/2,
-    py: data.display.y/2,
+    x: display.x/2,
+    y: display.y/2,
+    px: display.x/2,
+    py: display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
@@ -2284,10 +2284,10 @@ var sampleTeammate3 = {
 };
 var sampleTeammate4 = {
     // Physics
-    x: data.display.x/2,
-    y: data.display.y/2,
-    px: data.display.x/2,
-    py: data.display.y/2,
+    x: display.x/2,
+    y: display.y/2,
+    px: display.x/2,
+    py: display.y/2,
     v: 0,
     vx: 0,
     vy: 0,
@@ -2378,7 +2378,7 @@ function replaceControlPannel(text) {
 
 function load() {
     console.log('Startin the game...');
-    replacehtml(`<canvas id="main" width="${data.display.x}" height="${data.display.y}"></canvas>`);
+    replacehtml(`<canvas id="main" width="${display.x}" height="${display.y}"></canvas>`);
 };
 
 function addImage(img, x, y, cx, cy, scale, r, absolute) {
@@ -2389,7 +2389,7 @@ function addImage(img, x, y, cx, cy, scale, r, absolute) {
         ctx.rotate(r);
         ctx.drawImage(img, -cx, -cy);
     } else {
-        ctx.setTransform(scale, 0, 0, scale, x-player.x+data.display.x/2, y-player.y+data.display.y/2); // position relative to player
+        ctx.setTransform(scale, 0, 0, scale, x-player.x+display.x/2, y-player.y+display.y/2); // position relative to player
         ctx.rotate(r);
         ctx.drawImage(img, -cx, -cy);
     }
@@ -2400,7 +2400,7 @@ function clearCanvas() {
     var ctx = c.getContext("2d");
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, data.display.x, data.display.y);
+    ctx.clearRect(0, 0, display.x, display.y);
     ctx.restore();
 };
 
@@ -2419,8 +2419,8 @@ function drawLine(pos, r, length, style, absolute) {
         ctx.moveTo(pos.x, pos.y);
         ctx.lineTo(pos.x + length * Math.cos(r), pos.y + length * Math.sin(r));
     } else {
-        ctx.moveTo(pos.x-player.x+data.display.x/2, pos.y-player.y+data.display.y/2);
-        ctx.lineTo(pos.x-player.x+data.display.x/2 + length * Math.cos(r), pos.y-player.y+data.display.y/2 + length * Math.sin(r));
+        ctx.moveTo(pos.x-player.x+display.x/2, pos.y-player.y+display.y/2);
+        ctx.lineTo(pos.x-player.x+display.x/2 + length * Math.cos(r), pos.y-player.y+display.y/2 + length * Math.sin(r));
     }
     ctx.stroke();
     ctx.restore();
@@ -2687,7 +2687,7 @@ function aimTurrets(ship) {
             if (ship.weapons[i].ai) {
                 ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, {x: ship.target.x, y: ship.target.y}, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             } else {
-                var rMousePos = {x:mousepos.x+player.x-data.display.x/2,y:mousepos.y+player.y-data.display.y/2};
+                var rMousePos = {x:mousepos.x+player.x-display.x/2,y:mousepos.y+player.y-display.y/2};
                 ship.weapons[i].aim = turretRot(ship.r, ship.weapons[i].agi, ship.weapons[i].arc, ship.weapons[i].facing, rMousePos, ship.aimMode, {x: ship.x, y: ship.y}, pos, ship.weapons[i].aim);
             }
         }
@@ -2813,6 +2813,10 @@ document.addEventListener('mouseup', function(event) {
     player.hasClicked = false;
   }
 });
+window.addEventListener("resize", function () {
+    display = {x:window.innerWidth,y:window.innerHeight};
+    replacehtml(`<canvas id="main" width="${display.x}" height="${display.y}"></canvas>`);
+});
 function tellPos(p){
     mousepos = {x: p.pageX, y:p.pageY};
 };
@@ -2822,7 +2826,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 };
 
-function drawCircle(x, y, radius, fill, stroke, strokeWidth) { // draw a circle (I coppied most of this from stack overflow) also does not work
+function drawCircle(x, y, radius, fill, stroke, strokeWidth) { // draw a circle (I coppied most of this from stack overflow) also does not work somethimes I think
     var canvas = document.getElementById("main");
     var ctx = canvas.getContext("2d");
     ctx.resetTransform();
@@ -2843,7 +2847,7 @@ function updateHitboxes(obj, show) {
     for (var i = 0; i < obj.hitbox.length; i+=1) {
         obj.hitbox[i] = hitboxPos(obj.type, obj.x, obj.y, data.hitbox[obj.type][i].x, data.hitbox[obj.type][i].y, obj.r, obj.hitbox[i].r);
         if (show) {
-            drawCircle(obj.hitbox[i].x-player.x+data.display.x/2, obj.hitbox[i].y-player.y+data.display.y/2, obj.hitbox[i].r, false, 'white', 2);
+            drawCircle(obj.hitbox[i].x-player.x+display.x/2, obj.hitbox[i].y-player.y+display.y/2, obj.hitbox[i].r, false, 'white', 2);
         }
     }
     return obj;
@@ -2897,94 +2901,98 @@ function handleShips(ships) { // handles all ships
 function chase(attacker, dist) { // follow a target while shooting them and run away if the enemy gets too close
     // It works, lets gooooooo!
     //console.log(attacker);
-    attacker.r = correctAngle(attacker.r);
-    if (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) >= dist) {
-        console.log('get closer');
-        var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
-        var rAim = aim - attacker.r // relative aim
-        if (rAim != 0) {
-            if (rAim > 0 && rAim < Math.PI) {
-                attacker.r += attacker.agi;
-            } else {
-                attacker.r -= attacker.agi;
-            }
-        }
-        if (Math.abs(rAim) < attacker.agi*2) { // make it easier for the attacker to lock on to the target
-            attacker.r = aim;
-        }
-        attacker.a += attacker.thrust*2;
-    } else {
-        var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
-        console.log(Math.abs(aim));
-        if ((Math.abs(aim) > 180*Math.PI/180 && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 500) || getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 150 || (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 400 && isin(attacker.target.type, CAPITAL))) {
-            console.log('flee');
-            attacker.a += attacker.thrust*2;
-            if (correctAngle(Math.abs(aim) - Math.PI) > 10*Math.PI/180) {
-                if (Math.random() < 0.9) {
-                    attacker.r += attacker.agi;
-                } else {
-                    attacker.r -= attacker.agi;
-                }
-            } else if (correctAngle(Math.abs(aim) - Math.PI) < 10*Math.PI/180) {
-                if (Math.random() < 0.9) {
-                    attacker.r -= attacker.agi;
-                } else {
-                    attacker.r += attacker.agi;
-                }
-            } else {
-                if (Math.random() > 0.5) {
-                    attacker.r -= attacker.agi;
-                } else {
-                    attacker.r += attacker.agi;
-                }
-            }
-        } else {
-            console.log('maintain distance');
-            var aim = target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y});
+    if (attacker.target) {
+        attacker.r = correctAngle(attacker.r);
+        if (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) >= dist) {
+            console.log('get closer');
+            var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
             var rAim = aim - attacker.r // relative aim
             if (rAim != 0) {
                 if (rAim > 0 && rAim < Math.PI) {
-                    if (Math.random() < 0.9) {
-                        attacker.r += attacker.agi;
-                    } else {
-                        attacker.r -= attacker.agi;
-                    }
+                    attacker.r += attacker.agi;
                 } else {
-                    if (Math.random() < 0.9) {
-                        attacker.r -= attacker.agi;
-                    } else {
-                        attacker.r += attacker.agi;
-                    }
-                }
-            } else {
-                if (Math.random() > 0.7) {
-                    if (Math.random() > 0.5) {
-                        attacker.r += attacker.agi;
-                    } else {
-                        attacker.r -= attacker.agi;
-                    }
+                    attacker.r -= attacker.agi;
                 }
             }
-            if (Math.abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+            if (Math.abs(rAim) < attacker.agi*2) { // make it easier for the attacker to lock on to the target
                 attacker.r = aim;
             }
-            if (attacker.v < attacker.target.v) { // try to match target's speed
-                console.log('accelerate');
+            attacker.a += attacker.thrust*2;
+        } else {
+            var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
+            console.log(Math.abs(aim));
+            if ((Math.abs(aim) > 180*Math.PI/180 && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 500) || getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 150 || (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 400 && isin(attacker.target.type, CAPITAL))) {
+                console.log('flee');
                 attacker.a += attacker.thrust*2;
+                if (correctAngle(Math.abs(aim) - Math.PI) > 10*Math.PI/180) {
+                    if (Math.random() < 0.9) {
+                        attacker.r += attacker.agi;
+                    } else {
+                        attacker.r -= attacker.agi;
+                    }
+                } else if (correctAngle(Math.abs(aim) - Math.PI) < 10*Math.PI/180) {
+                    if (Math.random() < 0.9) {
+                        attacker.r -= attacker.agi;
+                    } else {
+                        attacker.r += attacker.agi;
+                    }
+                } else {
+                    if (Math.random() > 0.5) {
+                        attacker.r -= attacker.agi;
+                    } else {
+                        attacker.r += attacker.agi;
+                    }
+                }
             } else {
-                attacker.a -= attacker.thrust*2;
-                console.log('decelerate');
+                console.log('maintain distance');
+                var aim = target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y});
+                var rAim = aim - attacker.r // relative aim
+                if (rAim != 0) {
+                    if (rAim > 0 && rAim < Math.PI) {
+                        if (Math.random() < 0.9) {
+                            attacker.r += attacker.agi;
+                        } else {
+                            attacker.r -= attacker.agi;
+                        }
+                    } else {
+                        if (Math.random() < 0.9) {
+                            attacker.r -= attacker.agi;
+                        } else {
+                            attacker.r += attacker.agi;
+                        }
+                    }
+                } else {
+                    if (Math.random() > 0.7) {
+                        if (Math.random() > 0.5) {
+                            attacker.r += attacker.agi;
+                        } else {
+                            attacker.r -= attacker.agi;
+                        }
+                    }
+                }
+                if (Math.abs(rAim) < attacker.agi) { // make it easier for the attacker to lock on to the target
+                    attacker.r = aim;
+                }
+                if (attacker.v < attacker.target.v) { // try to match target's speed
+                    console.log('accelerate');
+                    attacker.a += attacker.thrust*2;
+                } else {
+                    attacker.a -= attacker.thrust*2;
+                    console.log('decelerate');
+                }
             }
         }
-    }
-    if (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 5000) {
-        attacker = aimTurrets(attacker);
-        for (var i = 0; i < attacker.weapons.length; i += 1) {
-            if (((Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 1*Math.PI/180) || (Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 10*Math.PI/180 && attacker.weapons[i].reloadTime <= 120) || (attacker.weapons[i].reloadTime <= 45 && Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 90*Math.PI/180)) && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < attacker.weapons[i].engagementRange) {
-                console.log('aligned');
-                attemptShoot(i, attacker);
+        if (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 5000) {
+            attacker = aimTurrets(attacker);
+            for (var i = 0; i < attacker.weapons.length; i += 1) {
+                if (((Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 1*Math.PI/180) || (Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 10*Math.PI/180 && attacker.weapons[i].reloadTime <= 120) || (attacker.weapons[i].reloadTime <= 45 && Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 90*Math.PI/180)) && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < attacker.weapons[i].engagementRange) {
+                    console.log('aligned');
+                    attemptShoot(i, attacker);
+                }
             }
         }
+    } else {
+        attacker.target = null;
     }
     return attacker;
 };
@@ -3076,7 +3084,7 @@ function escort(attacker, dist) { // follow a target and defend them TODO: make 
 
 function idle(ship) { // wander around the map (highly doubt this works)
     if (ship.target = '') {
-        ship.target = {x: Math.random()*data.display.x,y: Math.random()*data.display.y};
+        ship.target = {x: Math.random()*display.x,y: Math.random()*display.y};
     }
     var aim = target({x: ship.x,y: ship.y},{x:ship.target.x,y:ship.target.y});
     var rAim = aim - ship.r // relative aim
@@ -3184,13 +3192,14 @@ function handleAi(ships) {
                 ships[i].task = mission.mission;
                 ships[i].target = mission.target;
             } 
+            /*
             if (ships[i].task == ATTACK) {
                 ships[i] = chase(ships[i], 500);
             } else if(ships[i].task == ESCORT) {
                 ships[i] = escort(ships[i], 1000);
             } else {
                 ships[i] = idle(ships[i]);
-            }
+            }*/
         }
     }
     return ships;
@@ -3349,11 +3358,11 @@ function handleDecoratives(decoratives) {
 
 function generatePos(ship) { // put the newly generated ship off screen somewhere. This makes the ship appear as if it has been there for the whole time and isn't recently generated
     if (Math.random() > 0.5) {
-        ship.x = (Math.random() > 0.5) ? player.x-data.display.x/2-100-500*Math.random() : player.x+data.display.x/2+100+500*Math.random();
-        ship.y = Math.floor(Math.random() * (data.display.y + 500)) - 250 + player.y;
+        ship.x = (Math.random() > 0.5) ? player.x-display.x/2-100-500*Math.random() : player.x+display.x/2+100+500*Math.random();
+        ship.y = Math.floor(Math.random() * (display.y + 500)) - 250 + player.y;
     } else {
-        ship.x = Math.floor(Math.random() * (data.display.x + 500)) - 250 + player.x;
-        ship.y = (Math.random() > 0.5) ? player.y-data.display.y/2-100-500*Math.random() : player.y+data.display.y/2+100+500*Math.random();
+        ship.x = Math.floor(Math.random() * (display.x + 500)) - 250 + player.x;
+        ship.y = (Math.random() > 0.5) ? player.y-display.y/2-100-500*Math.random() : player.y+display.y/2+100+500*Math.random();
     }
     return ship;
 };
@@ -3458,15 +3467,15 @@ function tick(objs) {
 };
 
 function grid(spacing) {
-    var start = (player.y - data.display.y / 2) < 0 ? Math.ceil((player.y - data.display.y / 2) / spacing) * spacing : Math.floor((player.y - data.display.y / 2) / spacing) * spacing - spacing * 2;
-    var end = (player.y + data.display.y / 2) < 0 ? Math.ceil((player.y + data.display.y / 2) / spacing) * spacing : Math.floor((player.y + data.display.y / 2) / spacing) * spacing + spacing * 2;
+    var start = (player.y - display.y / 2) < 0 ? Math.ceil((player.y - display.y / 2) / spacing) * spacing : Math.floor((player.y - display.y / 2) / spacing) * spacing - spacing * 2;
+    var end = (player.y + display.y / 2) < 0 ? Math.ceil((player.y + display.y / 2) / spacing) * spacing : Math.floor((player.y + display.y / 2) / spacing) * spacing + spacing * 2;
     for (let i = start; i <= end; i += spacing) {
-        drawLine({x:(player.x - data.display.x / 2) - spacing,y:i}, r=0, data.display.x+spacing*2, {colour:'#999999',width:10,opacity:0.1});
+        drawLine({x:(player.x - display.x / 2) - spacing,y:i}, r=0, display.x+spacing*2, {colour:'#999999',width:10,opacity:0.1});
     }
-    start = (player.x - data.display.x / 2) < 0 ? Math.ceil((player.x - data.display.x / 2) / spacing) * spacing : Math.floor((player.x - data.display.x / 2) / spacing) * spacing - spacing * 2;
-    end = (player.x + data.display.x / 2) < 0 ? Math.ceil((player.x + data.display.x / 2) / spacing) * spacing : Math.floor((player.x + data.display.x / 2) / spacing) * spacing + spacing * 2;
+    start = (player.x - display.x / 2) < 0 ? Math.ceil((player.x - display.x / 2) / spacing) * spacing : Math.floor((player.x - display.x / 2) / spacing) * spacing - spacing * 2;
+    end = (player.x + display.x / 2) < 0 ? Math.ceil((player.x + display.x / 2) / spacing) * spacing : Math.floor((player.x + display.x / 2) / spacing) * spacing + spacing * 2;
     for (var i = start; i < end; i += spacing) {
-        drawLine({x:i,y:(player.y - data.display.y / 2) -spacing}, r=Math.PI/2, data.display.y+spacing*2, {colour:'#999999',width:10,opacity:0.1});
+        drawLine({x:i,y:(player.y - display.y / 2) -spacing}, r=Math.PI/2, display.y+spacing*2, {colour:'#999999',width:10,opacity:0.1});
     }
 };
 
@@ -3589,7 +3598,7 @@ function handleDeathEffects(overlays, ships, decoratives, resources) {
 function handlePickup(resources) {
     var nRes = []
     for (var i=0; i < resources.length; i+=1) {
-        if (getDist(player, resources[i]) < Math.max(data.display.x,data.display.y)*1.5) {
+        if (getDist(player, resources[i]) < Math.max(display.x,display.y)*1.5) {
             if (getDist(player, resources[i]) < 500) {
                 var r = target(resources[i], player);
                 resources[i].vx += Math.cos(r)*2;
