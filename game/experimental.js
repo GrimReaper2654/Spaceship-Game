@@ -39,7 +39,11 @@
  • buffed Battleship shield regen 10 --> 50
  • nerfed Battleship health 2.5M --> 2M
  
-
+6/6/2023
+ • reworked drag entirely
+ • increaced player thrust by 900%
+ • increaced player agility by 50%
+ • buffed eneny AI (fixed some bugs)
 
 
  
@@ -927,7 +931,7 @@ var player = { // Play as Battleship
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            cost: {METAL: 5, FUELCELLS: 1},
+            cost: {METAL: 15, FUELCELLS: 1},
             engagementRange: 5400,
             spread: 0,
             reloadTime: 150,
@@ -955,7 +959,7 @@ var player = { // Play as Battleship
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            cost: {METAL: 3},
+            cost: {METAL: 10},
             engagementRange: 3600,
             spread: 5*Math.PI/180,
             reloadTime: 120,
@@ -983,7 +987,7 @@ var player = { // Play as Battleship
             recoilAmount: 5,
             recoil: 0,
             // STATS
-            cost: {FUELCELLS: 0.01},
+            cost: {FUELCELLS: 0.05},
             engagementRange: 1800,
             spread: 1*Math.PI/180,
             reloadTime: 15,
@@ -1011,7 +1015,7 @@ var player = { // Play as Battleship
             recoilAmount: 5,
             recoil: 0,
             // STATS
-            cost: {FUELCELLS: 0.01},
+            cost: {FUELCELLS: 0.05},
             engagementRange: 1800,
             spread: 1*Math.PI/180,
             reloadTime: 15,
@@ -1039,7 +1043,7 @@ var player = { // Play as Battleship
             recoilAmount: 10,
             recoil: 0,
             // STATS
-            cost: {METAL: 0.5},
+            cost: {METAL: 1},
             engagementRange: 3600,
             spread: 0,
             reloadTime: 75,
@@ -1067,7 +1071,7 @@ var player = { // Play as Battleship
             recoilAmount: 10,
             recoil: 0,
             // STATS
-            cost: {METAL: 0.5},
+            cost: {METAL: 1},
             engagementRange: 3600,
             spread: 0,
             reloadTime: 75,
@@ -1079,13 +1083,21 @@ var player = { // Play as Battleship
         },
     ],
     aimMode: 'Parallel',
-    // Boost
-    boost: {
-        keybind: 'r',
-        a: 3,
-        reloadTime: 60,
-        reload: 0,
-        cost: {FUELCELLS: 2},
+    abilities: {
+        repair: {
+            keybind: 'x',
+            hp: 500, // regen hp / tick
+            reloadTime: 0,
+            reload: 0,
+            cost: {METAL: 0.5, CIRCUITS: 0.05}, 
+        },
+        boost: {
+            keybind: 'r',
+            a: 3,
+            reloadTime: 60,
+            reload: 0,
+            cost: {FUELCELLS: 2},
+        },
     },
     // Input
     hasClicked: 0,
@@ -2427,8 +2439,25 @@ function drawLine(pos, r, length, style, absolute) {
     ctx.restore();
 };
 
+function sufficient(ability, cargo) {
+    console.log(ability);
+    console.log(cargo);
+    var sufficient = true
+    for (var i=0; i < Object.keys(ability.cost).length; i += 1) {
+        if (cargo[Object.keys(ability.cost)[i]] < ability.cost[Object.keys(ability.cost)[i]]) {
+            sufficient = false;
+        }
+    }
+    if (sufficient) {
+        ability.reload = ability.reloadTime;
+        for (var i=0; i < Object.keys(ability.cost).length; i += 1) {
+            cargo[Object.keys(ability.cost)[i]] -= ability.cost[Object.keys(ability.cost)[i]];
+        }
+    }
+    return [sufficient, ability, cargo];
+}
+
 function handleInputs(player) {
-    //console.log('aaa');
     //console.log(player.keyboard);
     if (player.keyboard.w) { // Move Forward
         player.a += player.thrust*2; // IMPORTANT: add 2 times thrust to player
@@ -2446,10 +2475,6 @@ function handleInputs(player) {
         } else if (player.r <= -2*Math.PI) {
             player.r += Math.PI*2;
         }
-        /*
-        for (var i=0; i< player.weapons.turretAim.length; i+=1) {
-            player.weapons.turretAim[i] -=  player.agi;
-        }*/
     }
     if (player.keyboard.d) { 
         player.r += player.agi;
@@ -2458,10 +2483,6 @@ function handleInputs(player) {
         } else if (player.r <= -2*Math.PI) {
             player.r += Math.PI*2;
         }
-        /*
-        for (var i=0; i< player.weapons.turretAim.length; i+=1) {
-            player.weapons.turretAim[i] +=  player.agi;
-        }*/
     }
     if (player.keyboard.q) {
         if (player.aimMode) {
@@ -2481,20 +2502,23 @@ function handleInputs(player) {
         }
         player.keyboard.q = false;
     }
-    if (player.boost) {
-        if (player.keyboard[player.boost.keybind] && player.boost.reload == 0) {
-            var sufficient = true
-            for (var i=0; i < Object.keys(player.boost.cost).length; i += 1) {
-                if (player.cargo[Object.keys(player.boost.cost)[i]] < player.boost.cost[Object.keys(player.boost.cost)[i]]) {
-                    sufficient = false;
-                }
+    if (player.keyboard[player.abilities.repair.keybind] && player.hp < data.construction.BATTLESHIP.hp) {
+        var res = sufficient(player.abilities.repair, player.cargo);
+        if (res[0]) {
+            player.hp += player.abilities.repair.hp;
+            if (player.hp > data.construction.BATTLESHIP.hp) {
+                player.hp = data.construction.BATTLESHIP.hp;
             }
-            if (sufficient) {
-                player.boost.reload = player.boost.reloadTime;
-                player.a += player.boost.a;
-                for (var i=0; i < Object.keys(player.boost.cost).length; i += 1) {
-                    player.cargo[Object.keys(player.boost.cost)[i]] -= player.boost.cost[Object.keys(player.boost.cost)[i]];
-                }
+            player.cargo = res[2];
+        }
+    }
+    if (player.abilities.boost) {
+        if (player.keyboard[player.abilities.boost.keybind] && player.abilities.boost.reload == 0) {
+            var res = sufficient(player.abilities.boost, player.cargo);
+            if (res[0]) {
+                player.a += player.abilities.boost.a;
+                player.abilities.boost = res[1];
+                player.cargo = res[2];
             }
         }
     }
@@ -3527,25 +3551,25 @@ function handleDeathEffects(overlays, ships, decoratives, resources) {
             var res = [0,0]; // Metal, Circuits
             switch (ships[i].type) {
                 case BATTLESHIP:
-                    res = [150,40,5];
+                    res = [50,25,3];
                     break;
                 case CRUISER:
-                    res = [70,45,3];
+                    res = [30,20,2];
                     break;
                 case DESTROYER:
-                    res = [40,30,3];
+                    res = [15,10,2];
                     break;
                 case FRIGATE:
-                    res = [30,10,1];
+                    res = [10,3,1];
                     break;
                 case BOMBER:
-                    res = [12,5,0];
+                    res = [3,1,0];
                     break;
                 case INTERCEPTOR:
-                    res = [8,3,0];
+                    res = [2,2,0];
                     break;
             }
-            const stackSize = [70,25,10,8,5,3,2,1]; // why not?
+            const stackSize = [26,11,5,1]; // why not?
             for (var j=0; j < res.length; j+=1) {
                 while (res[j] > 0) {
                     for (var k = 0; k < stackSize.length; k++) {
@@ -3650,7 +3674,7 @@ async function game() {
         t += 1;
         main();
         //await sleep(500);  // Debug Mode
-        await sleep(1000/120);  // 60 FPS
+        await sleep(1000/60);  // 60 FPS
     }
     console.log('gg');
 };
