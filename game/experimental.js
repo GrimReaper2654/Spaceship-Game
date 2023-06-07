@@ -3400,7 +3400,7 @@ function generateShips(ships, rate, balance=false) {
     if (true) { // use to turn off enemies for debug purposes
         if (balance) {
             var pts = {};
-            for (var i = 1; i < TEAMS.length; i += 1) {
+            for (var i = 0; i < TEAMS.length; i += 1) {
                 pts[TEAMS[i]] = 1;
             }
             console.log(pts);
