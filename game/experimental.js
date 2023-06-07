@@ -2933,7 +2933,7 @@ function chase(attacker, dist) { // follow a target while shooting them and run 
     if (attacker.target) {
         attacker.r = correctAngle(attacker.r);
         if (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) >= dist) {
-            console.log('get closer');
+            //console.log('get closer');
             var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
             var rAim = aim - attacker.r // relative aim
             if (rAim != 0) {
@@ -2949,9 +2949,9 @@ function chase(attacker, dist) { // follow a target while shooting them and run 
             attacker.a += attacker.thrust*2;
         } else {
             var aim = correctAngle(target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y}));
-            console.log(Math.abs(aim));
+            //console.log(Math.abs(aim));
             if ((Math.abs(aim) > 180*Math.PI/180 && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 500) || getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 150 || (getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < 400 && isin(attacker.target.type, CAPITAL))) {
-                console.log('flee');
+                //console.log('flee');
                 attacker.a += attacker.thrust*2;
                 if (correctAngle(Math.abs(aim) - Math.PI) > 10*Math.PI/180) {
                     if (Math.random() < 0.9) {
@@ -2973,7 +2973,7 @@ function chase(attacker, dist) { // follow a target while shooting them and run 
                     }
                 }
             } else {
-                console.log('maintain distance');
+                //console.log('maintain distance');
                 var aim = target({x:attacker.x,y:attacker.y},{x: attacker.target.x,y: attacker.target.y});
                 var rAim = aim - attacker.r // relative aim
                 if (rAim != 0) {
@@ -3003,11 +3003,11 @@ function chase(attacker, dist) { // follow a target while shooting them and run 
                     attacker.r = aim;
                 }
                 if (attacker.v < attacker.target.v) { // try to match target's speed
-                    console.log('accelerate');
+                    //console.log('accelerate');
                     attacker.a += attacker.thrust*2;
                 } else {
                     attacker.a -= attacker.thrust*2;
-                    console.log('decelerate');
+                    //console.log('decelerate');
                 }
             }
         }
@@ -3015,7 +3015,7 @@ function chase(attacker, dist) { // follow a target while shooting them and run 
             attacker = aimTurrets(attacker);
             for (var i = 0; i < attacker.weapons.length; i += 1) {
                 if (((Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 1*Math.PI/180) || (Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 10*Math.PI/180 && attacker.weapons[i].reloadTime <= 120) || (attacker.weapons[i].reloadTime <= 45 && Math.abs(correctAngle(attacker.weapons[i].aim+attacker.r-aim)) < 90*Math.PI/180)) && getDist({x: attacker.x,y: attacker.y},{x: attacker.target.x,y: attacker.target.y}) < attacker.weapons[i].engagementRange) {
-                    console.log('aligned');
+                    //console.log('aligned');
                     attemptShoot(i, attacker);
                 }
             }
@@ -3396,40 +3396,157 @@ function generatePos(ship) { // put the newly generated ship off screen somewher
     return ship;
 };
 
-function generateShips(ships, rate) {
+function generateShips(ships, rate, balance=false) {
     if (true) { // use to turn off enemies for debug purposes
-        for (var i=0; i < rate; i += 1) {
-            var shipType = randchoice(ALLSHIPS);
-            var num = 0;
-            switch (shipType) {
-                case BATTLESHIP:
-                    num = 1;
-                    break;
-                case CRUISER:
-                    num = randint(1,3);
-                    break;
-                case DESTROYER:
-                    num = randint(1,2);
-                    break;
-                case FRIGATE:
-                    //num = randint(2,5);
-                    break;
-                case BOMBER:
-                    //num = randint(2,5);
-                    break;
-                case INTERCEPTOR:
-                    num = randint(5,12);
-                    break;
-                default:
-                    console.log('WARNING: unrecognised ship type');
-                    break;
+        if (balance) {
+            var pts = {};
+            for (var i = 1; i < TEAMS.length; i += 1) {
+                pts[TEAMS[i]] = 1;
             }
-            console.log(`added ${num} ${TEAMS[k]+shipType}`);
-            for (var j=0; j < num; j += 1) {
-                for (var k=0; k < TEAMS.length; k += 1) {
-                    var chosen = npcs[TEAMS[k]+shipType];
+            console.log(pts);
+            for (var i = 1; i < ships.length; i += 1) {
+                var points = 0;
+                switch (ships[i].type) {
+                    case BATTLESHIP:
+                        points = 200;
+                        break;
+                    case CRUISER:
+                        points = 125;
+                        break;
+                    case DESTROYER:
+                        points = 150;
+                        break;
+                    case FRIGATE:
+                        points = 50;
+                        break;
+                    case BOMBER:
+                        points = 40;
+                        break;
+                    case INTERCEPTOR:
+                        points = 25;
+                        break;
+                    default:
+                        console.log('WARNING: unrecognised ship type');
+                        break;
+                }
+                pts[ships[i].team] += points;
+            }
+            var sorted = Object.keys(pts).sort(function(a, b) {
+                return pts[a] - pts[b];
+            });
+            console.log(pts);
+            console.log(sorted[0], 'is weaker');
+            var numGenerations = 1;
+            if (pts[sorted[TEAMS.length-1]] - pts[sorted[0]] < 100) {
+                var shipType = randchoice(ALLSHIPS);
+                var num = 0;
+                switch (shipType) {
+                    case BATTLESHIP:
+                        num = 1;
+                        break;
+                    case CRUISER:
+                        num = randint(1,3);
+                        break;
+                    case DESTROYER:
+                        num = randint(1,2);
+                        break;
+                    case FRIGATE:
+                        //num = randint(2,5);
+                        break;
+                    case BOMBER:
+                        //num = randint(2,5);
+                        break;
+                    case INTERCEPTOR:
+                        num = randint(5,12);
+                        break;
+                    default:
+                        console.log('WARNING: unrecognised ship type');
+                        break;
+                }
+                console.log(`added ${num} ${shipType} to each team`);
+                for (var j=0; j < num; j += 1) {
+                    for (var k=0; k < TEAMS.length; k += 1) {
+                        var chosen = npcs[TEAMS[k]+shipType];
+                        chosen = generatePos(chosen);
+                        ships.push(JSON.parse(JSON.stringify(chosen)));
+                    }
+                }
+            }
+            if (pts[sorted[TEAMS.length-1]] - pts[sorted[0]] > 5000) {
+                numGenerations = 10;
+            } else if (pts[sorted[TEAMS.length-1]] - pts[sorted[0]] > 1000) {
+                numGenerations = 4;
+            } else if (pts[sorted[TEAMS.length-1]] - pts[sorted[0]] > 500) {
+                numGenerations = 2;
+            }
+            console.log(numGenerations);
+            for (var i = 0; i < numGenerations; i += 1) {
+                var shipType = randchoice(ALLSHIPS);
+                var num = 0;
+                switch (shipType) {
+                    case BATTLESHIP:
+                        num = 1;
+                        break;
+                    case CRUISER:
+                        num = randint(1,3);
+                        break;
+                    case DESTROYER:
+                        num = randint(1,2);
+                        break;
+                    case FRIGATE:
+                        //num = randint(2,5);
+                        break;
+                    case BOMBER:
+                        //num = randint(2,5);
+                        break;
+                    case INTERCEPTOR:
+                        num = randint(5,12);
+                        break;
+                    default:
+                        console.log('WARNING: unrecognised ship type');
+                        break;
+                } 
+                console.log(`added ${num} ${sorted[0]+shipType}`);
+                for (var j=0; j < num; j += 1) {
+                    var chosen = npcs[sorted[0]+shipType];
                     chosen = generatePos(chosen);
                     ships.push(JSON.parse(JSON.stringify(chosen)));
+                }
+            }
+        } else {
+            for (var i=0; i < rate; i += 1) {
+                var shipType = randchoice(ALLSHIPS);
+                var num = 0;
+                switch (shipType) {
+                    case BATTLESHIP:
+                        num = 1;
+                        break;
+                    case CRUISER:
+                        num = randint(1,3);
+                        break;
+                    case DESTROYER:
+                        num = randint(1,2);
+                        break;
+                    case FRIGATE:
+                        //num = randint(2,5);
+                        break;
+                    case BOMBER:
+                        //num = randint(2,5);
+                        break;
+                    case INTERCEPTOR:
+                        num = randint(5,12);
+                        break;
+                    default:
+                        console.log('WARNING: unrecognised ship type');
+                        break;
+                }
+                console.log(`added ${num} ${shipType} to each team`);
+                for (var j=0; j < num; j += 1) {
+                    for (var k=0; k < TEAMS.length; k += 1) {
+                        var chosen = npcs[TEAMS[k]+shipType];
+                        chosen = generatePos(chosen);
+                        ships.push(JSON.parse(JSON.stringify(chosen)));
+                    }
                 }
             }
         }
@@ -3626,7 +3743,7 @@ function main() {
     clearCanvas();
     grid(400);
     if (t % 300 == 0 && ships.length < 75) {
-        ships = generateShips(ships, 1);
+        ships = generateShips(ships, 1, true);
     }
     decoratives = tick(decoratives);
     projectiles = tick(projectiles);
@@ -3669,7 +3786,7 @@ function main() {
 var t = 0
 async function game() {
     document.getElementById('controlPannel').innerHTML = "<button onclick=\"test()\"><h3>Test</h3></button>";
-    ships = generateShips(ships, 3);
+    ships = generateShips(ships, 6);
     while (1) {
         t += 1;
         main();
