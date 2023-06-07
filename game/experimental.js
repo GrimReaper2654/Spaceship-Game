@@ -2916,7 +2916,7 @@ function handleShips(ships) { // handles all ships
         ships[i] = handlemovement(ships[i]);
         ships[i] = aimTurrets(ships[i]);
         addShip(ships[i]);
-        ships[i] = updateHitboxes(ships[i], true);
+        ships[i] = updateHitboxes(ships[i], false);
         if (i != 0) {
             healthBar(50, ships[i], 2);
         }
@@ -3358,7 +3358,7 @@ function handleProjectiles(projectiles, ships, overlays) {
             bulletTrail(projectiles[i]);
         }
         addImage(data.img[projectiles[i].type], projectiles[i].x, projectiles[i].y, data.center[projectiles[i].type].x, data.center[projectiles[i].type].y, 1, projectiles[i].r);
-        projectiles[i] = updateHitboxes(projectiles[i], true);
+        projectiles[i] = updateHitboxes(projectiles[i], false);
     }
     var newProjectiles = [];
     for (var i = 0; i < projectiles.length; i +=1 ) {
@@ -3479,7 +3479,6 @@ function generateShips(ships, rate, balance=false) {
             } else if (pts[sorted[TEAMS.length-1]] - pts[sorted[0]] > 500) {
                 numGenerations = 2;
             }
-            console.log(numGenerations);
             for (var i = 0; i < numGenerations; i += 1) {
                 var shipType = randchoice(ALLSHIPS);
                 var num = 0;
@@ -3752,14 +3751,16 @@ function main() {
     ships = tick(ships);
     for (var i = 0; i < ships.length; i += 1) {
         ships[i].weapons = tick(ships[i].weapons);
-        if (ships[i].boost) {
-            if (ships[i].boost.reload > 0) {
-                ships[i].boost.reload -= 1;
+        if (ships[i].abilities) {
+            for (var ability in ships[i].abilities) {
+                if (ships[i].abilities[ability].reload > 0) {
+                    ships[i].abilities[ability].reload -= 1;
+                }
             }
         }
     }
     for (var i = 0; i < resources.length; i += 1) {
-        resources[i] = updateHitboxes(resources[i], true);
+        resources[i] = updateHitboxes(resources[i], false);
     }
     ships = handleAi(ships);
     ships = runAi(ships);
@@ -3786,7 +3787,7 @@ function main() {
 var t = 0
 async function game() {
     document.getElementById('controlPannel').innerHTML = "<button onclick=\"test()\"><h3>Test</h3></button>";
-    ships = generateShips(ships, 6);
+    ships = generateShips(ships, 4);
     while (1) {
         t += 1;
         main();
@@ -3795,4 +3796,3 @@ async function game() {
     }
     console.log('gg');
 };
-

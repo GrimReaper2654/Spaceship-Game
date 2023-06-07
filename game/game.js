@@ -3479,7 +3479,6 @@ function generateShips(ships, rate, balance=false) {
             } else if (pts[sorted[TEAMS.length-1]] - pts[sorted[0]] > 500) {
                 numGenerations = 2;
             }
-            console.log(numGenerations);
             for (var i = 0; i < numGenerations; i += 1) {
                 var shipType = randchoice(ALLSHIPS);
                 var num = 0;
@@ -3752,9 +3751,11 @@ function main() {
     ships = tick(ships);
     for (var i = 0; i < ships.length; i += 1) {
         ships[i].weapons = tick(ships[i].weapons);
-        if (ships[i].boost) {
-            if (ships[i].boost.reload > 0) {
-                ships[i].boost.reload -= 1;
+        if (ships[i].abilities) {
+            for (var ability in ships[i].abilities) {
+                if (ships[i].abilities[ability].reload > 0) {
+                    ships[i].abilities[ability].reload -= 1;
+                }
             }
         }
     }
