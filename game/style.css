@@ -10,7 +10,16 @@ canvas {
     margin: 0;
 }
 
-body,html {
+html {
+    margin:0;
+    padding:0;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
     margin:0;
     padding:0;
 }
@@ -18,4 +27,39 @@ body,html {
 #data {
     display: none;
 }
-  
+
+#upgrades {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    width: 50%;
+    height: 75%;
+    text-align: left;
+    overflow-y: auto;
+}
+
+#button-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-gap: 10px;
+    margin-top: 10px; /* Adjust the margin as needed */
+}
+
+.button {
+    width: 33.333%;
+    height: 150px;
+    padding: 10px;
+    color: white;
+    text-align: top;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

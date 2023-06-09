@@ -45,7 +45,9 @@
  • increaced player agility by 50%
  • buffed eneny AI (fixed some bugs)
 
-
+8/6/2023
+ • nerfed Destroyer reload 150 --> 300
+ • nerfed Destroyer damage 150% --> 125%
  
 -------------------------------------------------------------------------------------------
 */
@@ -61,7 +63,7 @@ const HOSTILE = 'HOSTILE';
 const FIXED = 'FIXED';
 const TURRET = 'TURRET';
 
-// Turrets
+// Weapons
 const PD = 'PD';
 const SMALL = 'SMALL';
 const MEDIUM = 'MEDIUM';
@@ -69,6 +71,10 @@ const LARGE = 'LARGE';
 const HUGE = 'HUGE';
 const BOMB = 'BOMB';
 const RAIL = 'RAIL';
+
+const PHYSICAL = [PD, LARGE, HUGE, RAIL];
+const EXPLOSIVE = [BOMB];
+const LASER = [SMALL, MEDIUM];
 
 // Control
 const CLICK = 'CLICK';
@@ -634,10 +640,10 @@ prototypedata.construction =  {
                 // STATS
                 engagementRange: 5200,
                 spread: 0,
-                reloadTime: 150,
+                reloadTime: 300,
                 reload: 0,
                 bullet: {
-                    dmgMultiplier: 1.5,
+                    dmgMultiplier: 1.25,
                     speedMultiplier: 1
                 }
             }
@@ -788,7 +794,7 @@ prototypedata.construction =  {
         effect: false,
         explosion: false,
     },
-    BOMBBULLET: { // laser
+    BOMBBULLET: { // bomb
         v: 0,
         dmg: 0, // it explodes
         dmgvb: 0,
@@ -901,6 +907,7 @@ var player = { // Play as Battleship
     hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
     // Stats
     hp: 2000000,
+    maxHp: 2000000,
     shield: {
         shieldCap: 100000,
         shield: 100000,
@@ -1108,6 +1115,170 @@ var player = { // Play as Battleship
         CIRCUITS: 0,
         FUELCELLS: 5,
     },
+    // Upgrades
+    upgrades: [
+        {
+            display: 'Weapons Damage ',
+            id: 0,
+            level: 1,
+            effect: `
+            var newPlayer = JSON.parse(JSON.stringify(player));
+            for (var i = 0; i < player.weapons.length; i += 1) {
+                newPlayer.weapons[i].bullet.dmgMultiplier += 0.1;
+            }
+            newPlayer;
+            `,
+            cost: {CIRCUITS: 250}, 
+            increment: {cost: {CIRCUITS: 250}, mode: 'addition'}
+        },
+        {
+            display: 'Projectile Damage ',
+            id: 1,
+            level: 1,
+            effect: `
+            var newPlayer = JSON.parse(JSON.stringify(player));
+            for (var i = 0; i < player.weapons.length; i += 1) {
+                if (isin(newPlayer.weapons[i].size, PHYSICAL)) {
+                    newPlayer.weapons[i].bullet.dmgMultiplier += 0.25;
+                }
+            }
+            newPlayer;
+            `,
+            cost: {METAL: 10, CIRCUITS: 50, FUELCELLS: 1}, 
+            increment: {cost: 2, mode: 'multiply'}
+        },
+        {
+            display: 'Laser Damage ',
+            id: 2,
+            level: 1,
+            effect: `
+            var newPlayer = JSON.parse(JSON.stringify(player));
+            for (var i = 0; i < player.weapons.length; i += 1) {
+                if (isin(newPlayer.weapons[i].size, LASER)) {
+                    newPlayer.weapons[i].bullet.dmgMultiplier += 0.5;
+                }
+            }
+            newPlayer;
+            `,
+            cost: {CIRCUITS: 75, FUELCELLS: 2}, 
+            increment: {cost: 2, mode: 'multiply'}
+        },
+        {
+            display: 'Railgun Damage ',
+            id: 3,
+            level: 1,
+            effect: `
+            var newPlayer = JSON.parse(JSON.stringify(player));
+            for (var i = 0; i < player.weapons.length; i += 1) {
+                if (newPlayer.weapons[i].size == RAIL) {
+                    newPlayer.weapons[i].bullet.dmgMultiplier += 0.25;
+                }
+            }
+            newPlayer;
+            `,
+            cost: {CIRCUITS: 100, FUELCELLS: 5}, 
+            increment: {cost: {CIRCUITS: 100}, mode: 'addition'}
+        },
+        {
+            display: 'Armour Plating ',
+            id: 4,
+            level: 1,
+            effect: `
+            var newPlayer = JSON.parse(JSON.stringify(player));
+            newPlayer.thrust *= 0.9;
+            newPlayer.maxHp += 100000;
+            newPlayer.hp += 100000;
+            newPlayer;
+            `,
+            cost: {METAL: 100, CIRCUITS: 50}, 
+            increment: {cost: {METAL: 25, CIRCUITS: 10}, mode: 'addition'}
+        },
+        {
+            display: 'Optimised Thrusters ',
+            id: 5,
+            level: 1,
+            effect: `
+            var newPlayer = JSON.parse(JSON.stringify(player));
+            newPlayer.thrust *= 1.25;
+            newPlayer.agi *= 1.1;
+            terminalAcceleration *= 1.1;
+            terminalVelocity: *= 1.25;
+            newPlayer;
+            `,
+            cost: {METAL: 25, CIRCUITS: 75, FUELCELLS: 5}, 
+            increment: {cost: {METAL: 5, CIRCUITS: 25, FUELCELLS: 1}, mode: 'addition'}
+        },
+        {
+            display: 'Optimised RCS ',
+            id: 6,
+            level: 1,
+            effect: `
+            var newPlayer = JSON.parse(JSON.stringify(player));
+            newPlayer.agi *= 1.25;
+            terminalAcceleration *= 1.25;
+            terminalVelocity: *= 1.1;
+            newPlayer;
+            `,
+            cost: {METAL: 5, CIRCUITS: 75, FUELCELLS: 2}, 
+            increment: {cost: {METAL: 5, CIRCUITS: 25, FUELCELLS: 2}, mode: 'addition'}
+        },
+        {
+            display: 'Repair Efficiency ',
+            id: 7,
+            level: 1,
+            effect: `
+            var newPlayer = JSON.parse(JSON.stringify(player));
+            newPlayer.abilites.repair.cost.METAL *= 0.9;
+            newPlayer.abilites.repair.CIRCUITS *= 0.9;
+            newPlayer;
+            `,
+            cost: {CIRCUITS: 250}, 
+            increment: {cost: 2, mode: 'multiply'}
+        },
+        {
+            display: 'Repair Speed ',
+            id: 8,
+            level: 1,
+            effect: `
+            var newPlayer = JSON.parse(JSON.stringify(player));
+            newPlayer.abilites.repair.hp *= 1.5;
+            newPlayer.abilites.repair.cost.METAL *= 1.5;
+            newPlayer.abilites.repair.CIRCUITS *= 1.5;
+            newPlayer;
+            `,
+            cost: {CIRCUITS: 50}, 
+            increment: {cost: 5, mode: 'multiply'}
+        },
+        {
+            display: 'Improved Shielding ',
+            id: 9,
+            level: 1,
+            effect: `
+            var newPlayer = JSON.parse(JSON.stringify(player));
+            newPlayer.shield.shieldCap += 25000;
+            newPlayer.shield.regen += 1;
+            newPlayer;
+            `,
+            cost: {CIRCUITS: 250}, 
+            increment: {cost: {CIRCUITS: 50}, mode: 'addition'}
+        },
+        {
+            display: 'Projectile Speed ',
+            id: 10,
+            level: 1,
+            effect: `
+            var newPlayer = JSON.parse(JSON.stringify(player));
+            for (var i = 0; i < player.weapons.length; i += 1) {
+                if (isin(newPlayer.weapons[i].size, PHYSICAL)) {
+                    newPlayer.weapons[i].bullet.speedMultiplier *= 1.1;
+                }
+            }
+            newPlayer;
+            `,
+            cost: {CIRCUITS: 50}, 
+            increment: {cost: 2, mode: 'multiply'}
+        },
+    ],
 }
 // Testing enemy
 var enemy = {
@@ -2392,6 +2563,7 @@ function replaceControlPannel(text) {
 function load() {
     console.log('Startin the game...');
     replacehtml(`<canvas id="main" width="${display.x}" height="${display.y}"></canvas>`);
+    game();
 };
 
 function addImage(img, x, y, cx, cy, scale, r, absolute) {
@@ -2850,6 +3022,26 @@ function tellPos(p){
     mousepos = {x: p.pageX, y:p.pageY};
 };
 addEventListener('mousemove', tellPos, false);
+var buttons = document.getElementsByClassName('button');
+
+function updateButtons() {
+    // Clear existing buttons
+    var buttonGrid = document.getElementById('buttonGrid');
+    buttonGrid.innerHTML = '';
+
+    player.upgrades.forEach(function(button) {
+        var buttonElement = document.createElement('button');
+        buttonElement.className = 'button';
+        buttonElement.id = `<strong>${button.id+roman(button.level)}</strong><br>`;
+        buttonElement.textContent = button.display;
+        buttonElement.addEventListener('click', function(event) {
+            var buttonId = event.target.id;
+            console.log('Button pressed: ' + buttonId);
+            updateButtons();
+        });
+        buttonGrid.appendChild(buttonElement);
+    });
+}
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -3734,10 +3926,6 @@ function handlePickup(resources) {
     return nRes;
 }
 
-function test() {
-    ships = generateShips(ships, 3);
-};
-
 function main() {
     clearCanvas();
     grid(400);
@@ -3788,11 +3976,13 @@ var t = 0
 async function game() {
     document.getElementById('controlPannel').innerHTML = "<button onclick=\"test()\"><h3>Test</h3></button>";
     ships = generateShips(ships, 4);
+    updateButtons();
     while (1) {
         t += 1;
         main();
         //await sleep(500);  // Debug Mode
         await sleep(1000/60);  // 60 FPS
+
     }
     console.log('gg');
 };
