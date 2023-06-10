@@ -30,11 +30,12 @@ body {
 
 #upgrades {
     position: absolute;
+    display: none;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.3);
     padding: 10px;
     border-radius: 10px;
     color: white;
@@ -45,21 +46,45 @@ body {
     overflow-y: auto;
 }
 
-#button-grid {
+#buttonGrid {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     grid-gap: 10px;
-    margin-top: 10px; /* Adjust the margin as needed */
+    margin-top: 10px;
+    padding: 15px;
+}
+
+#overlay {
+    font-size: 40px; 
+    display: flex;
+    justify-content: space-between;
+}
+
+#overlay img {
+    height: 25px;
+}
+
+#overlay #leftText {
+    text-align: left;
+}
+
+#overlay #rightText {
+    text-align: right;
 }
 
 .button {
-    width: 33.333%;
+    width: 100%;
     height: 150px;
     padding: 10px;
     color: white;
     text-align: top;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.5);
     border: none;
     border-radius: 5px;
-    cursor: pointer;
+    white-space: pre-line;
+}
+
+.button img {
+    max-width: 15px;
+    max-height: 15px;
 }

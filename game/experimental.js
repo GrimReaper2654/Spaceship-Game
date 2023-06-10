@@ -48,6 +48,11 @@
 8/6/2023
  • nerfed Destroyer reload 150 --> 300
  • nerfed Destroyer damage 150% --> 125%
+
+ 9/6/2023
+ • buffed Destroyer speed 6 --> 7.5
+ • buffed Destroyer reload 300 --> 150
+ • nerfed Destroyer damage 125% --> 100%
  
 -------------------------------------------------------------------------------------------
 */
@@ -90,14 +95,14 @@ const FRIGATE = 'FRIGATE';
 const INTERCEPTOR = 'INTERCEPTOR';
 const BOMBER = 'BOMBER';
 const ALL = 'ALL';
-const CAPITAL = ['BATTLESHIP','CRUISER'];
-const FIGHTER = ['INTERCEPTOR'];
+const CAPITAL = [BATTLESHIP,CRUISER];
+const FIGHTER = [INTERCEPTOR];
 //const FIGHTER = ['INTERCEPTOR','BOMBER'];
 //const NOTCAPITAL = ['DESTROYER','FRIGATE','INTERCEPTOR','BOMBER'];
-const NOTCAPITAL = ['DESTROYER','INTERCEPTOR'];
+const NOTCAPITAL = [DESTROYER,INTERCEPTOR];
 //const NOTFIGHTER = ['BATTLESHIP','CRUISER','DESTROYER','FRIGATE'];
-const NOTFIGHTER = ['BATTLESHIP','CRUISER','DESTROYER'];
-const ALLSHIPS = ['BATTLESHIP','CRUISER','DESTROYER','INTERCEPTOR'];
+const NOTFIGHTER = [BATTLESHIP,CRUISER,DESTROYER];
+const ALLSHIPS = [BATTLESHIP,CRUISER,DESTROYER,INTERCEPTOR];
 //const ALLSHIPS = ['BATTLESHIP','CRUISER','DESTROYER','FRIGATE','INTERCEPTOR','BOMBER']
 
 // Resources
@@ -131,7 +136,7 @@ function randint(min, max, notequalto=false) { // Randint returns random interge
         return min;
     }
     var gen = Math.floor(Math.random() * (max - min + 1)) + min;
-    while (gen == notequalto) {
+    while (gen != min && gen != max && notequalto) {
         gen = Math.floor(Math.random() * (max - min + 1)) + min;
         console.log('calculating...');
     }
@@ -607,7 +612,7 @@ prototypedata.construction =  {
         thrust: 0.1,
         agi: 0.05,
         terminalAcceleration:0.5,
-        terminalVelocity:6,
+        terminalVelocity:7.5,
         drag: 0.975,
         scale: 1,
         type: DESTROYER,
@@ -640,10 +645,10 @@ prototypedata.construction =  {
                 // STATS
                 engagementRange: 5200,
                 spread: 0,
-                reloadTime: 300,
+                reloadTime: 150,
                 reload: 0,
                 bullet: {
-                    dmgMultiplier: 1.25,
+                    dmgMultiplier: 1,
                     speedMultiplier: 1
                 }
             }
@@ -1122,7 +1127,7 @@ var player = { // Play as Battleship
             id: 0,
             level: 1,
             effect: `
-            var newPlayer = JSON.parse(JSON.stringify(player));
+            var newPlayer = player;
             for (var i = 0; i < player.weapons.length; i += 1) {
                 newPlayer.weapons[i].bullet.dmgMultiplier += 0.1;
             }
@@ -1136,10 +1141,10 @@ var player = { // Play as Battleship
             id: 1,
             level: 1,
             effect: `
-            var newPlayer = JSON.parse(JSON.stringify(player));
+            var newPlayer = player;
             for (var i = 0; i < player.weapons.length; i += 1) {
                 if (isin(newPlayer.weapons[i].size, PHYSICAL)) {
-                    newPlayer.weapons[i].bullet.dmgMultiplier += 0.25;
+                    newPlayer.weapons[i].bullet.dmgMultiplier += 0.1;
                 }
             }
             newPlayer;
@@ -1152,10 +1157,10 @@ var player = { // Play as Battleship
             id: 2,
             level: 1,
             effect: `
-            var newPlayer = JSON.parse(JSON.stringify(player));
+            var newPlayer = player;
             for (var i = 0; i < player.weapons.length; i += 1) {
                 if (isin(newPlayer.weapons[i].size, LASER)) {
-                    newPlayer.weapons[i].bullet.dmgMultiplier += 0.5;
+                    newPlayer.weapons[i].bullet.dmgMultiplier += 0.1;
                 }
             }
             newPlayer;
@@ -1168,10 +1173,10 @@ var player = { // Play as Battleship
             id: 3,
             level: 1,
             effect: `
-            var newPlayer = JSON.parse(JSON.stringify(player));
+            var newPlayer = player;
             for (var i = 0; i < player.weapons.length; i += 1) {
                 if (newPlayer.weapons[i].size == RAIL) {
-                    newPlayer.weapons[i].bullet.dmgMultiplier += 0.25;
+                    newPlayer.weapons[i].bullet.dmgMultiplier += 0.1;
                 }
             }
             newPlayer;
@@ -1184,8 +1189,8 @@ var player = { // Play as Battleship
             id: 4,
             level: 1,
             effect: `
-            var newPlayer = JSON.parse(JSON.stringify(player));
-            newPlayer.thrust *= 0.9;
+            var newPlayer = player;
+            newPlayer.thrust *= 0.95;
             newPlayer.maxHp += 100000;
             newPlayer.hp += 100000;
             newPlayer;
@@ -1198,11 +1203,11 @@ var player = { // Play as Battleship
             id: 5,
             level: 1,
             effect: `
-            var newPlayer = JSON.parse(JSON.stringify(player));
-            newPlayer.thrust *= 1.25;
-            newPlayer.agi *= 1.1;
-            terminalAcceleration *= 1.1;
-            terminalVelocity: *= 1.25;
+            var newPlayer = player;
+            newPlayer.thrust *= 1.1;
+            newPlayer.agi *= 1.05;
+            newPlayer.terminalAcceleration *= 1.05;
+            newPlayer.terminalVelocity *= 1.1;
             newPlayer;
             `,
             cost: {METAL: 25, CIRCUITS: 75, FUELCELLS: 5}, 
@@ -1213,10 +1218,10 @@ var player = { // Play as Battleship
             id: 6,
             level: 1,
             effect: `
-            var newPlayer = JSON.parse(JSON.stringify(player));
-            newPlayer.agi *= 1.25;
-            terminalAcceleration *= 1.25;
-            terminalVelocity: *= 1.1;
+            var newPlayer = player;
+            newPlayer.agi *= 1.1;
+            newPlayer.terminalAcceleration *= 1.1;
+            newPlayer.terminalVelocity *= 1.05;
             newPlayer;
             `,
             cost: {METAL: 5, CIRCUITS: 75, FUELCELLS: 2}, 
@@ -1227,9 +1232,9 @@ var player = { // Play as Battleship
             id: 7,
             level: 1,
             effect: `
-            var newPlayer = JSON.parse(JSON.stringify(player));
-            newPlayer.abilites.repair.cost.METAL *= 0.9;
-            newPlayer.abilites.repair.CIRCUITS *= 0.9;
+            var newPlayer = player;
+            newPlayer.abilities.repair.cost.METAL *= 0.9;
+            newPlayer.abilities.repair.CIRCUITS *= 0.9;
             newPlayer;
             `,
             cost: {CIRCUITS: 250}, 
@@ -1240,10 +1245,10 @@ var player = { // Play as Battleship
             id: 8,
             level: 1,
             effect: `
-            var newPlayer = JSON.parse(JSON.stringify(player));
-            newPlayer.abilites.repair.hp *= 1.5;
-            newPlayer.abilites.repair.cost.METAL *= 1.5;
-            newPlayer.abilites.repair.CIRCUITS *= 1.5;
+            var newPlayer = player;
+            newPlayer.abilities.repair.hp *= 1.5;
+            newPlayer.abilities.repair.cost.METAL *= 1.5;
+            newPlayer.abilities.repair.CIRCUITS *= 1.5;
             newPlayer;
             `,
             cost: {CIRCUITS: 50}, 
@@ -1254,23 +1259,35 @@ var player = { // Play as Battleship
             id: 9,
             level: 1,
             effect: `
-            var newPlayer = JSON.parse(JSON.stringify(player));
+            var newPlayer = player;
             newPlayer.shield.shieldCap += 25000;
-            newPlayer.shield.regen += 1;
+            newPlayer.shield.regen += 5;
             newPlayer;
             `,
             cost: {CIRCUITS: 250}, 
             increment: {cost: {CIRCUITS: 50}, mode: 'addition'}
         },
         {
-            display: 'Projectile Speed ',
+            display: 'Shield Regen',
             id: 10,
             level: 1,
             effect: `
-            var newPlayer = JSON.parse(JSON.stringify(player));
+            var newPlayer = player;
+            newPlayer.shield.regen += 10;
+            newPlayer;
+            `,
+            cost: {CIRCUITS: 250, FUELCELLS: 0}, 
+            increment: {cost: {CIRCUITS: 100, FUELCELLS: 1}, mode: 'addition'}
+        },
+        {
+            display: 'Projectile Speed ',
+            id: 11,
+            level: 1,
+            effect: `
+            var newPlayer = player;
             for (var i = 0; i < player.weapons.length; i += 1) {
                 if (isin(newPlayer.weapons[i].size, PHYSICAL)) {
-                    newPlayer.weapons[i].bullet.speedMultiplier *= 1.1;
+                    newPlayer.weapons[i].bullet.speedMultiplier *= 1.05;
                 }
             }
             newPlayer;
@@ -1278,8 +1295,50 @@ var player = { // Play as Battleship
             cost: {CIRCUITS: 50}, 
             increment: {cost: 2, mode: 'multiply'}
         },
+        {
+            display: 'Gauss Cannon ',
+            id: 12,
+            level: 1,
+            effect: `
+            var newPlayer = player;
+            for (var i = 0; i < 5; i += 1) {
+                newPlayer.weapons.push({
+                    // CONTROL
+                    type: FIXED,
+                    size: RAIL,
+                    ai: false,
+                    keybind: 'f',
+                    // PHYSICS
+                    x: data.dim.BATTLESHIP.x,
+                    y: data.center.BATTLESHIP.y,
+                    ax: data.dim.BATTLESHIP.x,
+                    ay: data.center.BATTLESHIP.y,
+                    facing: 0,
+                    aim: 0,
+                    agi: 0,
+                    arc: 0,
+                    recoilAmount: 0,
+                    recoil: 0,
+                    // STATS
+                    cost: {METAL: 15, FUELCELLS: 1},
+                    engagementRange: 5400,
+                    spread: 0,
+                    reloadTime: 150,
+                    reload: 0,
+                    bullet: {
+                        dmgMultiplier: 1,
+                        speedMultiplier: 1
+                    }
+                })
+            }
+            newPlayer;
+            `,
+            cost: {METAL: 500, CIRCUITS: 1000, FUELCELLS: 50}, 
+            increment: {cost: {METAL: Infinity, CIRCUITS: Infinity, FUELCELLS: Infinity}, mode: 'addition'}
+        },
     ],
 }
+
 // Testing enemy
 var enemy = {
     // Physics
@@ -2612,8 +2671,6 @@ function drawLine(pos, r, length, style, absolute) {
 };
 
 function sufficient(ability, cargo) {
-    console.log(ability);
-    console.log(cargo);
     var sufficient = true
     for (var i=0; i < Object.keys(ability.cost).length; i += 1) {
         if (cargo[Object.keys(ability.cost)[i]] < ability.cost[Object.keys(ability.cost)[i]]) {
@@ -2621,7 +2678,9 @@ function sufficient(ability, cargo) {
         }
     }
     if (sufficient) {
-        ability.reload = ability.reloadTime;
+        if (ability.reload) {
+            ability.reload = ability.reloadTime;
+        }
         for (var i=0; i < Object.keys(ability.cost).length; i += 1) {
             cargo[Object.keys(ability.cost)[i]] -= ability.cost[Object.keys(ability.cost)[i]];
         }
@@ -2961,20 +3020,14 @@ function handleMotion(objs) {
 };
 
 function attemptShoot(weapon, ship) {
-    var sufficient = true;
-    if (ship.weapons[weapon].cost && ship.weapons[weapon].reload == 0) {
-        for (var i=0; i < Object.keys(ship.weapons[weapon].cost).length; i += 1) {
-            if (ship.cargo[Object.keys(ship.weapons[weapon].cost)[i]] < ship.weapons[weapon].cost[Object.keys(ship.weapons[weapon].cost)[i]]) {
-                sufficient = false;
-        }
-        if (sufficient) {
-            for (var i=0; i < Object.keys(ship.weapons[weapon].cost).length; i += 1) {
-                    ship.cargo[Object.keys(ship.weapons[weapon].cost)[i]] -= ship.weapons[weapon].cost[Object.keys(ship.weapons[weapon].cost)[i]];
-                }
+    if (ship.weapons[weapon].reload == 0) {
+        if (ship.cargo) {
+            var result = sufficient(ship.weapons[weapon], ship.cargo);
+            if (result[0]) {
+                ship.weapons[weapon] = result[1];
+                ship.cargo = result[2]; 
             }
         }
-    }
-    if (ship.weapons[weapon].reload == 0 && sufficient) {
         shoot(ship.weapons[weapon], ship);
         ship.weapons[weapon].reload = ship.weapons[weapon].reloadTime;
         ship.weapons[weapon].recoil = ship.weapons[weapon].recoilAmount;
@@ -3002,6 +3055,55 @@ function shoot(weapon, ship) {
     projectiles.push(bullet);
 };
 
+function roman(number) {
+    if (number <= 0 || number >= 4000) {
+        var symbols = ['0','1','2','3','4','5','6','7','8','9','¡','£','¢','∞','§','¶','œ','ß','∂','∫','∆','√','µ','†','¥','ø'];
+        return `${randchoice(symbols)}${randchoice(symbols)}${randchoice(symbols)}`;
+    }
+    
+    const romanNumerals = {
+        M: 1000,
+        CM: 900,
+        D: 500,
+        CD: 400,
+        C: 100,
+        XC: 90,
+        L: 50,
+        XL: 40,
+        X: 10,
+        IX: 9,
+        V: 5,
+        IV: 4,
+        I: 1
+    };
+    
+    let romanNumeral = '';
+    
+    for (let key in romanNumerals) {
+        while (number >= romanNumerals[key]) {
+            romanNumeral += key;
+            number -= romanNumerals[key];
+        }
+    }
+    console.log(romanNumeral);
+    return romanNumeral;
+};
+
+function addCosts(cost, increment) {
+    if (increment.mode == 'addition') {
+        for (var res in increment.cost) {
+            cost[res] += increment.cost[res];
+        }
+    } else if (increment.mode == 'multiply') {
+        for (var res in cost) {
+            cost[res] *= increment.cost;
+        }
+    } else {
+        console.log('ERROR');
+    }
+    return cost;
+}
+
 window.onkeyup = function(e) { player.keyboard[e.key] = false; }
 window.onkeydown = function(e) { player.keyboard[e.key] = true; }
 document.addEventListener('mousedown', function(event) {
@@ -3026,18 +3128,27 @@ var buttons = document.getElementsByClassName('button');
 
 function updateButtons() {
     // Clear existing buttons
+    var overlay = document.getElementById('overlay');
+    overlay.innerHTML = `<div id="leftText">Upgrades</div><div id="rightText">Resources: <img src="metal.png"><span> ${player.cargo.METAL ? Math.round(player.cargo.METAL) : 0}  </span><img src="Circuit.png"><span> ${player.cargo.CIRCUITS ? Math.round(player.cargo.CIRCUITS) : 0}  </span><img src="FuelCell.png"><span> ${player.cargo.FUELCELLS ? Math.round(player.cargo.FUELCELLS) : 0}  </span></div>`;
     var buttonGrid = document.getElementById('buttonGrid');
     buttonGrid.innerHTML = '';
-
     player.upgrades.forEach(function(button) {
         var buttonElement = document.createElement('button');
         buttonElement.className = 'button';
-        buttonElement.id = `<strong>${button.id+roman(button.level)}</strong><br>`;
-        buttonElement.textContent = button.display;
+        buttonElement.id = `${button.id}`;
+        buttonElement.innerHTML = `${button.display} ${roman(button.level)}\n<img src="metal.png"><span> ${player.upgrades[button.id].cost.METAL ? Math.round(player.upgrades[button.id].cost.METAL) : 0}  </span><img src="Circuit.png"><span> ${player.upgrades[button.id].cost.CIRCUITS ? Math.round(player.upgrades[button.id].cost.CIRCUITS) : 0}  </span><img src="FuelCell.png"><span> ${player.upgrades[button.id].cost.FUELCELLS ? Math.round(player.upgrades[button.id].cost.FUELCELLS) : 0}  </span>`;
         buttonElement.addEventListener('click', function(event) {
             var buttonId = event.target.id;
             console.log('Button pressed: ' + buttonId);
-            updateButtons();
+            var result = sufficient(player.upgrades[buttonId], player.cargo);
+            if (result[0]) {
+                player.cargo = result[2];
+                player = eval(player.upgrades[buttonId].effect);
+                player.upgrades[buttonId].cost = addCosts(player.upgrades[buttonId].cost, player.upgrades[buttonId].increment);
+                player.upgrades[buttonId].level += 1;
+                console.log(player);
+                updateButtons();
+            }
         });
         buttonGrid.appendChild(buttonElement);
     });
@@ -3710,13 +3821,13 @@ function generateShips(ships, rate, balance=false) {
                 var num = 0;
                 switch (shipType) {
                     case BATTLESHIP:
-                        num = 1;
+                        num = randint(1,2);
                         break;
                     case CRUISER:
-                        num = randint(1,3);
+                        num = randint(1,4);
                         break;
                     case DESTROYER:
-                        num = randint(1,2);
+                        num = randint(1,3);
                         break;
                     case FRIGATE:
                         //num = randint(2,5);
@@ -3725,7 +3836,7 @@ function generateShips(ships, rate, balance=false) {
                         //num = randint(2,5);
                         break;
                     case INTERCEPTOR:
-                        num = randint(5,12);
+                        num = randint(8,15);
                         break;
                     default:
                         console.log('WARNING: unrecognised ship type');
@@ -3926,6 +4037,18 @@ function handlePickup(resources) {
     return nRes;
 }
 
+function toggleUpgrades() {
+    var overlay = document.getElementById('upgrades');
+    if (overlay.style.display == 'block') {
+        overlay.style.display = 'none';
+        var pause = false;
+    } else {
+        overlay.style.display = 'block';
+        var pause = true;
+    }
+    return pause;
+}
+
 function main() {
     clearCanvas();
     grid(400);
@@ -3974,15 +4097,21 @@ function main() {
 
 var t = 0
 async function game() {
-    document.getElementById('controlPannel').innerHTML = "<button onclick=\"test()\"><h3>Test</h3></button>";
+    document.getElementById('controlPannel').innerHTML = "";
     ships = generateShips(ships, 4);
     updateButtons();
+    var pause = false;
     while (1) {
-        t += 1;
-        main();
+        if (pause == false) {
+            t += 1;
+            main();
+        }
         //await sleep(500);  // Debug Mode
         await sleep(1000/60);  // 60 FPS
-
+        if (player.keyboard.u) {
+            player.keyboard.u = false;
+            pause = toggleUpgrades();
+        }
     }
     console.log('gg');
 };
