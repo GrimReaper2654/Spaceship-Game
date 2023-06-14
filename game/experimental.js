@@ -129,7 +129,7 @@ function randchoice(list, remove = false) { // chose 1 from a list and update li
         return [chosen, list];
     }
     return list[choice];
-}
+};
 
 function randint(min, max, notequalto=false) { // Randint returns random interger between min and max (both included)
     if (max - min <= 1) {
@@ -141,7 +141,7 @@ function randint(min, max, notequalto=false) { // Randint returns random interge
         console.log('calculating...');
     }
     return gen;
-}
+};
 
 // Excessively overcomplicated data storage system
 var prototypedata = {
@@ -1337,7 +1337,7 @@ var player = { // Play as Battleship
             increment: {cost: {METAL: Infinity, CIRCUITS: Infinity, FUELCELLS: Infinity}, mode: 'addition'}
         },
     ],
-}
+};
 
 // Testing enemy
 var enemy = {
@@ -1559,7 +1559,7 @@ var enemy = {
         CIRCUITS: 0,
         FUELCELLS: 5,
     },
-}
+};
 /*
 var player = { // Play as God
     // Physics
@@ -2686,7 +2686,7 @@ function sufficient(ability, cargo) {
         }
     }
     return [sufficient, ability, cargo];
-}
+};
 
 function handleInputs(player) {
     //console.log(player.keyboard);
@@ -3102,7 +3102,7 @@ function addCosts(cost, increment) {
         console.log('ERROR');
     }
     return cost;
-}
+};
 
 window.onkeyup = function(e) { player.keyboard[e.key] = false; }
 window.onkeydown = function(e) { player.keyboard[e.key] = true; }
@@ -3123,7 +3123,7 @@ window.addEventListener("resize", function () {
 function tellPos(p){
     mousepos = {x: p.pageX, y:p.pageY};
 };
-addEventListener('mousemove', tellPos, false);
+window.addEventListener('mousemove', tellPos, false);
 var buttons = document.getElementsByClassName('button');
 
 function updateButtons() {
@@ -3920,7 +3920,7 @@ function displaytxt(txt, pos, font, fill) {
 
     ctx.stroke();
     ctx.restore();
-}
+};
 
 function handlePlayerUI() {
     PlayerUiBar(player.shield.shield, player.shield.shieldCap, {x:100,y:50}, {x:500,y:50}, "rgb(116, 251, 253)",5);
@@ -4020,7 +4020,7 @@ function handleDeathEffects(overlays, ships, decoratives, resources) {
         }
     }
     return [nships,overlays,decoratives,resources];
-}
+};
 
 function handlePickup(resources) {
     var nRes = []
@@ -4035,7 +4035,7 @@ function handlePickup(resources) {
         }
     }
     return nRes;
-}
+};
 
 function toggleUpgrades() {
     var overlay = document.getElementById('upgrades');
@@ -4047,6 +4047,10 @@ function toggleUpgrades() {
         var pause = true;
     }
     return pause;
+};
+
+function handleZoom() {
+    var zoom = (window.outerWidth/window.innerWidth) * 100;
 }
 
 function main() {
