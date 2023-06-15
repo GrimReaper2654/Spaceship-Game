@@ -1143,8 +1143,8 @@ if (savedPlayer !== null) {
                 }
                 newPlayer;
                 `,
-                cost: {CIRCUITS: 250}, 
-                increment: {cost: {CIRCUITS: 250}, mode: 'addition'}
+                cost: {CIRCUITS: 150}, 
+                increment: {cost: 2, mode: 'multiply'}
             },
             {
                 display: 'Projectile Damage ',
@@ -1154,7 +1154,7 @@ if (savedPlayer !== null) {
                 var newPlayer = player;
                 for (var i = 0; i < player.weapons.length; i += 1) {
                     if (isin(newPlayer.weapons[i].size, PHYSICAL)) {
-                        newPlayer.weapons[i].bullet.dmgMultiplier += 0.1;
+                        newPlayer.weapons[i].bullet.dmgMultiplier += 0.15;
                     }
                 }
                 newPlayer;
@@ -1170,7 +1170,7 @@ if (savedPlayer !== null) {
                 var newPlayer = player;
                 for (var i = 0; i < player.weapons.length; i += 1) {
                     if (isin(newPlayer.weapons[i].size, LASER)) {
-                        newPlayer.weapons[i].bullet.dmgMultiplier += 0.1;
+                        newPlayer.weapons[i].bullet.dmgMultiplier += 0.15;
                     }
                 }
                 newPlayer;
@@ -1186,7 +1186,7 @@ if (savedPlayer !== null) {
                 var newPlayer = player;
                 for (var i = 0; i < player.weapons.length; i += 1) {
                     if (newPlayer.weapons[i].size == RAIL) {
-                        newPlayer.weapons[i].bullet.dmgMultiplier += 0.1;
+                        newPlayer.weapons[i].bullet.dmgMultiplier += 0.15;
                     }
                 }
                 newPlayer;
@@ -1283,7 +1283,7 @@ if (savedPlayer !== null) {
                 level: 1,
                 effect: `
                 var newPlayer = player;
-                newPlayer.shield.regen += 10;
+                newPlayer.shield.shieldRegen += 10;
                 newPlayer;
                 `,
                 cost: {CIRCUITS: 250, FUELCELLS: 0}, 
@@ -1312,34 +1312,7 @@ if (savedPlayer !== null) {
                 effect: `
                 var newPlayer = player;
                 for (var i = 0; i < 5; i += 1) {
-                    newPlayer.weapons.push({
-                        // CONTROL
-                        type: FIXED,
-                        size: RAIL,
-                        ai: false,
-                        keybind: 'f',
-                        // PHYSICS
-                        x: data.dim.BATTLESHIP.x,
-                        y: data.center.BATTLESHIP.y,
-                        ax: data.dim.BATTLESHIP.x,
-                        ay: data.center.BATTLESHIP.y,
-                        facing: 0,
-                        aim: 0,
-                        agi: 0,
-                        arc: 0,
-                        recoilAmount: 0,
-                        recoil: 0,
-                        // STATS
-                        cost: {METAL: 15, FUELCELLS: 1},
-                        engagementRange: 5400,
-                        spread: 0,
-                        reloadTime: 150,
-                        reload: 0,
-                        bullet: {
-                            dmgMultiplier: 1,
-                            speedMultiplier: 1
-                        }
-                    })
+                    newPlayer.weapons.push(JSON.parse(JSON.stringify(newPlayer.weapons[0])));
                 }
                 newPlayer;
                 `,
@@ -1353,11 +1326,10 @@ if (savedPlayer !== null) {
                 effect: `
                 var newPlayer = player;
                 localStorage.setItem('player', JSON.stringify(newPlayer));
-                newPlayer.upgrades[13].level -= 1;
                 console.log('saved');
                 newPlayer;
                 `,
-                cost: {METAL: 0, CIRCUITS: 100, FUELCELLS: 0}, 
+                cost: {METAL: 0, CIRCUITS: 0, FUELCELLS: 0}, 
                 increment: {cost: {METAL: 0, CIRCUITS: 0, FUELCELLS: 0}, mode: 'addition'}
             },
             {
@@ -1372,6 +1344,54 @@ if (savedPlayer !== null) {
                 `,
                 cost: {METAL: 0, CIRCUITS: 0, FUELCELLS: 0}, 
                 increment: {cost: {METAL: 0, CIRCUITS: 0, FUELCELLS: 0}, mode: 'addition'}
+            },
+            {
+                display: 'Turret Rotation ',
+                id: 15,
+                level: 1,
+                effect: `
+                var newPlayer = player;
+                for (var i = 0; i < newPlayer.weapons.length; i += 1) {
+                    if (newPlayer.weapons[i].type == TURRET) {
+                        newPlayer.weapons[i].agi *= 1.1;
+                    }
+                }
+                newPlayer;
+                `,
+                cost: {CIRCUITS: 100}, 
+                increment: {cost: 2, mode: 'multiply'}
+            },
+            {
+                display: 'Projectile Weapon Fire Rate',
+                id: 16,
+                level: 1,
+                effect: `
+                var newPlayer = player;
+                for (var i = 0; i < player.weapons.length; i += 1) {
+                    if (isin(newPlayer.weapons[i].size, PHYSICAL)) {
+                        newPlayer.weapons[i].reloadTime *= 0.8;
+                    }
+                }
+                newPlayer;
+                `,
+                cost: {METAL: 100, CIRCUITS: 500, FUELCELLS: 0}, 
+                increment: {cost: 2, mode: 'multiply'}
+            },
+            {
+                display: 'Energy Weapons Fire Rate ',
+                id: 17,
+                level: 1,
+                effect: `
+                var newPlayer = player;
+                for (var i = 0; i < player.weapons.length; i += 1) {
+                    if (isin(newPlayer.weapons[i].size, LASER)) {
+                        newPlayer.weapons[i].reloadTime *= 0.8;
+                    }
+                }
+                newPlayer;
+                `,
+                cost: {CIRCUITS: 500, FUELCELLS: 10}, 
+                increment: {cost: 2, mode: 'multiply'}
             },
         ],
     };
@@ -1390,25 +1410,25 @@ var enemy = {
     vy: 0,
     r: 0,
     a: 0,
-    thrust: 0.0005,
-    agi: 0.01,
-    terminalAcceleration:0.15,
-    terminalVelocity:5,
+    thrust: 0.1,
+    agi: 0.1,
+    terminalAcceleration:10,
+    terminalVelocity:25,
     drag: 0.999,
     scale: 1,
-    hitbox: JSON.parse(JSON.stringify(data.hitbox.BATTLESHIP)),
+    hitbox: JSON.parse(JSON.stringify(data.hitbox.INTERCEPTOR)),
     // Stats
-    hp: 2000000,
+    hp: 20000000,
     shield: {
-        shieldCap: 100000,
-        shield: 100000,
-        shieldRegen: 50,
+        shieldCap: 1000000,
+        shield: 1000000,
+        shieldRegen: 5000,
         cooldown: 0,
     },
     team: GREEN,
-    type: BATTLESHIP,
+    type: INTERCEPTOR,
     aiControl: true,
-    id: 69421,
+    id: 69420,
     // Weapons
     weapons: [
         {
@@ -1429,175 +1449,18 @@ var enemy = {
             recoilAmount: 0,
             recoil: 0,
             // STATS
-            cost: {METAL: 5, FUELCELLS: 1},
             engagementRange: 5400,
             spread: 0,
-            reloadTime: 150,
+            reloadTime: 1,
             reload: 0,
             bullet: {
-                dmgMultiplier: 0.01,
+                dmgMultiplier: 2,
                 speedMultiplier: 1
             }
         },
-        {
-            // CONTROL
-            type: FIXED,
-            size: HUGE,
-            ai: true,
-            keybind: 'e',
-            // PHYSICS
-            x: data.dim.BATTLESHIP.x,
-            y: data.center.BATTLESHIP.y,
-            ax: data.dim.BATTLESHIP.x,
-            ay: data.center.BATTLESHIP.y,
-            facing: 0,
-            aim: 0,
-            agi: 0,
-            arc: 0,
-            recoilAmount: 0,
-            recoil: 0,
-            // STATS
-            cost: {METAL: 3},
-            engagementRange: 3600,
-            spread: 5*Math.PI/180,
-            reloadTime: 120,
-            reload: 0,
-            bullet: {
-                dmgMultiplier: 0.01,
-                speedMultiplier: 1
-            }
-        },
-        {
-            // CONTROL
-            type: TURRET,
-            size: MEDIUM,
-            ai: true,
-            keybind: CLICK,
-            // PHYSICS
-            x: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
-            y: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
-            ax: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
-            ay: data.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
-            facing: 0,
-            aim: 0,
-            agi: 0.02,
-            arc: 270*Math.PI/180,
-            recoilAmount: 5,
-            recoil: 0,
-            // STATS
-            cost: {FUELCELLS: 0.01},
-            engagementRange: 1800,
-            spread: 1*Math.PI/180,
-            reloadTime: 15,
-            reload: 0,
-            bullet: {
-                dmgMultiplier: 0.01,
-                speedMultiplier: 1
-            }
-        },
-        {
-            // CONTROL
-            type: TURRET,
-            size: MEDIUM,
-            ai: true,
-            keybind: CLICK,
-            // PHYSICS
-            x: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
-            y: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
-            ax: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
-            ay: data.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
-            facing: 0,
-            aim: 0,
-            agi: 0.02,
-            arc: 270*Math.PI/180,
-            recoilAmount: 5,
-            recoil: 0,
-            // STATS
-            cost: {FUELCELLS: 0.01},
-            engagementRange: 1800,
-            spread: 1*Math.PI/180,
-            reloadTime: 15,
-            reload: 0,
-            bullet: {
-                dmgMultiplier: 0.01,
-                speedMultiplier: 1
-            }
-        },
-        {
-            // CONTROL
-            type: TURRET,
-            size: LARGE,
-            ai: true,
-            keybind: CLICK,
-            // PHYSICS
-            x: data.BATTLESHIPMOUNT.LARGETURRET[0].x,
-            y: data.BATTLESHIPMOUNT.LARGETURRET[0].y,
-            ax: data.BATTLESHIPMOUNT.LARGETURRET[0].x,
-            ay: data.BATTLESHIPMOUNT.LARGETURRET[0].y,
-            facing: 0,
-            aim: 0,
-            agi: 0.015,
-            arc: 270*Math.PI/180,
-            recoilAmount: 10,
-            recoil: 0,
-            // STATS
-            cost: {METAL: 0.5},
-            engagementRange: 3600,
-            spread: 0,
-            reloadTime: 75,
-            reload: 0,
-            bullet: {
-                dmgMultiplier: 0.01,
-                speedMultiplier: 1
-            }
-        },
-        {
-            // CONTROL
-            type: TURRET,
-            size: LARGE,
-            ai: true,
-            keybind: CLICK,
-            // PHYSICS
-            x: data.BATTLESHIPMOUNT.LARGETURRET[1].x,
-            y: data.BATTLESHIPMOUNT.LARGETURRET[1].y,
-            ax: data.BATTLESHIPMOUNT.LARGETURRET[1].x,
-            ay: data.BATTLESHIPMOUNT.LARGETURRET[1].y,
-            facing: 0,
-            aim: 0,
-            agi: 0.015,
-            arc: 270*Math.PI/180,
-            recoilAmount: 10,
-            recoil: 0,
-            // STATS
-            cost: {METAL: 0.5},
-            engagementRange: 3600,
-            spread: 0,
-            reloadTime: 75,
-            reload: 0,
-            bullet: {
-                dmgMultiplier: 0.01,
-                speedMultiplier: 1
-            }
-        },
+        
     ],
     aimMode: 'Parallel',
-    // Boost
-    boost: {
-        keybind: 'r',
-        a: 3,
-        reloadTime: 60,
-        reload: 0,
-        cost: {FUELCELLS: 2},
-    },
-    // Input
-    hasClicked: 0,
-    keyboard: {},
-    // Inventory
-    cargo: {
-        METAL: 50,
-        CIRCUITS: 0,
-        FUELCELLS: 5,
-    },
 };
 /*
 var player = { // Play as God
@@ -3905,21 +3768,21 @@ function tick(objs) {
         if (objs[i].recoil) {
             objs[i].recoil -= 1;
             if (objs[i].recoil < 0) {
-                objs[i] = 0;
+                objs[i].recoil = 0;
             }
         }
         // if it has cooldown, reduce it
         if (objs[i].cooldown) {
             objs[i].cooldown -= 1;
             if (objs[i].cooldown < 0) {
-                objs[i] = 0;
+                objs[i].cooldown = 0;
             }
         }
         // if it is reloading, reload it
         if (objs[i].reload) {
             objs[i].reload -= 1;
             if (objs[i].reload < 0) {
-                objs[i] = 0;
+                objs[i].reload = 0;
             }
         }
         // Animate animated effects
@@ -4094,7 +3957,7 @@ function handleZoom() {
     overlay.style.zoom = `${Math.round((1 / zoom) * 100)}%`;
 }
 
-function main() {
+async function main() {
     clearCanvas();
     grid(400);
     if (t % 300 == 0 && ships.length < 75) {
@@ -4141,6 +4004,7 @@ function main() {
     if (player.hp <= 0) {
         localStorage.removeItem('player');
         player.cargo = {METAL: 0, CIRCUITS: 0, FUELCELLS: 0}; // clear player's inventory after death to prevent then glitching the save system to revive
+        await sleep(3000);
         location.reload(false);
     }
 };
