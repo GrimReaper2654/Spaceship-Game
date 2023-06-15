@@ -53,7 +53,12 @@
  • buffed Destroyer speed 6 --> 7.5
  • buffed Destroyer reload 300 --> 150
  • nerfed Destroyer damage 125% --> 100%
- 
+
+15/6/2023
+ • buffed repair 500 --> 1000hp/t
+ • buffed huge cannon shell damage 24000 --> 48000
+ • increaced huge cannon shell hitbox 30px wide
+
 -------------------------------------------------------------------------------------------
 */
 
@@ -136,9 +141,14 @@ function randint(min, max, notequalto=false) { // Randint returns random interge
         return min;
     }
     var gen = Math.floor(Math.random() * (max - min + 1)) + min;
-    while (gen != min && gen != max && notequalto) {
+    var i = 0; // 
+    while (gen != min && gen != max && notequalto && i < 100) { // loop max 100 times
         gen = Math.floor(Math.random() * (max - min + 1)) + min;
+        i += 1;
         console.log('calculating...');
+    }
+    if (i >= 100) {
+        console.log('ERROR: could not generate suitable number');
     }
     return gen;
 };
@@ -155,7 +165,7 @@ var prototypedata = {
         SMALLTURRET:{x:37,y:17},
         PDTURRET:{x:17,y:10},
         RAILBULLET:{x:38,y:10},
-        HUGEBULLET:{x:15,y:8}, 
+        HUGEBULLET:{x:22,y:12}, 
         LARGEBULLET:{x:7,y:24}, 
         MEDIUMBULLET:{x:11,y:18}, 
         SMALLBULLET:{x:11,y:5}, 
@@ -184,7 +194,7 @@ var prototypedata = {
         SMALLTURRET:{x:9,y:8.5},
         PDTURRET:{x:6,y:5},
         RAILBULLET:{x:27,y:5},
-        HUGEBULLET:{x:0,y:4}, 
+        HUGEBULLET:{x:0,y:6}, 
         LARGEBULLET:{x:0,y:12}, 
         MEDIUMBULLET:{x:0,y:9}, 
         SMALLBULLET:{x:0,y:2.5}, 
@@ -239,7 +249,7 @@ var prototypedata = {
             {x:32, y:5, r:25}, 
         ],
         HUGEBULLET: [ // wider than you think
-            {x:7.5, y:4, r:10}, 
+            {x:11, y:6, r:15}, 
         ],
         LARGEBULLET: [ // I would make 3 hitboxes for the 3 bullets but lag...
             {x:3.5, y:12, r:20}, 
@@ -756,7 +766,7 @@ prototypedata.construction =  {
     },
     HUGEBULLET: { // cannon shell
         v: 20,
-        dmg: 24000, // 16k dps per turret
+        dmg: 48000,
         dmgvb: 0,
         life: 240,
         physical: true,
@@ -1108,10 +1118,10 @@ if (savedPlayer !== null) {
         abilities: {
             repair: {
                 keybind: 'x',
-                hp: 500, // regen hp / tick
+                hp: 1000, // regen hp / tick
                 reloadTime: 0,
                 reload: 0,
-                cost: {METAL: 0.5, CIRCUITS: 0.05}, 
+                cost: {METAL: 1, CIRCUITS: 0.1}, 
             },
             boost: {
                 keybind: 'r',
@@ -3019,8 +3029,10 @@ document.addEventListener('mouseup', function(event) {
   }
 });
 window.addEventListener("resize", function () {
-    display = {x:window.innerWidth,y:window.innerHeight};
-    replacehtml(`<canvas id="main" width="${display.x}" height="${display.y}"></canvas>`);
+    if (t > 0) {
+        display = {x:window.innerWidth,y:window.innerHeight};
+        replacehtml(`<canvas id="main" width="${display.x}" height="${display.y}"></canvas>`);
+    }
 });
 function tellPos(p){
     mousepos = {x: p.pageX, y:p.pageY};
