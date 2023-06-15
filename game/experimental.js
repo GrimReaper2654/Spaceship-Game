@@ -3739,7 +3739,7 @@ function generatePos(ship) { // put the newly generated ship off screen somewher
 };
 
 function generateShips(ships, rate, balance=false) {
-    if (false) { // use to turn off enemies for debug purposes
+    if (true) { // use to turn off enemies for debug purposes
         if (balance) {
             var pts = {};
             for (var i = 0; i < TEAMS.length; i += 1) {
