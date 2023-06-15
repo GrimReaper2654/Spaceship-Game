@@ -44,7 +44,6 @@ body {
     width: 50%;
     height: 75%;
     text-align: left;
-    overflow-y: auto;
     zoom: 200%;
 }
 
@@ -54,12 +53,16 @@ body {
     grid-gap: 10px;
     margin-top: 10px;
     padding: 15px;
+    zoom: 100%;
+    height: 85%;
+    overflow-y: auto;
 }
 
 #overlay {
     font-size: 40px; 
     display: flex;
     justify-content: space-between;
+    zoom: 100%;
 }
 
 #overlay img {
