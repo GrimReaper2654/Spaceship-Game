@@ -10,13 +10,16 @@ W to accelerate<br>
 S to decelerate<br>
 A and D to rotate<br>
 Q to switch aiming mode<br>
-turrets follow mouse pointer <br>
-Left click to shoot turrets <br>
+turrets follow mouse pointer<br>
+Left click to shoot turrets<br>
 E to shoot main cannon<br>
-R to boost <br>
-F to fire railgun <br>
-X to repair <br><br>
-NOTE: Zoom out to see more of the map at once.<br>
+F to fire railgun<br>
+hold down R to boost<br>
+X to repair (regenerate hp)<br>
+R to boost<br>
+U to open/close upgrades menu (and pause)<br>
+Save by clicking the save button in the upgrades menu<br>
+Zoom out to see more of the map at once<br>
 <br>
 For the experimental version of the game which may or may not work:<br>
 https://grimreaper2654.github.io/Spaceship-Game/game/experimental.html
