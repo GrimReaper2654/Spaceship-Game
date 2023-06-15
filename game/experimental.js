@@ -1126,9 +1126,9 @@ if (savedPlayer !== null) {
         keyboard: {},
         // Inventory
         cargo: {
-            METAL: 5000,
-            CIRCUITS: 10000,
-            FUELCELLS: 500,
+            METAL: 50,
+            CIRCUITS: 0,
+            FUELCELLS: 5,
         },
         // Upgrades
         upgrades: [
