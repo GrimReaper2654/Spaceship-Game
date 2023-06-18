@@ -9,7 +9,31 @@
 </head>
 <body>
     <div id="game" class="main">
-        <button onclick="load()"><h3>Initialise</h3></button>
+        <div id="big">
+            <button onclick="load()"><h3>Initialise</h3></button>
+            <p>
+                W to accelerate <br>
+                S to decelerate <br>
+                A and D to rotate <br>
+                Q to switch aiming mode <br>
+                turrets follow mouse pointer <br>
+                Left click to shoot turrets <br>
+                E to shoot main cannon <br>
+                F to fire railgun <br>
+                hold down R to boost <br>
+                X to repair (regenerate hp) <br>
+                R to boost <br>
+                U to open/close upgrades menu (and pause) <br>
+                Save by clicking the save button in the upgrades menu <br>
+                Zoom out to see more of the map at once <br>
+            </p>
+        </div>
+    </div>
+    <div id="upgrades">
+        <div id="overlay">
+        </div>
+        <div id="buttonGrid">
+        </div>
     </div>
     <div id="controlPannel">
         <button onclick="game();"><h3>Start Game</h3></button>
@@ -35,7 +59,7 @@
         <img id="TinyCannonGreen" src="TinyTurretGreen.png">
         <img id="PDCannon" src="PDturret.png">
         <img id="BulletRail" src="RailgunRound.png">
-        <img id="BulletHuge" src="Huge Bullet.png">
+        <img id="BulletHuge" src="Huge BulletV2.png">
         <img id="BulletLarge" src="Large Bullet.png">
         <img id="BulletSmall" src="Small Bullet.png">
         <img id="BulletTiny" src="Tiny Bullet.png">
