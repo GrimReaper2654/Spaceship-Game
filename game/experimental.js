@@ -57,8 +57,12 @@
 15/6/2023
  • buffed repair 500 --> 1000hp/t
  • buffed huge cannon shell damage 24000 --> 48000
- • increaced huge cannon shell hitbox 30px wide
+ • increaced huge cannon shell hitbox to 30px wide
 
+15/6/2023
+ • decreaced railgun metal consumption 15 --> 5
+ • changed ship resource drop rates
+ 
 -------------------------------------------------------------------------------------------
 */
 
@@ -94,6 +98,7 @@ const IDLE = 'IDLE';
 
 // Ship Types
 const BATTLESHIP = 'BATTLESHIP';
+const BATTLECRUISER = 'BATTLECRUISER';
 const CRUISER = 'CRUISER';
 const DESTROYER = 'DESTROYER';
 const FRIGATE = 'FRIGATE';
@@ -963,7 +968,7 @@ if (savedPlayer !== null) {
                 recoilAmount: 0,
                 recoil: 0,
                 // STATS
-                cost: {METAL: 15, FUELCELLS: 1},
+                cost: {METAL: 5, FUELCELLS: 1},
                 engagementRange: 5400,
                 spread: 0,
                 reloadTime: 150,
@@ -1406,7 +1411,6 @@ if (savedPlayer !== null) {
         ],
     };
 }
-
 
 // Testing enemy
 var enemy = {
@@ -3881,19 +3885,22 @@ function handleDeathEffects(overlays, ships, decoratives, resources) {
                 }
             }
             // Drop resources upon death
-            var res = [0,0]; // Metal, Circuits
+            var res = [0,0,0]; // Metal, Circuits, Fuelcells
             switch (ships[i].type) {
                 case BATTLESHIP:
-                    res = [50,25,3];
+                    res = [75,25,4];
+                    break;
+                case BATTLECRUISER:
+                    res = [30,40,3];
                     break;
                 case CRUISER:
                     res = [30,20,2];
                     break;
                 case DESTROYER:
-                    res = [15,10,2];
+                    res = [10,20,3];
                     break;
                 case FRIGATE:
-                    res = [10,3,1];
+                    res = [15,10,1];
                     break;
                 case BOMBER:
                     res = [3,1,0];
@@ -3902,7 +3909,7 @@ function handleDeathEffects(overlays, ships, decoratives, resources) {
                     res = [2,2,0];
                     break;
             }
-            const stackSize = [26,11,5,1]; // why not?
+            const stackSize = [29, 13, 3, 1]; // why not?
             for (var j=0; j < res.length; j+=1) {
                 while (res[j] > 0) {
                     for (var k = 0; k < stackSize.length; k++) {
