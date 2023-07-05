@@ -1,6 +1,23 @@
-canvas {
+#main {
     border: 1px solid black;
     background-color: rgba(0, 0, 0, 0.9); 
+    z-index: 1;
+}
+
+#explosion {
+    z-index: 2;
+}
+
+#bombers {
+    z-index: 3;
+}
+
+#canvasOverlay {
+    z-index: 4;
+}
+
+canvas {
+    pointer-events: none;
 }
 
 .main {
@@ -30,6 +47,7 @@ body {
 }
 
 #upgrades {
+    z-index: 1;
     position: fixed;
     display: none;
     top: 50%;
@@ -48,6 +66,7 @@ body {
 }
 
 #buttonGrid {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 10px;

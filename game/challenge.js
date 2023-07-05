@@ -879,6 +879,8 @@ const img = {
         INTERCEPTORPLUME: document.getElementById("InterceptorPlume"),
         INTERCEPTORPLUMEOVERLAY: document.getElementById("InterceptorPlumeOverlay"),
 
+        chinaImage: document.getElementById("China"),
+
         // Resources
         RES: [
             document.getElementById("Metal"),
