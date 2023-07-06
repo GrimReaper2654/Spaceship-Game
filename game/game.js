@@ -1,6 +1,7 @@
 /*
 -----------------------------------------Balancing-----------------------------------------
 1/3/2023
+ • start of changelog
  • buffed Battleship health 1M --> 2.5M
  • added Cruiser (well shielded ship designed to deal with swarms of fighters)
     • 250k hp
@@ -80,6 +81,17 @@
  • added more upgrades and endgame content
  • increaced starting resources
 
+6/7/2023
+ • added frigate (cruised but smol)
+    • 150k hp
+    • 8k   shd
+    • 15   reg
+    • 5    top speed
+    • 1 medium turret, 2 small turret
+ • increaced small turret spread
+ • buffed bomber reload 15 --> 10
+ • buffed bomb damage 2k/t --> 4k/t
+
 -------------------------------------------------------------------------------------------
 */
 
@@ -124,9 +136,9 @@ const BOMBER = 'BOMBER';
 const ALL = 'ALL';
 const CAPITAL = [BATTLESHIP,CRUISER];
 const FIGHTER = [BOMBER,INTERCEPTOR];
-const NOTCAPITAL = [DESTROYER,BOMBER,INTERCEPTOR];
-const NOTFIGHTER = [BATTLESHIP,CRUISER,DESTROYER];
-const ALLSHIPS = [BATTLESHIP,CRUISER,DESTROYER,BOMBER,INTERCEPTOR];
+const NOTCAPITAL = [DESTROYER,FRIGATE,BOMBER,INTERCEPTOR];
+const NOTFIGHTER = [BATTLESHIP,CRUISER,DESTROYER,FRIGATE];
+const ALLSHIPS = [BATTLESHIP,CRUISER,DESTROYER,FRIGATE,BOMBER,INTERCEPTOR];
 
 // Resources
 const METAL = 'METAL';
@@ -177,6 +189,7 @@ var prototypedata = {
         BATTLESHIP:{x:497,y:152}, 
         CRUISER:{x:465,y:122}, 
         DESTROYER:{x:291,y:128}, 
+        FRIGATE:{x:222,y:124}, 
         BOMBER:{x:78,y:52}, 
         INTERCEPTOR:{x:73,y:45}, 
         LARGETURRET:{x:109,y:44}, 
@@ -196,7 +209,8 @@ var prototypedata = {
         BATTLESHIPPLUME:{x:526,y:152}, 
         CRUISERPLUME:{x:546,y:122}, 
         DESTROYERPLUME:{x:307,y:128}, 
-        DESTROYERPLUME:{x:0,y:0}, 
+        FRIGATEPLUME:{x:0,y:0}, 
+        BOMBERPLUME:{x:0,y:0}, 
         INTERCEPTORPLUME:{x:0,y:0}, 
         SEXPLOSION:{x:73,y:45}, // SMALL EXPLOSION! not anything else your dirty mind thought up of
         MEXPLOSION:{x:0,y:0},
@@ -209,6 +223,7 @@ var prototypedata = {
         BATTLESHIP:{x:240,y:76}, 
         CRUISER:{x:155,y:61}, 
         DESTROYER:{x:75,y:64}, 
+        FRIGATE:{x:80,y:62}, 
         BOMBER:{x:39,y:26}, 
         INTERCEPTOR:{x:35,y:22.5}, 
         LARGETURRET:{x:36,y:22},
@@ -228,7 +243,7 @@ var prototypedata = {
         BATTLESHIPPLUME:{x:269,y:76}, 
         CRUISERPLUME:{x:236,y:61}, 
         DESTROYERPLUME:{x:91,y:64}, 
-        BATTLESHIPPLUME:{x:269,y:76}, 
+        FRIGATEPLUME:{x:0,y:0}, 
         BOMBERPLUME:{x:0,y:0}, 
         INTERCEPTORPLUME:{x:0,y:0}, 
         SEXPLOSION:{x:36.5,y:22.5}, // SMALL EXPLOSION! not anything else your dirty mind thought up of
@@ -265,6 +280,12 @@ var prototypedata = {
             {x:190, y:64, r:40}, 
             {x:260, y:64, r:40}, 
             {x:320, y:64, r:40}, 
+        ],
+        FRIGATE: [
+            {x:100, y:62, r:60}, 
+            {x:175, y:62, r:25}, 
+            {x:200, y:62, r:30}, 
+            {x:240, y:62, r:15}, 
         ],
         BOMBER: [ // fits perfectly
             {x:39, y:26, r:38}, 
@@ -312,6 +333,10 @@ var prototypedata = {
     DESTROYERMOUNT: {
         RAIL: [{x:75,y:64}],
     },
+    FRIGATEMOUNT: {
+        MEDIUMTURRET: [{x:120,y:62}],
+        SMALLTURRET: [{x:200,y:62},{x:70,y:62}],
+    },
     BOMBERMOUNT: {
         BOMB: [{x:39,y:26}],
     },
@@ -335,20 +360,23 @@ var prototypedata = {
         {x: -75, y: -70, r: 10},
         {x: -75, y: 55, r: 10},
     ],
+    FRIGATEENGINES: [ // r is radius
+        {x: -80, y: 0, r: 20},
+    ],
     BOMBERENGINES: [ // r is radius
         {x: -39, y: -10, r: 10},
     ],
     INTERCEPTORENGINES: [
         {x: -35, y: -10, r: 10},
     ],
-    shipSpawnProbability: { // percentage
-        BATTLESHIP: 5,
-        CRUISER: 15,
-        DESTROYER: 5,
-        FRIGATE: 20,
-        INTERCEPTOR: 35,
-        BOMBER: 20
-    },
+    shipSpawnProbability: [ // percentage
+        5, 
+        15,
+        5,
+        20,
+        20,
+        35,
+    ],
 };
 prototypedata.construction =  {
     physics: {
@@ -564,7 +592,7 @@ prototypedata.construction =  {
                 recoil: 0,
                 // STATS
                 engagementRange: 1400,
-                spread: 5*Math.PI/180,
+                spread: 10*Math.PI/180,
                 reloadTime: 1,
                 reload: 0,
                 bullet: {
@@ -701,6 +729,106 @@ prototypedata.construction =  {
             }
         ],
     },
+    FRIGATE: {
+        thrust: 0.05,
+        agi: 0.015,
+        terminalAcceleration:0.5,
+        terminalVelocity:5,
+        drag: 0.9,
+        scale: 1,
+        type: FRIGATE,
+        // Stats
+        hp: 150000,
+        shield: {
+            shieldCap: 8000,
+            shield: 8000,
+            shieldRegen: 15,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: TURRET,
+                size: SMALL,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].x,
+                y: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].y,
+                ax: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].x,
+                ay: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.05,
+                arc: 300*Math.PI/180,
+                recoilAmount: 1,
+                recoil: 0,
+                // STATS
+                engagementRange: 1400,
+                spread: 10*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: SMALL,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].x,
+                y: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].y,
+                ax: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].x,
+                ay: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.05,
+                arc: 300*Math.PI/180,
+                recoilAmount: 1,
+                recoil: 0,
+                // STATS
+                engagementRange: 1400,
+                spread: 10*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].x,
+                y: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].y,
+                ax: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].x,
+                ay: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 20,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1,
+                    speedMultiplier: 1
+                }
+            },
+        ],
+    },
     BOMBER: {
         thrust: 0.01,
         agi: 0.05,
@@ -736,9 +864,9 @@ prototypedata.construction =  {
                 recoilAmount: 0,
                 recoil: 0,
                 // STATS
-                engagementRange: 30,
+                engagementRange: 50,
                 spread: 0,
-                reloadTime: 15,
+                reloadTime: 10,
                 reload: 0,
                 bullet: {
                     dmgMultiplier: 1,
@@ -899,7 +1027,7 @@ prototypedata.construction =  {
         life: 10,
         physical: false,
         effect: false,
-        explosion: {r: 60, dmg: 2000, dropoff: 0.6},
+        explosion: {r: 60, dmg: 4000, dropoff: 0.6},
     },
     PDBULLET: { // point defence (∞ ms^-1)
         v: 250,
@@ -917,6 +1045,7 @@ const img = {
         BATTLESHIP: document.getElementById("Battleship"),
         CRUISER: document.getElementById("Cruiser"),
         DESTROYER: document.getElementById("Destroyer"),
+        FRIGATE: document.getElementById("Frigate"),
         BOMBER: document.getElementById("Bomber"),
         INTERCEPTOR: document.getElementById("Interceptor"),
 
@@ -924,6 +1053,7 @@ const img = {
         REDBATTLESHIP: document.getElementById("BattleshipRed"),
         REDCRUISER: document.getElementById("CruiserRed"),
         REDDESTROYER: document.getElementById("DestroyerRed"),
+        REDFRIGATE: document.getElementById("FrigateRed"),
         REDBOMBER: document.getElementById("BomberRed"),
         REDINTERCEPTOR: document.getElementById("InterceptorRed"),
 
@@ -937,6 +1067,7 @@ const img = {
         GREENBATTLESHIP: document.getElementById("BattleshipGreen"),
         GREENCRUISER: document.getElementById("CruiserGreen"),
         GREENDESTROYER: document.getElementById("DestroyerGreen"),
+        GREENFRIGATE: document.getElementById("FrigateGreen"),
         GREENBOMBER: document.getElementById("BomberGreen"),
         GREENINTERCEPTOR: document.getElementById("InterceptorGreen"),
 
@@ -973,6 +1104,8 @@ const img = {
         CRUISERPLUMEOVERLAY: document.getElementById("CruiserPlumeOverlay"),
         DESTROYERPLUME: document.getElementById("DestroyerPlume"),
         DESTROYERPLUMEOVERLAY: document.getElementById("DestroyerPlumeOverlay"),
+        FRIGATEPLUME: document.getElementById("FrigatePlume"),
+        FRIGATEPLUMEOVERLAY: document.getElementById("FrigatePlumeOverlay"),
         BOMBERPLUME: document.getElementById("BomberPlume"),
         BOMBERPLUMEOVERLAY: document.getElementById("BomberPlumeOverlay"),
         INTERCEPTORPLUME: document.getElementById("InterceptorPlume"),
@@ -992,6 +1125,14 @@ const img = {
 const data = Object.assign(img, JSON.parse(JSON.stringify(prototypedata)));
 var mousepos = {x:0,y:0};
 var display = {x:window.innerWidth, y:window.innerHeight};
+
+var spawnChances = [];
+for (var i = 0; i < data.shipSpawnProbability.length; i += 1) {
+    for (var j = 0; j < data.shipSpawnProbability[i]; j += 1) {
+        spawnChances.push(ALLSHIPS[i]);
+    }
+}
+console.log(spawnChances);
 
 var player = {};
 //localStorage.removeItem('player');
@@ -2709,14 +2850,22 @@ function handleAi(ships) {
 function runAi(ships) { // TODO: add more attack methods
     for (var i = 0; i < ships.length; i+=1) {
         if (ships[i].aiControl) {
-            if (ships[i].type == INTERCEPTOR) {
-                ships[i] = chase(ships[i], 500);
-            }else if (ships[i].type == BOMBER) {
-                ships[i] = ram(ships[i], 1000);
-            } else if (ships[i].type == DESTROYER) {
-                ships[i] = chase(ships[i], 3000);
-            } else {
-                ships[i] = chase(ships[i], 1250);
+            switch (ships[i].type) {
+                case INTERCEPTOR:
+                    ships[i] = chase(ships[i], 500);
+                    break;
+                case BOMBER:
+                    ships[i] = ram(ships[i], 1000);
+                    break;
+                case DESTROYER:
+                    ships[i] = chase(ships[i], 3000);
+                    break;
+                case FRIGATE:
+                    ships[i] = chase(ships[i], 750);
+                    break;
+                default:
+                    ships[i] = chase(ships[i], 1250);
+                    break;
             }
         }
     }
@@ -2927,7 +3076,7 @@ function generateShips(ships, rate, balance=false) {
             console.log(pts);
             console.log(sorted[0], 'is weaker');
             if (pts[sorted[TEAMS.length-1]] - pts[sorted[0]] < 250) {
-                var shipType = randchoice(ALLSHIPS); // does not currently use ship spawn probability. Will update after all ship types are added
+                var shipType = randchoice(spawnChances);
                 var num = 0;
                 switch (shipType) {
                     case BATTLESHIP:
@@ -2940,7 +3089,7 @@ function generateShips(ships, rate, balance=false) {
                         num = randint(1,2);
                         break;
                     case FRIGATE:
-                        //num = randint(2,5);
+                        num = randint(2,5);
                         break;
                     case BOMBER:
                         num = randint(2,3);
@@ -2987,7 +3136,7 @@ function generateShips(ships, rate, balance=false) {
                         num = randint(1,2);
                         break;
                     case FRIGATE:
-                        //num = randint(2,5);
+                        num = randint(2,5);
                         break;
                     case BOMBER:
                         num = randint(2,3);
@@ -3021,7 +3170,7 @@ function generateShips(ships, rate, balance=false) {
                         num = randint(1,2);
                         break;
                     case FRIGATE:
-                        //num = randint(2,5);
+                        num = randint(2,5);
                         break;
                     case BOMBER:
                         num = randint(1,4);
@@ -3248,7 +3397,7 @@ function handleZoom() {
     var zoom = window.outerWidth/window.innerWidth;
     var overlay = document.getElementById("upgrades");
     overlay.style.zoom = `${Math.round((1 / zoom) * 100)}%`;
-}
+};
 
 function handleExplosions(explosions, ships) {
     var newExplosions = [];
@@ -3282,7 +3431,7 @@ function handleExplosions(explosions, ships) {
         }
     }
     return [newExplosions, ships];
-}
+};
 
 async function main() {
     clearCanvas();
@@ -3313,6 +3462,7 @@ async function main() {
     ships = runAi(ships);
     decoratives = handleDecoratives(decoratives);
     ships = handleShips(ships);
+    ships = handleBombers(ships); // Bombers fly over other stuff so they on top
     var result = handlePlayer(player,resources);
     player = result[0];
     resources = result[1];
@@ -3322,6 +3472,9 @@ async function main() {
     ships = result[1];
     overlays = result[2];
     explosions = result[3];
+    result = handleExplosions(explosions, ships);
+    explosions = result[0];
+    ships = result[1];
     result = handleDeathEffects(overlays, ships, decoratives, resources);
     ships = result[0];
     overlays = result[1];
@@ -3329,10 +3482,6 @@ async function main() {
     resources = result[3];
     overlays = handleDecoratives(overlays);
     resources = handlePickup(resources);
-    result = handleExplosions(explosions, ships);
-    explosions = result[0];
-    ships = result[1];
-    ships = handleBombers(ships); // Bombers fly over other stuff so they on top
     handlePlayerUI(); // UI is rendered above all other game stuff
     if (player.hp <= 0) {
         localStorage.removeItem('player');
@@ -3371,4 +3520,4 @@ function updateCanvas(timestamp) {
         t += 1;
     }
     requestAnimationFrame(updateCanvas);
-}
+};
