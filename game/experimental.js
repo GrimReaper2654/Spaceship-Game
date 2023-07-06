@@ -2370,14 +2370,14 @@ var buttons = document.getElementsByClassName('button');
 function updateButtons() {
     // Clear existing buttons and add new ones in
     var overlay = document.getElementById('overlay');
-    overlay.innerHTML = `<div id="leftText">Upgrades</div><div id="rightText">Resources: <img src="metal.png"><span> ${player.cargo.METAL ? Math.round(player.cargo.METAL) : 0}  </span><img src="Circuit.png"><span> ${player.cargo.CIRCUITS ? Math.round(player.cargo.CIRCUITS) : 0}  </span><img src="FuelCell.png"><span> ${player.cargo.FUELCELLS ? Math.round(player.cargo.FUELCELLS) : 0}  </span></div>`;
+    overlay.innerHTML = `<div id="leftText">Upgrades</div><div id="rightText">Resources: <img src="Metal.png"><span> ${player.cargo.METAL ? Math.round(player.cargo.METAL) : 0}  </span><img src="Circuit.png"><span> ${player.cargo.CIRCUITS ? Math.round(player.cargo.CIRCUITS) : 0}  </span><img src="FuelCell.png"><span> ${player.cargo.FUELCELLS ? Math.round(player.cargo.FUELCELLS) : 0}  </span></div>`;
     var buttonGrid = document.getElementById('buttonGrid');
     buttonGrid.innerHTML = '';
     player.upgrades.forEach(function(button) {
         var buttonElement = document.createElement('button');
         buttonElement.className = 'button';
         buttonElement.id = `${button.id}`;
-        buttonElement.innerHTML = `${button.display} ${roman(button.level)}\n<img src="metal.png"><span> ${player.upgrades[button.id].cost.METAL ? Math.round(player.upgrades[button.id].cost.METAL) : 0}  </span><img src="Circuit.png"><span> ${player.upgrades[button.id].cost.CIRCUITS ? Math.round(player.upgrades[button.id].cost.CIRCUITS) : 0}  </span><img src="FuelCell.png"><span> ${player.upgrades[button.id].cost.FUELCELLS ? Math.round(player.upgrades[button.id].cost.FUELCELLS) : 0}  </span>`;
+        buttonElement.innerHTML = `${button.display} ${roman(button.level)}\n<img src="Metal.png"><span> ${player.upgrades[button.id].cost.METAL ? Math.round(player.upgrades[button.id].cost.METAL) : 0}  </span><img src="Circuit.png"><span> ${player.upgrades[button.id].cost.CIRCUITS ? Math.round(player.upgrades[button.id].cost.CIRCUITS) : 0}  </span><img src="FuelCell.png"><span> ${player.upgrades[button.id].cost.FUELCELLS ? Math.round(player.upgrades[button.id].cost.FUELCELLS) : 0}  </span>`;
         buttonElement.addEventListener('click', function(event) {
             var buttonId = event.target.id;
             console.log('Button pressed: ' + buttonId);
