@@ -3070,6 +3070,7 @@ function generateShips(ships, rate, balance=false) {
                 }
                 pts[ships[i].team] += points;
             }
+            pts[RED]+=player.value;
             var sorted = Object.keys(pts).sort(function(a, b) {
                 return pts[a] - pts[b];
             });
