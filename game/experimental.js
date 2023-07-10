@@ -2901,6 +2901,11 @@ function calculateDamage(bullet, ship) {
         if (bullet.dmg < 0) {
             bullet.dmg = 0;
         }
+        if (ship.upgrades) {
+            if (ship.upgrades[19]) {
+                bullet.dmg *= (1-(ship.upgrades[19].level-1)*0.1);
+            }
+        }
         ship.hp -= bullet.dmg;
         if (0-ship.hp > bullet.dmg*0.5) {
             bullet.v *= (0-ship.hp)/bullet.dmg;
@@ -3124,7 +3129,7 @@ function generateShips(ships, rate, balance=false) {
                 numGenerations = 2;
             }
             for (var i = 0; i < numGenerations; i += 1) {
-                var shipType = randchoice(ALLSHIPS);
+                var shipType = randchoice(spawnChances);
                 var num = 0;
                 switch (shipType) {
                     case BATTLESHIP:
@@ -3368,13 +3373,20 @@ function handleDeathEffects(overlays, ships, decoratives, resources) {
 };
 
 function handlePickup(resources) {
-    var nRes = []
+    var nRes = [];
     for (var i=0; i < resources.length; i+=1) {
         if (getDist(player, resources[i]) < Math.max(display.x,display.y)*1.5) {
-            if (getDist(player, resources[i]) < 500) {
+            var dist = 500;
+            var v = 2;
+            if (player.upgrades[21]) {
+                dist += player.upgrades[21].level*100;
+                v += player.upgrades[21].level;
+            }
+
+            if (getDist(player, resources[i]) < dist) {
                 var r = target(resources[i], player);
-                resources[i].vx += Math.cos(r)*2;
-                resources[i].vy += Math.sin(r)*2;
+                resources[i].vx += Math.cos(r)*v;
+                resources[i].vy += Math.sin(r)*v;
             }
             nRes.push(resources[i]);
         }
@@ -3438,7 +3450,7 @@ async function main() {
     clearCanvas();
     grid(400);
     addImage('main', data.img.chinaImage, display.x-300, display.y-300, 315, 315, 0.33, 0, true, 0.2);
-    if (t % 300 == 0 && ships.length < 50) {
+    if (t % 300 == 0 && (ships.length < 50 || (player.value > 5000 && ships.length < 100))) {
         ships = generateShips(ships, 1, true);
     }
     decoratives = tick(decoratives);
