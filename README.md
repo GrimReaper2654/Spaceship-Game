@@ -1,7 +1,7 @@
 # Spaceship-Game
 
 https://grimreaper2654.github.io/Spaceship-Game/game/main.html <br>
-Game currently under development. <br> Working on: Moar Ships ▕████████████████████▏<br><br>
+Game currently not under active development.▏<br><br>
 
 Game is fully playable! Enemies and teammates will spawn randomly on the map. The current aim is to survive for as long as you can but I will add score and win conditions later. Ships will drop resources when killed. Shooting and using abilities will now consume resources. Shield is the blue bar at the top and health is the grey bar below the shield bar. <br><br>
 
