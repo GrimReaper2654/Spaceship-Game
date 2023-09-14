@@ -1867,7 +1867,7 @@ function replaceControlPannel(text) {
 
 function load() {
     console.log('Startin the game...');
-    replacehtml(`<canvas id="main" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0;"></canvas><canvas id="explosion" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0;"></canvas><canvas id="bombers" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0;"></canvas><canvas id="canvasOverlay" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0;"></canvas>`);
+    replacehtml(`<canvas id="main" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0;"></canvas>`);
     game();
 };
 
@@ -3511,7 +3511,6 @@ async function game() {
     ships = generateShips(ships, 4);
     updateButtons();
     requestAnimationFrame(updateCanvas);
-
     while (1) {
         handleZoom();
         await sleep(1000/60);
@@ -3522,6 +3521,7 @@ async function game() {
         }
     }
     console.log('gg');
+    throw "Error: The operation completed successfully.";
 };
 
 var lastTime = 0;
