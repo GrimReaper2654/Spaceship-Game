@@ -3449,7 +3449,7 @@ function handleExplosions(explosions, ships) {
 async function main() {
     clearCanvas();
     grid(400);
-    addImage('main', data.img.chinaImage, display.x-300, display.y-300, 315, 315, 0.33, 0, true, 0.2);
+    //addImage('main', data.img.chinaImage, display.x-300, display.y-300, 315, 315, 0.33, 0, true, 0.2);
     if (t % 300 == 0 && (ships.length < 50 || (player.value > 5000 && ships.length < 100))) {
         ships = generateShips(ships, 1, true);
     }
