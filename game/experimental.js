@@ -1,3 +1,4 @@
+
 /*
 -----------------------------------------Balancing-----------------------------------------
 1/3/2023
@@ -948,6 +949,1451 @@ prototypedata.construction =  {
             },
         ],
     },
+    REINFORCEDINTERCEPTOR: {
+        thrust: 0.15,
+        agi: 0.15,
+        terminalAcceleration:1,
+        terminalVelocity:20,
+        drag: 0.9,
+        scale: 1,
+        type: INTERCEPTOR,
+        // Stats
+        hp: 75000,
+        shield: {
+            shieldCap: 500,
+            shield: 500,
+            shieldRegen: 10,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: SMALL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+                y: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+                ax: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+                ay: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 600,
+                spread: 2*Math.PI/180,
+                reloadTime: 4,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2,
+                    speedMultiplier: 1,
+                }
+            },
+            {
+                // CONTROL
+                type: FIXED,
+                size: SMALL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+                y: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+                ax: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+                ay: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 600,
+                spread: 2*Math.PI/180,
+                reloadTime: 4,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2,
+                    speedMultiplier: 1,
+                }
+            },
+        ],
+    },
+    REINFORCEDFRIGATE: {
+        thrust: 0.05,
+        agi: 0.015,
+        terminalAcceleration:0.5,
+        terminalVelocity:7,
+        drag: 0.9,
+        scale: 1,
+        type: FRIGATE,
+        // Stats
+        hp: 200000,
+        shield: {
+            shieldCap: 8000,
+            shield: 8000,
+            shieldRegen: 25,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: TURRET,
+                size: SMALL,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].x,
+                y: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].y,
+                ax: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].x,
+                ay: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.05,
+                arc: 300*Math.PI/180,
+                recoilAmount: 1,
+                recoil: 0,
+                // STATS
+                engagementRange: 1400,
+                spread: 10*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: SMALL,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].x,
+                y: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].y,
+                ax: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].x,
+                ay: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.05,
+                arc: 300*Math.PI/180,
+                recoilAmount: 1,
+                recoil: 0,
+                // STATS
+                engagementRange: 1400,
+                spread: 10*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: LARGE,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].x,
+                y: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].y,
+                ax: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].x,
+                ay: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.015,
+                arc: 270*Math.PI/180,
+                recoilAmount: 10,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 0,
+                reloadTime: 75,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1,
+                    speedMultiplier: 1
+                }
+            },
+        ],
+    },
+    REINFORCEDCRUISER: {
+        thrust: 0.075,
+        agi: 0.025,
+        terminalAcceleration:0.5,
+        terminalVelocity:12,
+        drag: 0.925,
+        scale: 1,
+        type: CRUISER,
+        // Stats
+        hp: 250000,
+        shield: {
+            shieldCap: 150000,
+            shield: 150000,
+            shieldRegen: 50,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: TURRET,
+                size: SMALL,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.SMALLTURRET[0].x,
+                y: prototypedata.CRUISERMOUNT.SMALLTURRET[0].y,
+                ax: prototypedata.CRUISERMOUNT.SMALLTURRET[0].x,
+                ay: prototypedata.CRUISERMOUNT.SMALLTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.075,
+                arc: 210*Math.PI/180,
+                recoilAmount: 1,
+                recoil: 0,
+                // STATS
+                engagementRange: 1400,
+                spread: 10*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 5,
+                    speedMultiplier: 2
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].x,
+                y: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].y,
+                ax: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].x,
+                ay: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 8,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].x,
+                y: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].y,
+                ax: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].x,
+                ay: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 8,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].x,
+                y: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].y,
+                ax: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].x,
+                ay: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 8,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            },
+        ],
+    },
+    REINFORCEDBATTLESHIP: {
+        thrust: 0.0014,
+        agi: 0.005,
+        terminalAcceleration:0.15,
+        terminalVelocity:2.5,
+        drag: 0.95,
+        scale: 1,
+        type: BATTLESHIP,
+        // Stats
+        hp: 4000000,
+        shield: {
+            shieldCap: 25000,
+            shield: 25000,
+            shieldRegen: 15,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: HUGE,
+                ai: false,
+                keybind: 'e',
+                // PHYSICS
+                x: prototypedata.dim.BATTLESHIP.x,
+                y: prototypedata.center.BATTLESHIP.y,
+                ax: prototypedata.dim.BATTLESHIP.x,
+                ay: prototypedata.center.BATTLESHIP.y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 5*Math.PI/180,
+                reloadTime: 180,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 10,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+                y: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+                ax: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+                ay: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 5,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.25,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+                y: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+                ax: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+                ay: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 5,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.25,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: LARGE,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].x,
+                y: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].y,
+                ax: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].x,
+                ay: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.015,
+                arc: 270*Math.PI/180,
+                recoilAmount: 10,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 0,
+                reloadTime: 60,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: LARGE,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].x,
+                y: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].y,
+                ax: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].x,
+                ay: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.015,
+                arc: 270*Math.PI/180,
+                recoilAmount: 10,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 0,
+                reloadTime: 60,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            },
+        ],
+    },
+    // Boss ship
+    DREADNOUGHT: {
+        thrust: 0.001,
+        agi: 0.0025,
+        terminalAcceleration:0.1,
+        terminalVelocity:4,
+        drag: 0.95,
+        scale: 1,
+        type: BATTLESHIP,
+        // Stats
+        hp: 10000000,
+        shield: {
+            shieldCap: 50000,
+            shield: 50000,
+            shieldRegen: 75,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: HUGE,
+                ai: false,
+                keybind: 'e',
+                // PHYSICS
+                x: prototypedata.dim.BATTLESHIP.x,
+                y: prototypedata.center.BATTLESHIP.y,
+                ax: prototypedata.dim.BATTLESHIP.x,
+                ay: prototypedata.center.BATTLESHIP.y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 5*Math.PI/180,
+                reloadTime: 60,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 10,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+                y: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+                ax: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+                ay: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 2,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.25,
+                    speedMultiplier: 2
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+                y: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+                ax: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+                ay: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 2,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.25,
+                    speedMultiplier: 2
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: LARGE,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].x,
+                y: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].y,
+                ax: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].x,
+                ay: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.01,
+                arc: 270*Math.PI/180,
+                recoilAmount: 10,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 0,
+                reloadTime: 20,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2,
+                    speedMultiplier: 1.5
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: LARGE,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].x,
+                y: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].y,
+                ax: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].x,
+                ay: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.01,
+                arc: 270*Math.PI/180,
+                recoilAmount: 20,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 0,
+                reloadTime: 10,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2,
+                    speedMultiplier: 1.5
+                }
+            },
+        ],
+    },
+    ASCENDEDINTERCEPTOR: {
+        thrust: 0.2,
+        agi: 0.2,
+        terminalAcceleration:2,
+        terminalVelocity:30,
+        drag: 0.75,
+        scale: 1,
+        type: INTERCEPTOR,
+        // Stats
+        hp: 100000,
+        shield: {
+            shieldCap: 1500,
+            shield: 1500,
+            shieldRegen: 25,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: SMALL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+                y: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+                ax: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].x,
+                ay: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 600,
+                spread: 2*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 5,
+                    speedMultiplier: 1,
+                }
+            },
+            {
+                // CONTROL
+                type: FIXED,
+                size: SMALL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].x+2,
+                y: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+                ax: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].x+2,
+                ay: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 600,
+                spread: 2*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 5,
+                    speedMultiplier: 1,
+                }
+            },
+            {
+                // CONTROL
+                type: FIXED,
+                size: SMALL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].x+2,
+                y: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+                ax: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].x+2,
+                ay: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 600,
+                spread: 2*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 5,
+                    speedMultiplier: 1,
+                }
+            },
+            {
+                // CONTROL
+                type: FIXED,
+                size: SMALL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+                y: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+                ax: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].x,
+                ay: prototypedata.INTERCEPTORMOUNT.SMALLTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 600,
+                spread: 2*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 5,
+                    speedMultiplier: 1,
+                }
+            },
+        ],
+    },
+    ASCENDEDBOMBER: {
+        thrust: 0.01,
+        agi: 0.05,
+        terminalAcceleration:1.5,
+        terminalVelocity:50,
+        drag: 0.9,
+        scale: 1,
+        type: BOMBER,
+        // Stats
+        hp: 30000,
+        shield: {
+            shieldCap: 1000,
+            shield: 1000,
+            shieldRegen: 5,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: BOMB,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BOMBERMOUNT.BOMB[0].x,
+                y: prototypedata.BOMBERMOUNT.BOMB[0].y,
+                ax: prototypedata.BOMBERMOUNT.BOMB[0].x,
+                ay: prototypedata.BOMBERMOUNT.BOMB[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 75,
+                spread: 0,
+                reloadTime: 5,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2,
+                    speedMultiplier: 1,
+                }
+            },
+        ],
+    },
+    ASCENDEDFRIGATE: {
+        thrust: 0.05,
+        agi: 0.015,
+        terminalAcceleration:0.5,
+        terminalVelocity:10,
+        drag: 0.9,
+        scale: 1,
+        type: FRIGATE,
+        // Stats
+        hp: 250000,
+        shield: {
+            shieldCap: 8000,
+            shield: 8000,
+            shieldRegen: 30,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: TURRET,
+                size: SMALL,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].x,
+                y: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].y,
+                ax: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].x,
+                ay: prototypedata.FRIGATEMOUNT.SMALLTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.05,
+                arc: 300*Math.PI/180,
+                recoilAmount: 1,
+                recoil: 0,
+                // STATS
+                engagementRange: 1400,
+                spread: 10*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 4,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: SMALL,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].x,
+                y: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].y,
+                ax: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].x,
+                ay: prototypedata.FRIGATEMOUNT.SMALLTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.05,
+                arc: 300*Math.PI/180,
+                recoilAmount: 1,
+                recoil: 0,
+                // STATS
+                engagementRange: 1400,
+                spread: 10*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 4,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].x,
+                y: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].y,
+                ax: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].x,
+                ay: prototypedata.FRIGATEMOUNT.MEDIUMTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 15,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2,
+                    speedMultiplier: 1
+                }
+            },
+        ],
+    },
+    ASCENDEDDESTROYER: {
+        thrust: 0.1,
+        agi: 0.05,
+        terminalAcceleration:0.5,
+        terminalVelocity:12,
+        drag: 0.975,
+        scale: 1,
+        type: DESTROYER,
+        // Stats
+        hp: 250000,
+        shield: {
+            shieldCap: 15000,
+            shield: 15000,
+            shieldRegen: 15,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: RAIL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.DESTROYERMOUNT.RAIL[0].x,
+                y: prototypedata.DESTROYERMOUNT.RAIL[0].y,
+                ax: prototypedata.DESTROYERMOUNT.RAIL[0].x,
+                ay: prototypedata.DESTROYERMOUNT.RAIL[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 5200,
+                spread: 0,
+                reloadTime: 150,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: FIXED,
+                size: RAIL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.DESTROYERMOUNT.RAIL[0].x,
+                y: prototypedata.DESTROYERMOUNT.RAIL[0].y,
+                ax: prototypedata.DESTROYERMOUNT.RAIL[0].x,
+                ay: prototypedata.DESTROYERMOUNT.RAIL[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 5200,
+                spread: 0,
+                reloadTime: 150,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: FIXED,
+                size: RAIL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.DESTROYERMOUNT.RAIL[0].x,
+                y: prototypedata.DESTROYERMOUNT.RAIL[0].y,
+                ax: prototypedata.DESTROYERMOUNT.RAIL[0].x,
+                ay: prototypedata.DESTROYERMOUNT.RAIL[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 5200,
+                spread: 0,
+                reloadTime: 150,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: FIXED,
+                size: RAIL,
+                ai: false,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.DESTROYERMOUNT.RAIL[0].x,
+                y: prototypedata.DESTROYERMOUNT.RAIL[0].y,
+                ax: prototypedata.DESTROYERMOUNT.RAIL[0].x,
+                ay: prototypedata.DESTROYERMOUNT.RAIL[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 5200,
+                spread: 0,
+                reloadTime: 150,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.5,
+                    speedMultiplier: 1
+                }
+            }
+        ],
+    },
+    ASCENDEDCRUISER: {
+        thrust: 0.075,
+        agi: 0.025,
+        terminalAcceleration:0.5,
+        terminalVelocity:15,
+        drag: 0.925,
+        scale: 1,
+        type: CRUISER,
+        // Stats
+        hp: 250000,
+        shield: {
+            shieldCap: 500000,
+            shield: 500000,
+            shieldRegen: 250,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: TURRET,
+                size: SMALL,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.SMALLTURRET[0].x,
+                y: prototypedata.CRUISERMOUNT.SMALLTURRET[0].y,
+                ax: prototypedata.CRUISERMOUNT.SMALLTURRET[0].x,
+                ay: prototypedata.CRUISERMOUNT.SMALLTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.075,
+                arc: 210*Math.PI/180,
+                recoilAmount: 1,
+                recoil: 0,
+                // STATS
+                engagementRange: 1400,
+                spread: 10*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 7.5,
+                    speedMultiplier: 2
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].x,
+                y: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].y,
+                ax: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].x,
+                ay: prototypedata.CRUISERMOUNT.MEDIUMTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 5,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2.5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].x,
+                y: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].y,
+                ax: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].x,
+                ay: prototypedata.CRUISERMOUNT.MEDIUMTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 5,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2.5,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].x,
+                y: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].y,
+                ax: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].x,
+                ay: prototypedata.CRUISERMOUNT.MEDIUMTURRET[2].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 5,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2.5,
+                    speedMultiplier: 1
+                }
+            },
+        ],
+    },
+    ASCENDEDBATTLESHIP: {
+        thrust: 0.001,
+        agi: 0.005,
+        terminalAcceleration:0.1,
+        terminalVelocity: 6,
+        drag: 0.95,
+        scale: 1,
+        type: BATTLESHIP,
+        // Stats
+        hp: 5000000,
+        shield: {
+            shieldCap: 100000,
+            shield: 100000,
+            shieldRegen: 300,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: HUGE,
+                ai: false,
+                keybind: 'e',
+                // PHYSICS
+                x: prototypedata.dim.BATTLESHIP.x,
+                y: prototypedata.center.BATTLESHIP.y,
+                ax: prototypedata.dim.BATTLESHIP.x,
+                ay: prototypedata.center.BATTLESHIP.y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 5*Math.PI/180,
+                reloadTime: 60,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 10,
+                    speedMultiplier: 5
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+                y: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+                ax: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+                ay: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.25,
+                    speedMultiplier: 2
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+                y: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+                ax: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+                ay: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 1,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 1.25,
+                    speedMultiplier: 2
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: LARGE,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].x,
+                y: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].y,
+                ax: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].x,
+                ay: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.015,
+                arc: 270*Math.PI/180,
+                recoilAmount: 10,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 0,
+                reloadTime: 5,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2,
+                    speedMultiplier: 1.5
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: LARGE,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].x,
+                y: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].y,
+                ax: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].x,
+                ay: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.015,
+                arc: 270*Math.PI/180,
+                recoilAmount: 20,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 0,
+                reloadTime: 5,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 2,
+                    speedMultiplier: 1.5
+                }
+            },
+        ],
+    },
+    // Second Boss ship
+    DOOMSHIP: {
+        thrust: 0.001,
+        agi: 0.001,
+        terminalAcceleration:0.1,
+        terminalVelocity:2,
+        drag: 0.95,
+        scale: 1,
+        type: BATTLESHIP,
+        // Stats
+        hp: 100000000,
+        shield: {
+            shieldCap: 500000,
+            shield: 500000,
+            shieldRegen: 750,
+            cooldown: 0,
+        },
+        weapons: [
+            {
+                // CONTROL
+                type: FIXED,
+                size: HUGE,
+                ai: false,
+                keybind: 'e',
+                // PHYSICS
+                x: prototypedata.dim.BATTLESHIP.x,
+                y: prototypedata.center.BATTLESHIP.y,
+                ax: prototypedata.dim.BATTLESHIP.x,
+                ay: prototypedata.center.BATTLESHIP.y,
+                facing: 0,
+                aim: 0,
+                agi: 0,
+                arc: 0,
+                recoilAmount: 0,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 5*Math.PI/180,
+                reloadTime: 5,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 25,
+                    speedMultiplier: 3
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+                y: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+                ax: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].x,
+                ay: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 2,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 25,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: MEDIUM,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+                y: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+                ax: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].x,
+                ay: prototypedata.BATTLESHIPMOUNT.MEDIUMTURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.02,
+                arc: 270*Math.PI/180,
+                recoilAmount: 5,
+                recoil: 0,
+                // STATS
+                engagementRange: 1800,
+                spread: 1*Math.PI/180,
+                reloadTime: 2,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 25,
+                    speedMultiplier: 1
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: LARGE,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].x,
+                y: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].y,
+                ax: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].x,
+                ay: prototypedata.BATTLESHIPMOUNT.LARGETURRET[0].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.005,
+                arc: 270*Math.PI/180,
+                recoilAmount: 10,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 0,
+                reloadTime: 5,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 5,
+                    speedMultiplier: 0.75
+                }
+            },
+            {
+                // CONTROL
+                type: TURRET,
+                size: LARGE,
+                ai: true,
+                keybind: CLICK,
+                // PHYSICS
+                x: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].x,
+                y: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].y,
+                ax: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].x,
+                ay: prototypedata.BATTLESHIPMOUNT.LARGETURRET[1].y,
+                facing: 0,
+                aim: 0,
+                agi: 0.005,
+                arc: 270*Math.PI/180,
+                recoilAmount: 20,
+                recoil: 0,
+                // STATS
+                engagementRange: 3600,
+                spread: 0,
+                reloadTime: 5,
+                reload: 0,
+                bullet: {
+                    dmgMultiplier: 5,
+                    speedMultiplier: 0.75
+                }
+            },
+        ],
+    },
     MISSILEBULLET: { // a missile that explodes on impact
         v: 5,
         dmg: 1500, // this acts more as health than damage
@@ -1840,7 +3286,7 @@ if (savedPlayer !== null) {
 
 var npcs = {};
 for (var i=0; i<ALLSHIPS.length; i+=1) {
-    var ship = {...data.construction.physics, ...data.construction[ALLSHIPS[i]], ...data.construction.AI, ...{hitbox: data.hitbox[ALLSHIPS[i]]}};
+    var ship = {...data.construction.physics, ...data.construction["ASCENDED"+ALLSHIPS[i]], ...data.construction.AI, ...{hitbox: data.hitbox[ALLSHIPS[i]]}};
     for (var j=0; j <ship.weapons.length; j+=1) {
         ship.weapons[j].ai = true;
     }
@@ -1849,8 +3295,12 @@ for (var i=0; i<ALLSHIPS.length; i+=1) {
         npcs[TEAMS[j]+ship.type] = JSON.parse(JSON.stringify(ship));
     }
 }
-
-var ships = [player];
+var doomship = {...data.construction.physics, ...data.construction.DOOMSHIP, ...data.construction.AI, ...{hitbox: data.hitbox[BATTLESHIP]}};
+for (var j=0; j <doomship.weapons.length; j+=1) {
+    doomship.weapons[j].ai = true;
+}
+doomship.team = GREEN;
+var ships = [player, JSON.parse(JSON.stringify(doomship))];
 var projectiles = [];
 var resources = [];
 var decoratives = [];
@@ -1867,7 +3317,7 @@ function replaceControlPannel(text) {
 
 function load() {
     console.log('Startin the game...');
-    replacehtml(`<canvas id="main" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0;"></canvas>`);
+    replacehtml(`<canvas id="main" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0;"></canvas><canvas id="explosion" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0;"></canvas><canvas id="bombers" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0;"></canvas><canvas id="canvasOverlay" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0;"></canvas>`);
     game();
 };
 

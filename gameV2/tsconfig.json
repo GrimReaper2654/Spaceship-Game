@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "es6",                       // or any other ECMAScript version you need
+        "module": "commonjs",                  // or "es6", "esnext", etc., depending on your module system
+        "allowJs": true,                       // Allow JavaScript files to be compiled
+        "outDir": "./dist",                    // Output directory for compiled files
+        "rootDir": "./src",                    // Root directory of your source files
+        "strict": true,                        // Enable all strict type-checking options
+        "esModuleInterop": true,               // For importing CommonJS modules
+        "skipLibCheck": true,                  // Skip type checking of all declaration files
+        "resolveJsonModule": true              // Allow importing of JSON modules
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "game/**/*",
+        "node_modules", 
+        "dist"
+    ]
+}
