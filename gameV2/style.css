@@ -1,118 +1,66 @@
-#main {
-    border: 1px solid black;
-    background-color: rgba(0, 0, 0, 0.9); 
-    z-index: 1;
-}
-
-#explosion {
-    z-index: 2;
-}
-
-#bombers {
-    z-index: 3;
-}
-
-#canvasOverlay {
-    z-index: 4;
-}
-
-canvas {
-    pointer-events: none;
-}
-
-.main {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    zoom: 100%
-}
-
 html {
     margin:0;
     padding:0;
 }
 
 body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
+}
+
+#main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 1px solid black;
+    background-color: rgba(0, 0, 0, 0.5); 
+    pointer-events: none;
     height: 100vh;
-    margin:0;
-    padding:0;
-}
-
-#data {
-    display: none;
-}
-
-#upgrades {
-    z-index: 1;
-    position: fixed;
-    display: none;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
-    background-color: rgba(0, 0, 0, 0.3);
-    padding: 10px;
-    border-radius: 10px;
-    color: white;
-    font-size: 16px;
-    width: 50%;
-    height: 75%;
-    text-align: left;
-    zoom: 200%;
-}
-
-#buttonGrid {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 10px;
-    margin-top: 10px;
-    padding: 15px;
-    zoom: 100%;
-    height: 85%;
-    overflow-y: auto;
-}
-
-#overlay {
-    font-size: 40px; 
-    display: flex;
-    justify-content: space-between;
+    width: 100vw;
+    padding: 0;
+    margin: 0;
     zoom: 100%;
 }
 
-#overlay img {
-    height: 25px;
+#title {
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+    transform: translateX(-50%) translateY(-50%);
 }
 
-#overlay #leftText {
-    text-align: left;
-}
-
-#overlay #rightText {
-    text-align: right;
-}
-
-.button {
+#gameTitle {
+    margin: 0;
+    font-size: 75px;
+    color: azure;
+    font-family: 'Trebuchet MS';
+    font-weight: 900;
+    text-shadow: 0px 3px #424242, 3px 0px #424242, 0px -3px #424242, -3px 0px #424242, 3px 3px #424242, -3px -3px #424242, -3px 3px #424242, 3px -3px #424242;
+    text-wrap: nowrap;
     width: 100%;
-    height: 150px;
-    padding: 10px;
-    color: white;
-    text-align: top;
-    background-color: rgba(0, 0, 0, 0.5);
-    border: none;
-    border-radius: 5px;
-    white-space: pre-line;
+    top: 0px;
+    left: 0px;
+    opacity: 1;
 }
 
-.button img {
-    max-width: 15px;
-    max-height: 15px;
+#versionNumber {
+    position: relative;
+    margin: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: left;
+    display: inline-block;
+    font-size: 15px;
+    text-wrap: nowrap;
+    color: azure;
+    font-family: 'Trebuchet MS';
 }
 
-#big {
-    zoom: 100%;
+#startButton {
+    position: relative;
+    display: block;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 25%;
+    font-family: 'Trebuchet MS';
 }

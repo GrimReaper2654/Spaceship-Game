@@ -18,5 +18,3 @@ async function game() {
         console.error('ERROR: There was a problem fetching or compiling game.ts:', error);
     }
 }
-
-game();

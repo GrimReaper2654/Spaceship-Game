@@ -9,231 +9,58 @@
 */
 
 // load data
+import {
+    // classes
+    vector2, 
+    polarVector2, 
+    physicsObject, 
+    ship, 
+    gamestate, 
+    spaceshipGameV2,
+
+    // functions
+    deepFreeze,
+    generateId,
+    randchoice,
+    randint,
+    randProperty,
+    aim,
+    replacehtml,
+    addhtml,
+    clearCanvas,
+} from "./helper.ts";
+
 import {SSGV2Data} from "./data.js";
 
-declare global {
-    interface Window {helper: any; spaceshipGameV2: any;}
-}
-
-const onWebsite = !(typeof window === 'undefined');
-
-if(onWebsite) {
-    window.helper = {};
-    window.spaceshipGameV2 = {};
-}
-
-function deepFreeze(obj:object) {
-    let propNames = Object.getOwnPropertyNames(obj);
-    for (let name of propNames) {
-        let value = obj[name as keyof object];
-        if (typeof value === 'object' && value !== null) {
-            deepFreeze(value);
-        }
-    }
-    return Object.freeze(obj);
-}; if(onWebsite) window.helper.deepFreeze = deepFreeze;
+declare global {interface Window {spaceshipGameV2: any;}}
+window.spaceshipGameV2 = {};
 
 const data = JSON.parse(JSON.stringify(SSGV2Data));
 deepFreeze(data);
-if(onWebsite) window.spaceshipGameV2.data = data;
-
-class vector2 {
-    x: number;
-    y: number;
-   
-    constructor(x = 0, y = 0) {
-        this.x = x;
-        this.y = y;
-    }
-
-    add(vector:vector2): vector2 {
-        return new vector2(this.x+vector.x, this.y+vector.y);
-    }
-
-    subtract(vector:vector2): vector2 {
-        return new vector2(this.x-vector.x, this.y-vector.y);
-    }
-
-    dot(vector:vector2): vector2 {
-        return new vector2(this.x*vector.x, this.y*vector.y);
-    }
-
-    scale(scaleFactor:number): vector2 {
-        return new vector2(this.x*scaleFactor, this.y*scaleFactor);
-    }
-
-    toPol() {
-        return new polarVector2(Math.sqrt(this.x**2+this.y**2), aim(new vector2(), this));
-    }
-}
-
-class polarVector2 {
-    m: number;
-    r: number;
-
-    constructor(m = 0, r = 0) {
-        this.m = m;
-        this.r = r;
-    }
-
-    toComponent() {
-        return new vector2(this.m * Math.sin(this.r), -this.m * Math.cos(this.r))
-    }
-} // {m: Math.sqrt(i**2+j**2), r: aim({x: 0, y: 0}, {x: i, y: j})};
-
-class physicsObject {
-    pos: vector2;
-    v: vector2;
-    r: number;
-    m: number;
-    f: number;
-    rv: number;
-
-    constructor(position:vector2, rotation:number, mass:number, thrust:number, maxAngularVelocity: number) {
-        this.pos = position;
-        this.r = rotation;
-        this.v = new vector2();
-        this.m = mass;
-        this.f = thrust;
-        this.rv = maxAngularVelocity;
-    }
-}
-
-class ship {
-    physics: physicsObject;
-    body: Array<object>;
-    actions: Array<object>;
-
-    constructor(position:vector2, facing:number, mass:number, thrust:number, rotationSpeed:number, body:Array<object>) {
-        this.physics = new physicsObject(position, facing, mass, thrust, rotationSpeed);
-        this.body = body;
-        this.actions = [];
-    }
-}
-
-class gamestate {
-    player: object;
-    projectiles: Array<object>;
-    entities: Array<object>;
-
-    constructor(player:object, entities:Array<object>, projectiles:Array<object>) {
-        this.player = player;
-        this.entities = entities;
-        this.projectiles = projectiles;
-    }
-}
-
-class spaceshipGameV2 {
-    gamestate: gamestate;
-    keyboard: Record<string, boolean>;
-    particles: object;
-    mousepos: vector2;
-    display: vector2;
-    debug: boolean;
-   
-    constructor(gamestate:gamestate) {
-        this.gamestate = gamestate;
-        this.keyboard = {};
-        this.mousepos = new vector2(0, 0);
-        this.particles = {};
-        this.display = onWebsite? new vector2(window.innerWidth, window.innerHeight) : new vector2();
-        this.debug = false;
-    }
-}
+window.spaceshipGameV2.data = data;
 
 const game = new spaceshipGameV2(new gamestate({}, [], []));
-if(onWebsite) window.spaceshipGameV2.game = game;
+window.spaceshipGameV2.game = game;
 
 // Steal Data (get inputs)
-if(onWebsite) {
-    window.onkeyup = function(e) {
-        game.keyboard[e.key.toLowerCase()] = false; 
-    };
-    window.onkeydown = function(e) {
-        game.keyboard[e.key.toLowerCase()] = true; 
-    };
-    document.addEventListener('mousedown', function(e) {
-        game.keyboard['click'] = true; 
-    });
-    document.addEventListener('mouseup', function(e) {
-        game.keyboard['click'] = false; 
-    });
-    window.addEventListener("resize", function () {
-        game.display = new vector2(window.innerWidth, window.innerHeight);
-        //replacehtml(`<canvas id="main" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0; z-index: 1;"></canvas><canvas id="canvasOverlay" width="${display.x}" height="${display.y}" style="position: absolute; top: 0; left: 0; z-index: 2;"></canvas>`);
-    });
-    window.addEventListener('mousemove', function(p) {
-        game.mousepos = new vector2(p.pageX, p.pageY);
-    }, false);
-}
-
-// Bootleg Game Engine: rng
-function generateId() {
-    const timestamp = Date.now().toString(36); 
-    const randomNum = Math.random().toString(36).slice(2, 11);
-    return `${timestamp}-${randomNum}`; 
-}; if(onWebsite) window.helper.generateId = generateId;
-
-function randchoice(list:Array<any>, remove:boolean=false) { // chose 1 from a list and update list
-    let length = list.length;
-    let choice = randint(0, length-1);
-    if (remove) {
-        let chosen = list.splice(choice, 1);
-        return [chosen, list];
-    }
-    return list[choice];
-}; if(onWebsite) window.helper.randchoice = randchoice;
-
-function randint(min:number, max:number) {
-    if (max - min < 1) {
-        return min;
-    }
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}; if(onWebsite) window.helper.randint = randint;
-
-function randProperty(obj:object) { // stolen from stack overflow
-    var keys = Object.keys(obj);
-    return obj[keys[keys.length * Math.random() << 0] as keyof object];
-}; if(onWebsite) window.helper.randProperty = randProperty;
-
-// Bootleg Game Engine: math
-function aim(pos1:vector2, pos2:vector2) {
-    if (pos1 == pos2) return 0;
-    let diff = {x: pos2.x - pos1.x, y: pos1.y - pos2.y};
-    if (diff.x == 0) {
-        if (diff.y > 0) return 0;
-        else return Math.PI;
-    } else if (diff.y == 0) {
-        if (diff.x > 0) return Math.PI/2;
-        else return 3*Math.PI/2;
-    }
-    let angle = Math.atan(Math.abs(diff.y / diff.x));
-    if (diff.x > 0 && diff.y > 0) return Math.PI/2 - angle;
-    else if (diff.x > 0 && diff.y < 0) return Math.PI/2 + angle;
-    else if (diff.x < 0 && diff.y < 0) return 3*Math.PI/2 - angle;
-    else return 3*Math.PI/2 + angle;
-}; if(onWebsite) window.helper.aim = aim;
-
-function replacehtml(elementId:string, text:string) {
-    const element = document.getElementById(elementId);
-    if (element) element.innerHTML = text;
-}; if(onWebsite) window.helper.replacehtml = replacehtml;
-
-function addhtml(elementId:string, text:string) {
-    const element = document.getElementById(elementId);
-    if (element) element.innerHTML = element.innerHTML + text;
-}; if(onWebsite) window.helper.addhtml = addhtml;
-
-function clearCanvas(canvasId:string) {
-    const canvas = <HTMLCanvasElement> document.getElementById(canvasId);
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, game.display.x, game.display.y);
-    ctx.restore();
-}; if(typeof window !== 'undefined') window.helper.clearCanvas = clearCanvas;
+window.onkeyup = function(e) {
+    game.keyboard[e.key.toLowerCase()] = false; 
+};
+window.onkeydown = function(e) {
+    game.keyboard[e.key.toLowerCase()] = true; 
+};
+document.addEventListener('mousedown', function() {
+    game.keyboard['click'] = true; 
+});
+document.addEventListener('mouseup', function() {
+    game.keyboard['click'] = false; 
+});
+window.addEventListener("resize", function () {
+    game.display = new vector2(window.innerWidth, window.innerHeight);
+});
+window.addEventListener('mousemove', function(p) {
+    game.mousepos = new vector2(p.pageX, p.pageY);
+}, false);
 
 console.info("Spaceship Game V2: Load functions successful! We win these!");
 

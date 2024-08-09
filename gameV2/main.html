@@ -15,36 +15,11 @@
     <script src="https://unpkg.com/typescript@latest/lib/typescript.js"></script>
 </head>
 <body>
-    <div id="game" class="main">
-        <div id="big">
-            <button onclick="load()"><h3>Initialise</h3></button>
-            <p>
-                Zoom out to see more of the map at once <br>
-                I recommend zooming out to about 50% or 25% <br>
-                W to accelerate <br>
-                S to decelerate <br>
-                A and D to rotate <br>
-                Q to switch aiming mode <br>
-                turrets follow mouse pointer <br>
-                Left click to shoot turrets <br>
-                E to shoot main cannon <br>
-                F to fire railgun <br>
-                hold down R to boost <br>
-                X to repair (regenerate hp) <br>
-                R to boost <br>
-                U to open/close upgrades menu (and pause) <br>
-                Save by clicking the save button in the upgrades menu <br>
-            </p>
-        </div>
-    </div>
-    <div id="upgrades">
-        <div id="overlay">
-        </div>
-        <div id="buttonGrid">
-        </div>
-    </div>
-    <div id="controlPannel">
-        <button onclick="game();"><h3>Start Game</h3></button>
+    <canvas id="main"></canvas>
+    <div id="title">
+        <h1 id="gameTitle">Spaceship Game</h1>
+        <p id="versionNumber">Version 2.0.1</p>
+        <button id="startButton" onclick="startGame();"><h2 id="startButtonText">Play</h2></button>
     </div>
     <script src="src/script.js"></script>
 </body>
