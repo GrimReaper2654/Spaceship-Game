@@ -1,15 +1,15 @@
 # Spaceship-Game
 
-**SpaceshipGame V1** https://grimreaper2654.github.io/Spaceship-Game/game/main.html <br>
-**SpaceshipGame V2** Under construction! <br>
+[**SpaceshipGame V1**](https://grimreaper2654.github.io/Spaceship-Game/game/main.html) <br>
+[**SpaceshipGame V2**](https://grimreaper2654.github.io/Spaceship-Game/gameV2/main.html) Under construction!<br>
 Game currently under active development. <br><br>
 
-**SpaceshipGame V1**<br>
+## SpaceshipGame V1<br>
 Game is fully playable! Enemies and teammates will spawn randomly on the map. The current aim is to survive for as long as you can but I will add score and win conditions later. Ships will drop resources when killed. Shooting and using abilities will now consume resources. Shield is the blue bar at the top and health is the grey bar below the shield bar. <br><br>
-**SpaceshipGame V2**<br>
+## SpaceshipGame V2<br>
 I plan on rewriting the Spaceship Game from scratch using typescript and using polygons instead of images. Hopefully this will alow me to create more engaging gameplay including randomly generated structures and customisable spaceships. I'll probably also rework the upgrades menu since its a pain to expand as well as add different gamemodes.<br><br>
 
-**Controls (same for both games):**
+### Controls (same for both games):
 press 'start' to start the game.<br>
 W to accelerate<br>
 S to decelerate<br>
