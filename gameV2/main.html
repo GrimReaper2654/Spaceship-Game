@@ -12,17 +12,13 @@
     <meta property='og:image:height' content='730' />
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/typescript@latest/lib/typescript.js"></script>
 </head>
 <body>
     <canvas id="main"></canvas>
     <div id="title">
         <h1 id="gameTitle">Spaceship Game</h1>
         <p id="versionNumber">Version 2.0.1</p>
-        <button id="startButton" onclick="startGame();"><h2 id="startButtonText">Play</h2></button>
+        <button id="startButton" onclick="spaceshipGameV2.startGame();"><h2 id="startButtonText">Play</h2></button>
     </div>
-    <script src="src/script.js"></script>
+    <script src="dist/game.js" type="module"></script>
 </body>
-
-
-

@@ -7,72 +7,43 @@
 
 -------------------------------------------------------------------------------------------
 */
-
 // load data
-import {
-    // classes
-    vector2, 
-    polarVector2, 
-    physicsObject, 
-    ship, 
-    gamestate, 
-    spaceshipGameV2,
-
-    // functions
-    sleep,
-    deepFreeze,
-    generateId,
-    randchoice,
-    randint,
-    randProperty,
-    aim,
-    replacehtml,
-    addhtml,
-    clearCanvas,
-} from "./helper.js";
-
-import {SSGV2Data} from "./data.js";
-
-declare global {interface Window {spaceshipGameV2: any;}}
+import { 
+// classes
+vector2, gamestate, spaceshipGameV2, deepFreeze, } from "./helper.js";
+import { SSGV2Data } from "./data.js";
 window.spaceshipGameV2 = {};
-
 const data = JSON.parse(JSON.stringify(SSGV2Data));
 deepFreeze(data);
 window.spaceshipGameV2.data = data;
-
 const game = new spaceshipGameV2(new gamestate({}, [], []));
 window.spaceshipGameV2.game = game;
-
 // Steal Data (get inputs)
-window.onkeyup = function(e) {
-    game.keyboard[e.key.toLowerCase()] = false; 
+window.onkeyup = function (e) {
+    game.keyboard[e.key.toLowerCase()] = false;
 };
-window.onkeydown = function(e) {
-    game.keyboard[e.key.toLowerCase()] = true; 
+window.onkeydown = function (e) {
+    game.keyboard[e.key.toLowerCase()] = true;
 };
-document.addEventListener('mousedown', function() {
-    game.keyboard['click'] = true; 
+document.addEventListener('mousedown', function () {
+    game.keyboard['click'] = true;
 });
-document.addEventListener('mouseup', function() {
-    game.keyboard['click'] = false; 
+document.addEventListener('mouseup', function () {
+    game.keyboard['click'] = false;
 });
 window.addEventListener("resize", function () {
     game.display = new vector2(window.innerWidth, window.innerHeight);
 });
-window.addEventListener('mousemove', function(p) {
+window.addEventListener('mousemove', function (p) {
     game.mousepos = new vector2(p.pageX, p.pageY);
 }, false);
-
 function startGame() {
     const titleScreen = document.getElementById('title');
-    if (titleScreen) titleScreen.style.display = 'none';
-} window.spaceshipGameV2.startGame = startGame;
-
+    if (titleScreen)
+        titleScreen.style.display = 'none';
+}
+window.spaceshipGameV2.startGame = startGame;
 console.info("Spaceship Game V2: Load functions successful! We win these!");
-
-
-
-
 /*
 function drawLine(pos, r, length, style, absolute) {
     var c = document.getElementById("main");
@@ -83,7 +54,7 @@ function drawLine(pos, r, length, style, absolute) {
     ctx.lineWidth = style.width;
     ctx.globalAlpha = style.opacity;
     ctx.beginPath();
-    if (!absolute) 
+    if (!absolute)
     if (absolute) {
         ctx.moveTo(pos.x, pos.y);
         ctx.lineTo((pos.x + length * Math.cos(r))*data.constants.zoom, (pos.y + length * Math.sin(r))*data.constants.zoom);
@@ -95,7 +66,7 @@ function drawLine(pos, r, length, style, absolute) {
     ctx.restore();
 };
 
-function getDist(sPos, tPos) { 
+function getDist(sPos, tPos) {
     // Mathematics METHods
     var dx = tPos.x - sPos.x;
     var dy = tPos.y - sPos.y;
@@ -235,8 +206,8 @@ function displaytxt(txt, pos) {
 function rotatePolygon(point, r) {
     let points = JSON.parse(JSON.stringify(point));
     for (let i = 0; i < points.length; i++) {
-        points[i].x = point[i].x * Math.cos(r) - point[i].y * Math.sin(r); 
-        points[i].y = point[i].x * Math.sin(r) + point[i].y * Math.cos(r); 
+        points[i].x = point[i].x * Math.cos(r) - point[i].y * Math.sin(r);
+        points[i].y = point[i].x * Math.sin(r) + point[i].y * Math.cos(r);
     }
     return points
 };
@@ -384,8 +355,8 @@ function handleExplosion(explosion) {
 function normalDistribution(mean, sDiv) {
     let u = 0;
     let v = 0;
-    while (u === 0) u = Math.random(); 
-    while (v === 0) v = Math.random(); 
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
     let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2 * Math.PI * v);
     return mean + z * sDiv;
 };
@@ -417,32 +388,32 @@ function pointInPolygon(point, polygon) {
     return inside;
 };
 
-function vMath(v1, v2, mode) { 
+function vMath(v1, v2, mode) {
     switch (mode) {
         case '||':
         case 'magnitude':
             return Math.sqrt(v1.x**2+v1.y**2);
-        case '+': 
+        case '+':
         case 'addition':
         case 'add':
             return {x: v1.x+v2.x, y: v1.y+v2.y};
-        case '-': 
+        case '-':
         case 'subtraction':
         case 'subtract':
             return {x: v1.x-v2.x, y: v1.y-v2.y};
-        case '*': 
-        case 'x': 
+        case '*':
+        case 'x':
         case 'scalar multiplication':
         case 'multiplication':
         case 'multiply': // v2 is now a scalar
             return {x: v1.x*v2, y: v1.y*v2};
-        case '/': 
+        case '/':
         case 'division':
         case 'divide': // v2 is now a scalar
             return {x: v1.x/v2, y: v1.y/v2};
-        case '•': 
-        case '.': 
-        case 'dot product': 
+        case '•':
+        case '.':
+        case 'dot product':
             return v1.x * v2.x + v1.y * v2.y;
         case 'cross product': // chat gpt, I believe in you (I doubt this is correct)
             return v1.x * v2.y - v1.y * v2.x;
@@ -470,4 +441,4 @@ function pressKey(key) {
 function releaseKey(key) {
     orders.push({id: key, value: false});
 }
-*/
+*/ 

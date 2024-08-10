@@ -2,6 +2,7 @@
     "compilerOptions": {
         "target": "es6",
         "module": "es6",
+        "lib": ["es2015", "dom"],
         "allowJs": true,
         "outDir": "./dist",
         "rootDir": "./src",
@@ -10,8 +11,8 @@
         "skipLibCheck": true,
         "resolveJsonModule": true,
         "declaration": true,
-        "emitDeclarationOnly": true,
-        "allowImportingTsExtensions": true,
+        "emitDeclarationOnly": false,
+        "allowImportingTsExtensions": false,
         "moduleResolution": "bundler"
     },
     "include": [

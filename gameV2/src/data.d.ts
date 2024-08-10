@@ -1,1 +1,0 @@
-export const SSGV2Data: object;

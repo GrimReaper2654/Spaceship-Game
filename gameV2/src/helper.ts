@@ -103,7 +103,11 @@ export class spaceshipGameV2 {
     }
 }
 
-// Bootleg Game Engine: rng
+// helper functions
+export function sleep(ms:number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
+
 export function deepFreeze(obj:object) {
     let propNames = Object.getOwnPropertyNames(obj);
     for (let name of propNames) {
@@ -115,6 +119,7 @@ export function deepFreeze(obj:object) {
     return Object.freeze(obj);
 };
 
+// Bootleg Game Engine: rng
 export function generateId() {
     const timestamp = Date.now().toString(36); 
     const randomNum = Math.random().toString(36).slice(2, 11);
