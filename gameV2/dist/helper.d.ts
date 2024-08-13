@@ -23,11 +23,39 @@ export declare class physicsObject {
     rv: number;
     constructor(position: vector2, rotation: number, mass: number, thrust: number, maxAngularVelocity: number);
 }
+export declare class colour {
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+    constructor(r: number, g: number, b: number, a?: number);
+    toColour(): string;
+}
+export declare class style {
+    thickness: number;
+    fillColour?: colour;
+    outlineColour?: colour;
+    constructor(thickness: number, fillColour?: colour, outlineColour?: colour);
+}
+export declare class part {
+    centre: vector2;
+    offset: vector2;
+    rOffset: number;
+    vertices: Array<vector2>;
+    scaleFactor: number;
+    style: style;
+    hitbox: Array<vector2>;
+    hp: number;
+    isTurret: boolean;
+    turret: object;
+    constructor(centre: vector2, offset: vector2, rOffset: number, vertices: Array<vector2>, scaleFacor: number, style: style, hitbox: Array<vector2>, hp: number, isTurret?: boolean, turret?: object);
+}
 export declare class ship {
     physics: physicsObject;
-    body: Array<object>;
+    body: Array<part>;
     actions: Array<object>;
-    constructor(position: vector2, facing: number, mass: number, thrust: number, rotationSpeed: number, body: Array<object>);
+    team: string;
+    constructor(team: string, position: vector2, facing: number, mass: number, thrust: number, rotationSpeed: number, body: Array<part>);
 }
 export declare class gamestate {
     player: object;

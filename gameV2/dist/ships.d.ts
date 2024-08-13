@@ -1,4 +1,4 @@
-export namespace SSGV2Data {
-    let data: number[];
-    let a: number;
-}
+import { ship } from "./helper.js";
+export declare const SSGV2Ships: {
+    debugShip: ship;
+};

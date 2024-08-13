@@ -61,15 +61,73 @@ export class physicsObject {
     }
 }
 
+export class colour {
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+
+    constructor(r:number, g:number, b:number, a:number=0) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+
+    toColour() {
+        return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
+    };
+}
+
+export class style {
+    thickness: number;
+    fillColour?: colour;
+    outlineColour?: colour;
+
+    constructor(thickness:number, fillColour?:colour, outlineColour?:colour) {
+        this.thickness = thickness;
+        this.fillColour = fillColour;
+        this.outlineColour = outlineColour;
+    }
+}
+
+export class part {
+    centre: vector2;
+    offset: vector2;
+    rOffset: number;
+    vertices: Array<vector2>;
+    scaleFactor: number; // scale factor only scales the vertices (and hitbox as well)
+    style: style;
+    hitbox: Array<vector2>;
+    hp: number;
+    isTurret: boolean;
+    turret: object;
+
+    constructor(centre:vector2, offset:vector2, rOffset:number, vertices:Array<vector2>, scaleFacor:number, style:style, hitbox:Array<vector2>, hp:number, isTurret:boolean=false, turret:object={}) {
+        this.centre = centre;
+        this.offset = offset;
+        this.rOffset = rOffset;
+        this.vertices = vertices;
+        this.scaleFactor = scaleFacor;
+        this.style = style;
+        this.hitbox = hitbox;
+        this.hp = hp;
+        this.isTurret = isTurret;
+        this.turret = turret;
+    }
+}
+
 export class ship {
     physics: physicsObject;
-    body: Array<object>;
+    body: Array<part>;
     actions: Array<object>;
+    team: string;
 
-    constructor(position:vector2, facing:number, mass:number, thrust:number, rotationSpeed:number, body:Array<object>) {
+    constructor(team:string, position:vector2, facing:number, mass:number, thrust:number, rotationSpeed:number, body:Array<part>) {
         this.physics = new physicsObject(position, facing, mass, thrust, rotationSpeed);
         this.body = body;
         this.actions = [];
+        this.team = team;
     }
 }
 
@@ -106,7 +164,7 @@ export class spaceshipGameV2 {
 // helper functions
 export function sleep(ms:number) {
     return new Promise(resolve => setTimeout(resolve, ms));
-};
+}
 
 export function deepFreeze(obj:object) {
     let propNames = Object.getOwnPropertyNames(obj);
@@ -117,14 +175,14 @@ export function deepFreeze(obj:object) {
         }
     }
     return Object.freeze(obj);
-};
+}
 
 // Bootleg Game Engine: rng
 export function generateId() {
     const timestamp = Date.now().toString(36); 
     const randomNum = Math.random().toString(36).slice(2, 11);
     return `${timestamp}-${randomNum}`; 
-};
+}
 
 export function randchoice(list:Array<any>, remove:boolean=false) { // chose 1 from a list and update list
     let length = list.length;
@@ -134,14 +192,14 @@ export function randchoice(list:Array<any>, remove:boolean=false) { // chose 1 f
         return [chosen, list];
     }
     return list[choice];
-};
+}
 
 export function randint(min:number, max:number) {
     if (max - min < 1) {
         return min;
     }
     return Math.floor(Math.random() * (max - min + 1)) + min;
-};
+}
 
 export function randProperty(obj:object) { // stolen from stack overflow
     var keys = Object.keys(obj);
@@ -170,12 +228,12 @@ export function aim(pos1:vector2, pos2:vector2) {
 export function replacehtml(elementId:string, text:string) {
     const element = document.getElementById(elementId);
     if (element) element.innerHTML = text;
-};
+}
 
 export function addhtml(elementId:string, text:string) {
     const element = document.getElementById(elementId);
     if (element) element.innerHTML = element.innerHTML + text;
-};
+}
 
 export function clearCanvas(canvasId:string, from:vector2, to:vector2) {
     const canvas = <HTMLCanvasElement> document.getElementById(canvasId);
@@ -186,5 +244,5 @@ export function clearCanvas(canvasId:string, from:vector2, to:vector2) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(from.x, from.y, to.x, to.y);
     ctx.restore();
-};
+}
 

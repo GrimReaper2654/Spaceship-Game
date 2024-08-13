@@ -39,11 +39,45 @@ export class physicsObject {
         this.rv = maxAngularVelocity;
     }
 }
+export class colour {
+    constructor(r, g, b, a = 0) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+    toColour() {
+        return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
+    }
+    ;
+}
+export class style {
+    constructor(thickness, fillColour, outlineColour) {
+        this.thickness = thickness;
+        this.fillColour = fillColour;
+        this.outlineColour = outlineColour;
+    }
+}
+export class part {
+    constructor(centre, offset, rOffset, vertices, scaleFacor, style, hitbox, hp, isTurret = false, turret = {}) {
+        this.centre = centre;
+        this.offset = offset;
+        this.rOffset = rOffset;
+        this.vertices = vertices;
+        this.scaleFactor = scaleFacor;
+        this.style = style;
+        this.hitbox = hitbox;
+        this.hp = hp;
+        this.isTurret = isTurret;
+        this.turret = turret;
+    }
+}
 export class ship {
-    constructor(position, facing, mass, thrust, rotationSpeed, body) {
+    constructor(team, position, facing, mass, thrust, rotationSpeed, body) {
         this.physics = new physicsObject(position, facing, mass, thrust, rotationSpeed);
         this.body = body;
         this.actions = [];
+        this.team = team;
     }
 }
 export class gamestate {
@@ -67,7 +101,6 @@ export class spaceshipGameV2 {
 export function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-;
 export function deepFreeze(obj) {
     let propNames = Object.getOwnPropertyNames(obj);
     for (let name of propNames) {
@@ -78,14 +111,12 @@ export function deepFreeze(obj) {
     }
     return Object.freeze(obj);
 }
-;
 // Bootleg Game Engine: rng
 export function generateId() {
     const timestamp = Date.now().toString(36);
     const randomNum = Math.random().toString(36).slice(2, 11);
     return `${timestamp}-${randomNum}`;
 }
-;
 export function randchoice(list, remove = false) {
     let length = list.length;
     let choice = randint(0, length - 1);
@@ -95,14 +126,12 @@ export function randchoice(list, remove = false) {
     }
     return list[choice];
 }
-;
 export function randint(min, max) {
     if (max - min < 1) {
         return min;
     }
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-;
 export function randProperty(obj) {
     var keys = Object.keys(obj);
     return obj[keys[keys.length * Math.random() << 0]];
@@ -142,13 +171,11 @@ export function replacehtml(elementId, text) {
     if (element)
         element.innerHTML = text;
 }
-;
 export function addhtml(elementId, text) {
     const element = document.getElementById(elementId);
     if (element)
         element.innerHTML = element.innerHTML + text;
 }
-;
 export function clearCanvas(canvasId, from, to) {
     const canvas = document.getElementById(canvasId);
     if (!canvas)
@@ -161,4 +188,3 @@ export function clearCanvas(canvasId, from, to) {
     ctx.clearRect(from.x, from.y, to.x, to.y);
     ctx.restore();
 }
-;

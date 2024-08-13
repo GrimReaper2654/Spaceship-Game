@@ -1,5 +1,17 @@
-import { colour, style, } from "./helper.js";
+import {
+    // classes
+    vector2, 
+    polarVector2, 
+    physicsObject,
+    colour,
+    style,
+    part,  
+    ship, 
+    gamestate, 
+    spaceshipGameV2,
+} from "./helper.js";
 import { SSGV2Ships } from "./ships.js";
+
 export const SSGV2Data = {
     teams: {
         player: {
@@ -11,3 +23,5 @@ export const SSGV2Data = {
     },
     ships: SSGV2Ships,
 };
+
+

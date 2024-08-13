@@ -13,7 +13,10 @@ import {
     // classes
     vector2, 
     polarVector2, 
-    physicsObject, 
+    physicsObject,
+    colour,
+    style,
+    part, 
     ship, 
     gamestate, 
     spaceshipGameV2,

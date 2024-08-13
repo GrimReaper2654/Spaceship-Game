@@ -1,4 +1,14 @@
-export namespace SSGV2Data {
-    let data: number[];
-    let a: number;
-}
+import { style, ship } from "./helper.js";
+export declare const SSGV2Data: {
+    teams: {
+        player: {
+            style: style;
+        };
+        dead: {
+            style: style;
+        };
+    };
+    ships: {
+        debugShip: ship;
+    };
+};
