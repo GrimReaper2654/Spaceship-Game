@@ -115,6 +115,19 @@ export class part {
         this.isTurret = isTurret;
         this.turret = turret;
     }
+
+    render(canvasId:string) {
+        const canvas = <HTMLCanvasElement> document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.save();
+        ctx.translate(this.centre.x, this.centre.y);
+        ctx.rotate(this.rOffset);
+        ctx.translate(this.offset.x, this.offset.y);
+        ctx.scale(this.scaleFactor, this.scaleFactor);
+        drawPolygon(canvasId, this.vertices, this.style);
+    }
 }
 
 export class ship {
@@ -128,6 +141,16 @@ export class ship {
         this.body = body;
         this.actions = [];
         this.team = team;
+    }
+
+    prepareCanvas(canvasId:string, cameraPos:vector2, window: vector2) {
+        const canvas = <HTMLCanvasElement> document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.rotate(this.physics.r);
+        ctx.translate(this.physics.pos.x-cameraPos.x+window.x, this.physics.pos.y-cameraPos.y+window.y);
     }
 }
 
@@ -245,4 +268,28 @@ export function clearCanvas(canvasId:string, from:vector2, to:vector2) {
     ctx.clearRect(from.x, from.y, to.x, to.y);
     ctx.restore();
 }
+
+export function drawPolygon(canvasId:string, polygon: Array<vector2>, style:style) {
+    const points = JSON.parse(JSON.stringify(polygon));
+    const canvas = <HTMLCanvasElement> document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+        ctx.moveTo(points[i].x, points[i].y);
+    }
+    ctx.closePath();
+    if (style.fillColour) {
+        ctx.fillStyle = style.fillColour.toColour();
+        ctx.fill();
+    }
+    if (style.outlineColour && style.thickness > 0) {
+        ctx.lineWidth = style.thickness;
+        ctx.strokeStyle = style.outlineColour.toColour();
+        ctx.stroke();
+    }
+};
 
