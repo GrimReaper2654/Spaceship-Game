@@ -9,6 +9,7 @@ import {
     ship, 
     gamestate, 
     spaceshipGameV2,
+    forceField,
 } from "./helper.js";
 import { SSGV2Ships } from "./ships.js";
 

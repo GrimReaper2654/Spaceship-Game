@@ -9,6 +9,7 @@ import {
     ship, 
     gamestate, 
     spaceshipGameV2,
+    forceField,
 } from "./helper.js";
 
 const styles = {
@@ -32,7 +33,7 @@ const debugShipParts = [
     new part(new vector2(), new vector2(), 0, shapes.square, 100, styles.metal1, shapes.square, 100, false),
 ];
 
-const debugShip = new ship('neutral', new vector2(), 0, 1000, 100, Math.PI/36, debugShipParts);
+const debugShip = new ship('neutral', new vector2(), 0, 1000, 100, Math.PI/36, debugShipParts, new forceField(1000));
 
 export const SSGV2Ships = {
     debugShip: debugShip,

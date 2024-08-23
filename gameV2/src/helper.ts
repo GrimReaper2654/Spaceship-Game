@@ -130,17 +130,40 @@ export class part {
     }
 }
 
+export class forceField {
+    shield: number;
+    cap: number;
+    rgn: number;
+    cooldown: number;
+    maxCooldown: number;
+
+    constructor(shieldCapacity:number, shieldRegenPerTick:number=-1, shieldRegenCooldownAfterHit:number=15) {
+        this.cap = shieldCapacity;
+        this.shield = shieldCapacity;
+        if (shieldRegenPerTick == -1) {
+            shieldRegenPerTick = shieldCapacity / 600;
+        }
+        this.rgn = shieldRegenPerTick;
+        this.maxCooldown = shieldRegenCooldownAfterHit;
+        this.cooldown = 0;
+    }
+}
+
 export class ship {
     physics: physicsObject;
     body: Array<part>;
     actions: Array<object>;
     team: string;
+    inventory: object;
+    shield: forceField;
 
-    constructor(team:string, position:vector2, facing:number, mass:number, thrust:number, rotationSpeed:number, body:Array<part>) {
+    constructor(team:string, position:vector2, facing:number, mass:number, thrust:number, rotationSpeed:number, body:Array<part>, forceField:forceField) {
         this.physics = new physicsObject(position, facing, mass, thrust, rotationSpeed);
         this.body = body;
         this.actions = [];
         this.team = team;
+        this.inventory = {};
+        this.shield = forceField;
     }
 
     prepareCanvas(canvasId:string, cameraPos:vector2, window: vector2) {
@@ -155,11 +178,11 @@ export class ship {
 }
 
 export class gamestate {
-    player: object;
+    player: ship;
     projectiles: Array<object>;
     entities: Array<object>;
 
-    constructor(player:object, entities:Array<object>, projectiles:Array<object>) {
+    constructor(player:ship, entities:Array<object>, projectiles:Array<object>) {
         this.player = player;
         this.entities = entities;
         this.projectiles = projectiles;
@@ -227,7 +250,7 @@ export function randint(min:number, max:number) {
 export function randProperty(obj:object) { // stolen from stack overflow
     var keys = Object.keys(obj);
     return obj[keys[keys.length * Math.random() << 0] as keyof object];
-};
+}
 
 // Bootleg Game Engine: math
 export function aim(pos1:vector2, pos2:vector2) {
@@ -245,7 +268,7 @@ export function aim(pos1:vector2, pos2:vector2) {
     else if (diff.x > 0 && diff.y < 0) return Math.PI/2 + angle;
     else if (diff.x < 0 && diff.y < 0) return 3*Math.PI/2 - angle;
     else return 3*Math.PI/2 + angle;
-};
+}
 
 // Bootleg Game Engine: rendering
 export function replacehtml(elementId:string, text:string) {
@@ -291,5 +314,4 @@ export function drawPolygon(canvasId:string, polygon: Array<vector2>, style:styl
         ctx.strokeStyle = style.outlineColour.toColour();
         ctx.stroke();
     }
-};
-
+}

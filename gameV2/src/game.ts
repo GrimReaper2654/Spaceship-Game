@@ -20,6 +20,7 @@ import {
     ship, 
     gamestate, 
     spaceshipGameV2,
+    forceField,
 
     // functions
     sleep,
@@ -43,7 +44,7 @@ const data = JSON.parse(JSON.stringify(SSGV2Data));
 deepFreeze(data);
 window.spaceshipGameV2.data = data;
 
-const game = new spaceshipGameV2(new gamestate({}, [], []));
+const game = new spaceshipGameV2(new gamestate(data.ships, [], []));
 window.spaceshipGameV2.game = game;
 
 // Steal Data (get inputs)
