@@ -24,7 +24,7 @@ export class vector2 {
         return new vector2(this.x*scaleFactor, this.y*scaleFactor);
     }
 
-    toPol() {
+    toPol():polarVector2 {
         return new polarVector2(Math.sqrt(this.x**2+this.y**2), aim(new vector2(), this));
     }
 }
@@ -38,7 +38,7 @@ export class polarVector2 {
         this.r = r;
     }
 
-    toComponent() {
+    toComponent():vector2 {
         return new vector2(this.m * Math.sin(this.r), -this.m * Math.cos(this.r))
     }
 } 
@@ -74,7 +74,7 @@ export class colour {
         this.a = a;
     }
 
-    toColour() {
+    toColour():string {
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     };
 }
@@ -116,11 +116,11 @@ export class part {
         this.turret = turret;
     }
 
-    render(canvasId:string) {
+    render(canvasId:string):void {
         const canvas = <HTMLCanvasElement> document.getElementById(canvasId);
-        if (!canvas) return;
+        if (!canvas) {console.error(`DRAW POLYGON: Can't find canvas with id: ${canvasId}`); return;}
         const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+        if (!ctx) {console.error(`DRAW POLYGON: Can't find context of canvas with id: ${canvasId}`); return;}
         ctx.save();
         ctx.translate(this.centre.x, this.centre.y);
         ctx.rotate(this.rOffset);
@@ -156,24 +156,28 @@ export class ship {
     team: string;
     inventory: object;
     shield: forceField;
+    layer: number;
 
-    constructor(team:string, position:vector2, facing:number, mass:number, thrust:number, rotationSpeed:number, body:Array<part>, forceField:forceField) {
+    constructor(team:string, position:vector2, facing:number, mass:number, thrust:number, rotationSpeed:number, body:Array<part>, forceField:forceField, layer:number=1) {
         this.physics = new physicsObject(position, facing, mass, thrust, rotationSpeed);
         this.body = body;
         this.actions = [];
         this.team = team;
         this.inventory = {};
         this.shield = forceField;
+        this.layer = layer;
     }
 
-    prepareCanvas(canvasId:string, cameraPos:vector2, window: vector2) {
+    prepareCanvas(canvasId:string, cameraPos:vector2, display: vector2):void {
         const canvas = <HTMLCanvasElement> document.getElementById(canvasId);
-        if (!canvas) return;
+        if (!canvas) {console.error(`DRAW POLYGON: Can't find canvas with id: ${canvasId}`); return;}
         const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+        if (!ctx) {console.error(`DRAW POLYGON: Can't find context of canvas with id: ${canvasId}`); return;}
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.rotate(this.physics.r);
-        ctx.translate(this.physics.pos.x-cameraPos.x+window.x, this.physics.pos.y-cameraPos.y+window.y);
+        console.log(display);
+        console.log(this.physics.pos.y-cameraPos.y+display.y/2);
+        ctx.translate(this.physics.pos.x-cameraPos.x+display.x/2, this.physics.pos.y-cameraPos.y+display.y/2);
     }
 }
 
@@ -197,12 +201,12 @@ export class spaceshipGameV2 {
     display: vector2;
     debug: boolean;
    
-    constructor(gamestate:gamestate) {
+    constructor(gamestate:gamestate, display:vector2=new vector2()) {
         this.gamestate = gamestate;
         this.keyboard = {};
         this.mousepos = new vector2(0, 0);
         this.particles = {};
-        this.display = new vector2();
+        this.display = display;
         this.debug = false;
     }
 }
@@ -283,9 +287,9 @@ export function addhtml(elementId:string, text:string) {
 
 export function clearCanvas(canvasId:string, from:vector2, to:vector2) {
     const canvas = <HTMLCanvasElement> document.getElementById(canvasId);
-    if (!canvas) return;
+    if (!canvas) {console.error(`DRAW POLYGON: Can't find canvas with id: ${canvasId}`); return;}
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {console.error(`DRAW POLYGON: Can't find context of canvas with id: ${canvasId}`); return;}
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(from.x, from.y, to.x, to.y);
@@ -295,10 +299,12 @@ export function clearCanvas(canvasId:string, from:vector2, to:vector2) {
 export function drawPolygon(canvasId:string, polygon: Array<vector2>, style:style) {
     const points = JSON.parse(JSON.stringify(polygon));
     const canvas = <HTMLCanvasElement> document.getElementById(canvasId);
-    if (!canvas) return;
+    if (!canvas) {console.error(`DRAW POLYGON: Can't find canvas with id: ${canvasId}`); return;}
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
+    if (!ctx) {console.error(`DRAW POLYGON: Can't find context of canvas with id: ${canvasId}`); return;}
+    console.log(`Drawing Polygon`);
+    console.log(ctx.getTransform());
+    console.log(points);
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
     for (let i = 1; i < points.length; i++) {
@@ -306,10 +312,12 @@ export function drawPolygon(canvasId:string, polygon: Array<vector2>, style:styl
     }
     ctx.closePath();
     if (style.fillColour) {
+        console.log(style.fillColour);
         ctx.fillStyle = style.fillColour.toColour();
         ctx.fill();
     }
     if (style.outlineColour && style.thickness > 0) {
+        console.log(style.outlineColour);
         ctx.lineWidth = style.thickness;
         ctx.strokeStyle = style.outlineColour.toColour();
         ctx.stroke();

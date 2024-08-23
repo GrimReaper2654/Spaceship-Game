@@ -7,16 +7,27 @@
 
 -------------------------------------------------------------------------------------------
 */
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 // load data
 import { 
 // classes
-vector2, gamestate, spaceshipGameV2, deepFreeze, } from "./helper.js";
+vector2, gamestate, spaceshipGameV2, 
+// functions
+sleep, deepFreeze, clearCanvas, } from "./helper.js";
 import { SSGV2Data } from "./data.js";
 window.spaceshipGameV2 = {};
-const data = JSON.parse(JSON.stringify(SSGV2Data));
+const data = SSGV2Data;
 deepFreeze(data);
 window.spaceshipGameV2.data = data;
-const game = new spaceshipGameV2(new gamestate({}, [], []));
+const game = new spaceshipGameV2(new gamestate(data.ships.debugShip, [], []), new vector2(window.innerWidth, window.innerHeight));
 window.spaceshipGameV2.game = game;
 // Steal Data (get inputs)
 window.onkeyup = function (e) {
@@ -37,10 +48,28 @@ window.addEventListener("resize", function () {
 window.addEventListener('mousemove', function (p) {
     game.mousepos = new vector2(p.pageX, p.pageY);
 }, false);
+function tick() {
+    return __awaiter(this, void 0, void 0, function* () {
+        // render stuff
+        console.log(`tick`);
+        clearCanvas('main', new vector2(), game.display);
+        const player = game.gamestate.player;
+        player.prepareCanvas('main', player.physics.pos, game.display);
+        for (const part of player.body) {
+            part.render('main');
+        }
+        yield sleep(1000 / 60);
+    });
+}
 function startGame() {
-    const titleScreen = document.getElementById('title');
-    if (titleScreen)
-        titleScreen.style.display = 'none';
+    return __awaiter(this, void 0, void 0, function* () {
+        const titleScreen = document.getElementById('title');
+        if (titleScreen)
+            titleScreen.style.display = 'none';
+        while (true) {
+            yield tick();
+        }
+    });
 }
 window.spaceshipGameV2.startGame = startGame;
 console.info("Spaceship Game V2: Load functions successful! We win these!");

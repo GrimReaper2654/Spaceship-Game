@@ -71,13 +71,63 @@ export class part {
         this.isTurret = isTurret;
         this.turret = turret;
     }
+    render(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+            console.error(`DRAW POLYGON: Can't find canvas with id: ${canvasId}`);
+            return;
+        }
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            console.error(`DRAW POLYGON: Can't find context of canvas with id: ${canvasId}`);
+            return;
+        }
+        ctx.save();
+        ctx.translate(this.centre.x, this.centre.y);
+        ctx.rotate(this.rOffset);
+        ctx.translate(this.offset.x, this.offset.y);
+        ctx.scale(this.scaleFactor, this.scaleFactor);
+        drawPolygon(canvasId, this.vertices, this.style);
+    }
+}
+export class forceField {
+    constructor(shieldCapacity, shieldRegenPerTick = -1, shieldRegenCooldownAfterHit = 15) {
+        this.cap = shieldCapacity;
+        this.shield = shieldCapacity;
+        if (shieldRegenPerTick == -1) {
+            shieldRegenPerTick = shieldCapacity / 600;
+        }
+        this.rgn = shieldRegenPerTick;
+        this.maxCooldown = shieldRegenCooldownAfterHit;
+        this.cooldown = 0;
+    }
 }
 export class ship {
-    constructor(team, position, facing, mass, thrust, rotationSpeed, body) {
+    constructor(team, position, facing, mass, thrust, rotationSpeed, body, forceField, layer = 1) {
         this.physics = new physicsObject(position, facing, mass, thrust, rotationSpeed);
         this.body = body;
         this.actions = [];
         this.team = team;
+        this.inventory = {};
+        this.shield = forceField;
+        this.layer = layer;
+    }
+    prepareCanvas(canvasId, cameraPos, display) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+            console.error(`DRAW POLYGON: Can't find canvas with id: ${canvasId}`);
+            return;
+        }
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            console.error(`DRAW POLYGON: Can't find context of canvas with id: ${canvasId}`);
+            return;
+        }
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.rotate(this.physics.r);
+        console.log(display);
+        console.log(this.physics.pos.y - cameraPos.y + display.y / 2);
+        ctx.translate(this.physics.pos.x - cameraPos.x + display.x / 2, this.physics.pos.y - cameraPos.y + display.y / 2);
     }
 }
 export class gamestate {
@@ -88,12 +138,12 @@ export class gamestate {
     }
 }
 export class spaceshipGameV2 {
-    constructor(gamestate) {
+    constructor(gamestate, display = new vector2()) {
         this.gamestate = gamestate;
         this.keyboard = {};
         this.mousepos = new vector2(0, 0);
         this.particles = {};
-        this.display = new vector2();
+        this.display = display;
         this.debug = false;
     }
 }
@@ -136,7 +186,6 @@ export function randProperty(obj) {
     var keys = Object.keys(obj);
     return obj[keys[keys.length * Math.random() << 0]];
 }
-;
 // Bootleg Game Engine: math
 export function aim(pos1, pos2) {
     if (pos1 == pos2)
@@ -164,7 +213,6 @@ export function aim(pos1, pos2) {
     else
         return 3 * Math.PI / 2 + angle;
 }
-;
 // Bootleg Game Engine: rendering
 export function replacehtml(elementId, text) {
     const element = document.getElementById(elementId);
@@ -178,13 +226,50 @@ export function addhtml(elementId, text) {
 }
 export function clearCanvas(canvasId, from, to) {
     const canvas = document.getElementById(canvasId);
-    if (!canvas)
+    if (!canvas) {
+        console.error(`DRAW POLYGON: Can't find canvas with id: ${canvasId}`);
         return;
+    }
     const ctx = canvas.getContext("2d");
-    if (!ctx)
+    if (!ctx) {
+        console.error(`DRAW POLYGON: Can't find context of canvas with id: ${canvasId}`);
         return;
+    }
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(from.x, from.y, to.x, to.y);
     ctx.restore();
+}
+export function drawPolygon(canvasId, polygon, style) {
+    const points = JSON.parse(JSON.stringify(polygon));
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+        console.error(`DRAW POLYGON: Can't find canvas with id: ${canvasId}`);
+        return;
+    }
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+        console.error(`DRAW POLYGON: Can't find context of canvas with id: ${canvasId}`);
+        return;
+    }
+    console.log(`Drawing Polygon`);
+    console.log(ctx.getTransform());
+    console.log(points);
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+        ctx.moveTo(points[i].x, points[i].y);
+    }
+    ctx.closePath();
+    if (style.fillColour) {
+        console.log(style.fillColour);
+        ctx.fillStyle = style.fillColour.toColour();
+        ctx.fill();
+    }
+    if (style.outlineColour && style.thickness > 0) {
+        console.log(style.outlineColour);
+        ctx.lineWidth = style.thickness;
+        ctx.strokeStyle = style.outlineColour.toColour();
+        ctx.stroke();
+    }
 }

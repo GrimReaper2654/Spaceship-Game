@@ -49,19 +49,32 @@ export declare class part {
     isTurret: boolean;
     turret: object;
     constructor(centre: vector2, offset: vector2, rOffset: number, vertices: Array<vector2>, scaleFacor: number, style: style, hitbox: Array<vector2>, hp: number, isTurret?: boolean, turret?: object);
+    render(canvasId: string): void;
+}
+export declare class forceField {
+    shield: number;
+    cap: number;
+    rgn: number;
+    cooldown: number;
+    maxCooldown: number;
+    constructor(shieldCapacity: number, shieldRegenPerTick?: number, shieldRegenCooldownAfterHit?: number);
 }
 export declare class ship {
     physics: physicsObject;
     body: Array<part>;
     actions: Array<object>;
     team: string;
-    constructor(team: string, position: vector2, facing: number, mass: number, thrust: number, rotationSpeed: number, body: Array<part>);
+    inventory: object;
+    shield: forceField;
+    layer: number;
+    constructor(team: string, position: vector2, facing: number, mass: number, thrust: number, rotationSpeed: number, body: Array<part>, forceField: forceField, layer?: number);
+    prepareCanvas(canvasId: string, cameraPos: vector2, display: vector2): void;
 }
 export declare class gamestate {
-    player: object;
+    player: ship;
     projectiles: Array<object>;
     entities: Array<object>;
-    constructor(player: object, entities: Array<object>, projectiles: Array<object>);
+    constructor(player: ship, entities: Array<object>, projectiles: Array<object>);
 }
 export declare class spaceshipGameV2 {
     gamestate: gamestate;
@@ -70,7 +83,7 @@ export declare class spaceshipGameV2 {
     mousepos: vector2;
     display: vector2;
     debug: boolean;
-    constructor(gamestate: gamestate);
+    constructor(gamestate: gamestate, display?: vector2);
 }
 export declare function sleep(ms: number): Promise<unknown>;
 export declare function deepFreeze(obj: object): object;
@@ -82,3 +95,4 @@ export declare function aim(pos1: vector2, pos2: vector2): number;
 export declare function replacehtml(elementId: string, text: string): void;
 export declare function addhtml(elementId: string, text: string): void;
 export declare function clearCanvas(canvasId: string, from: vector2, to: vector2): void;
+export declare function drawPolygon(canvasId: string, polygon: Array<vector2>, style: style): void;

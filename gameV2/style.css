@@ -12,7 +12,8 @@ body {
     top: 0;
     left: 0;
     border: 1px solid black;
-    background-color: rgba(30, 30, 30, 1); 
+    /*background-color: rgba(30, 30, 30, 1); */
+    background-color: rgba(255, 255, 255, 1);
     pointer-events: none;
     height: 100vh;
     width: 100vw;

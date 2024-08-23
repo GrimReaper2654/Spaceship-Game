@@ -40,11 +40,11 @@ import {SSGV2Data} from "./data.js";
 declare global {interface Window {spaceshipGameV2: any;}}
 window.spaceshipGameV2 = {};
 
-const data = JSON.parse(JSON.stringify(SSGV2Data));
+const data = SSGV2Data;
 deepFreeze(data);
 window.spaceshipGameV2.data = data;
 
-const game = new spaceshipGameV2(new gamestate(data.ships, [], []));
+const game = new spaceshipGameV2(new gamestate(data.ships.debugShip, [], []), new vector2(window.innerWidth, window.innerHeight));
 window.spaceshipGameV2.game = game;
 
 // Steal Data (get inputs)
@@ -67,9 +67,26 @@ window.addEventListener('mousemove', function(p) {
     game.mousepos = new vector2(p.pageX, p.pageY);
 }, false);
 
-function startGame() {
+async function tick() {
+    // render stuff
+    console.log(`tick`);
+    clearCanvas('main', new vector2(), game.display);
+    const player:ship = game.gamestate.player;
+
+    player.prepareCanvas('main', player.physics.pos, game.display);
+    for (const part of player.body) {
+        part.render('main');
+    }
+    
+    await sleep(1000/60);
+}
+
+async function startGame() {
     const titleScreen = document.getElementById('title');
     if (titleScreen) titleScreen.style.display = 'none';
+    while (true) {
+        await tick();
+    }
 } window.spaceshipGameV2.startGame = startGame;
 
 console.info("Spaceship Game V2: Load functions successful! We win these!");
